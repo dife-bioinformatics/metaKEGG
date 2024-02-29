@@ -19,7 +19,7 @@ dependencies = [
   'pip',
   'setuptools',
   'biopython',
-  'pypdf2=',
+  'pypdf2',
   'pytest',
   'reportlab',
   'requests',
