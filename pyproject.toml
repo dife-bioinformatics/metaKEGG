@@ -1,0 +1,44 @@
+[project]
+name = "metaKEGG"
+version = "0.0.1"
+
+authors = [
+  { name="Michail Lazaratos", email="Michail.Lazaratos@dife.de" },
+]
+maintainers = [
+  { name="Michail Lazaratos", email="Michail.Lazaratos@dife.de" },
+]
+description = "A python package to map enrichment analysis on KEGG pathways."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  'matplotlib',
+  'openpyxl',
+  'pyopenssl',
+  'pandas',
+  'pip',
+  'setuptools',
+  'biopython',
+  'pypdf2=',
+  'pytest',
+  'reportlab',
+  'requests',
+  'xlsxwriter'
+]
+license = { "text" = "AGPL-3.0" }
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[build-system]
+requires = ["setuptools>=65.6"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+metaKEGG = "metaKEGG.cli:main"
