@@ -162,12 +162,9 @@ cython_debug/
 #.idea/
 
 #example_files
-/drawKEGG_*
-drawKEGG_*
-drawKEGG_*/
-examples/drawKEGG_*/
-examples/drawKEGG_*
-examples/drawKEGG_*
-examples/drawKEGG_*/
-examples/
+/draw_KEGG_*
+draw_KEGG_*
+draw_KEGG_*/
+examples/draw_KEGG_*/
+examples/draw_KEGG_*
 example_usage*
