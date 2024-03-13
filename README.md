@@ -17,7 +17,7 @@
     + [Single Input Analysis with miRNA (Gene IDs)](#single-input-analysis-mirna)
     + [Single Input Analysis with Methylation and miRNA (Gene IDs)](#single-input-analysis-methylation-mirna)
     + [Single input (Gene IDs) Bulk mapping](#single-input-analysis-bulk)
-
+    + [Example of using multiple modules with one initialization](#one-initialization)
 
 ## Disclaimer
 
