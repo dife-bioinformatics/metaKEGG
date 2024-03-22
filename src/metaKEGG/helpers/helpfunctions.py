@@ -280,10 +280,7 @@ def create_output_folder(path , folder_extension=None):
     Returns: '/path/to/output_folder_backup'
     """
 
-    if not os.path.exists(path):
-        os.makedirs(path, mode=0o755)
-        print(f"New directory '{path}' created ", '\n')
-    elif os.path.exists(path) and folder_extension is not None:
+    if folder_extension is not None:
         path = path + "_" + folder_extension
         if os.path.exists(path):
             shutil.rmtree(path)
@@ -291,11 +288,16 @@ def create_output_folder(path , folder_extension=None):
             print(f"The contents of '{path}' have been removed, and the directory has been recreated.", '\n') 
         else:    
             os.makedirs(path, mode=0o755)
-            print(f"Using directory with extension: {path}")
+            print(f"New directory '{path}' created with extension {folder_extension} ", '\n')
+
     else:
-        shutil.rmtree(path)
-        os.makedirs(path, mode=0o755)
-        print(f"The contents of '{path}' have been removed, and the directory has been recreated.", '\n')            
+        if not os.path.exists(path):
+            os.makedirs(path, mode=0o755)
+            print(f"New directory '{path}' created ", '\n')
+        else:
+            shutil.rmtree(path)
+            os.makedirs(path, mode=0o755)
+            print(f"The contents of '{path}' have been removed, and the directory has been recreated.", '\n')                    
 
     return path
 
