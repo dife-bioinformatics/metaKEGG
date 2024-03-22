@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('--miRNA_pvalue_thresh', required=False, type=float ,default=0.05, help='P-value threshold for the miRNA values')
     parser.add_argument('--benjamini_threshold', required=False, type=float, default=None, help='Benjamini Hochberg p-value threshold for the pathway')
     parser.add_argument('--save_to_eps', required=False, default=False, help='True/False statement to save the maps and colorscales or legends as seperate .eps files in addition to the .pdf exports')
+    parser.add_argument('--output_folder_name', required=False, default=None, help='Name of output folder. Will overpower default scheme. Combines with extension')
 
     return parser.parse_args()
 
@@ -62,6 +63,7 @@ def main():
 
             benjamini_threshold=args.benjamini_threshold,
             save_to_eps=args.save_to_eps,
+            output_folder_name=args.output_folder_name,
         )
     else:
         print(f'Could not initiate the pipeline dues to missing value for the analysis_type. You provided {args.analysis_type}')

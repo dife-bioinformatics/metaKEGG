@@ -139,6 +139,7 @@ count_threshold = 2
 benjamini_threshold = None
 save_to_eps = False
 folder_extension = None
+output_folder_name = None
 
 methylation_path = None (required for 4 and 6)
 methylation_genes = None (required for 4 and 6)

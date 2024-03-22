@@ -167,4 +167,6 @@ draw_KEGG_*
 draw_KEGG_*/
 examples/draw_KEGG_*/
 examples/draw_KEGG_*
+examples/my_folder*
+examples/my_folder*/
 example_usage*

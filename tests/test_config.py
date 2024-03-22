@@ -35,3 +35,4 @@ count_threshold=2
 benjamini_threshold=None
 methylation_pvalue_thresh=None
 miRNA_pvalue_thresh=None
+output_folder_name = 'my_folder_name'

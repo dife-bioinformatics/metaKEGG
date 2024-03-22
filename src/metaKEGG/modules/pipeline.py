@@ -46,7 +46,7 @@ class Pipeline:
     def __init__(self, input_file_path, sheet_name_paths, sheet_name_genes, analysis_type=None, input_label=None,
                 methylation_path=None, methylation_pvalue=None, methylation_genes=None, methylation_pvalue_thresh=0.05,
                 miRNA_path=None, miRNA_pvalue=None, miRNA_genes=None, miRNA_pvalue_thresh=0.05,
-                folder_extension=None, genes_column='gene_symbol', log2fc_column='logFC', count_threshold=2, benjamini_threshold=None ,save_to_eps=False):
+                folder_extension=None, genes_column='gene_symbol', log2fc_column='logFC', count_threshold=2, benjamini_threshold=None ,save_to_eps=False, output_folder_name=None):
 
         self.input_file_path = input_file_path
         self.sheet_name_paths = sheet_name_paths
@@ -68,6 +68,7 @@ class Pipeline:
 
         self.benjamini_threshold = benjamini_threshold
         self.save_to_eps = save_to_eps
+        self.output_folder_name = output_folder_name
 
         self.select_analysis()
 
@@ -144,11 +145,16 @@ class Pipeline:
         - The output folder is named in the format: "draw_KEGG_<current_date>_<analysis_extension>_<folder_extension>"
         - The folder_extension is optional and can be set during the class initialization.
         """
-        today = datetime.date.today().strftime("%Y-%m-%d")
-        folder_today = f"draw_KEGG_{today}_{analysis_extension}"
-        create_folder = os.path.join(folder_path, folder_today)
-        print(create_folder)
-        output_folder = _hf.create_output_folder(create_folder, self.folder_extension)
+        if self.output_folder_name and self.output_folder_name is not None:
+            create_folder = os.path.join(folder_path, self.output_folder_name)
+            print(f'Will create folder : {create_folder}')
+            output_folder = _hf.create_output_folder(create_folder, self.folder_extension)
+        else:
+            today = datetime.date.today().strftime("%Y-%m-%d")
+            folder_today = f"draw_KEGG_{today}_{analysis_extension}"
+            create_folder = os.path.join(folder_path, folder_today)
+            print(f'Will create folder : {create_folder}')
+            output_folder = _hf.create_output_folder(create_folder, self.folder_extension)
         return output_folder
 
     def single_input_genes(self):
@@ -177,6 +183,7 @@ class Pipeline:
         analysis_extension = 'genes'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}')
+        print('Parsing input file...')
         parsed_out = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
@@ -184,11 +191,13 @@ class Pipeline:
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
         print('Finished parsing input file')
+        print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info')
         os.chdir(output_folder)
+        print('Mapping pathways...')
         _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
-        print(f'Finished analysis! \nOutput files are located in {output_folder}')
+        print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_transcripts(self):
         """
@@ -215,7 +224,7 @@ class Pipeline:
         analysis_extension = 'transcripts'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}')
-        
+        print('Parsing input file...')
         parsed_out = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
@@ -223,10 +232,13 @@ class Pipeline:
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
         print('Finished parsing input file')
+        print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info')
         os.chdir(output_folder)
+        print('Mapping pathways...')
         _df.draw_KEGG_pathways_transcripts(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
+        print(f'Done! \nOutput files are located in {output_folder}')
 
     def multiple_inputs(self):
         """
@@ -271,6 +283,7 @@ class Pipeline:
         parsed_out_list = []
         file_counter = 1
 
+        print('Parsing input file...')
         for (file, inter_name), file_counter in zip(zip(self.input_file_path, self.input_label), range(1, len(self.input_file_path) + 1)):
             print(f"File Counter: {file_counter}, File: {file}, with name {inter_name}")
             parsed_out_counter = 'parsed_out_' + str(file_counter)
@@ -286,9 +299,11 @@ class Pipeline:
 
             file_counter += 1
 
+        print('Finished parsing input file')
         os.chdir(output_folder)
+        print('Collecting pathway info & mapping pathways...')
         _df.draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list=parsed_out_list , intervention_names=self.input_label , colors_list=_cs.colors_list , save_to_eps=self.save_to_eps)
-        print(f'Finished analysis! \nOutput files are located in {output_folder}')
+        print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_methylation(self):
         """
@@ -344,7 +359,7 @@ class Pipeline:
         
         methylation_options = ['Differentially methylated' , 'Not differentially methylated']
         color_to_methylation = { meth : color for (meth , color) in zip(methylation_options , _cs.colors_list)}
-
+        print('Parsing input file...')
         parsed_out = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
@@ -352,11 +367,13 @@ class Pipeline:
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold,  benjamini_threshold=self.benjamini_threshold)
         print('Finished parsing input file')
+        print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info')
         os.chdir(output_folder)
+        print('Mapping pathways...')
         _df.draw_KEGG_pathways_genes_with_methylation(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_MM , color_legend=color_to_methylation , save_to_eps=self.save_to_eps)
-        print(f'Finished analysis! \nOutput files are located in {output_folder}')
+        print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_miRNA(self):
         """
@@ -412,7 +429,7 @@ class Pipeline:
 
         miRNA_options = ['miRNA detected' , 'miRNA not detected']
         color_to_miRNA = {miRNA : color for (miRNA , color) in zip(miRNA_options , _cs.colors_list)}
-
+        print('Parsing input file...')
         parsed_out = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
@@ -420,11 +437,13 @@ class Pipeline:
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
         print('Finished parsing input file')
+        print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info')
         os.chdir(output_folder)
+        print('Mapping pathways...')
         _df.draw_KEGG_pathways_genes_with_miRNA(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , color_legend=color_to_miRNA , save_to_eps=self.save_to_eps)
-        print(f'Finished analysis! \nOutput files are located in {output_folder}')
+        print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_methylation_and_miRNA(self):
         """
@@ -504,7 +523,7 @@ class Pipeline:
         methylation_w_miRNA_options = ['Differentially methylated and miRNA detected', 'Not differentially methylated and miRNA detected',
                                        'Differentially methylated and not miRNA detected' , 'Not differentially methylated and not miRNA detected']
         color_to_methylation_w_miRNA = { meth_miRNA : color for (meth_miRNA , color) in zip(methylation_w_miRNA_options , _cs.colors_list)}
-
+        print('Parsing input file...')
         parsed_out = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
@@ -512,13 +531,15 @@ class Pipeline:
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
         print('Finished parsing input file')
+        print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info')
         os.chdir(output_folder)
+        print('Mapping pathways...')
         _df.draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output=parsed_out , info=pathway_info ,
                                                                 genes_from_MM=genes_from_MM , genes_from_miRNA=genes_from_miRNA,
                                                                 color_legend=color_to_methylation_w_miRNA , save_to_eps=self.save_to_eps)
-        print(f'Finished analysis! \nOutput files are located in {output_folder}')
+        print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_genes_bulk_mapping(self):
         """
@@ -546,13 +567,16 @@ class Pipeline:
         analysis_extension = 'bulk'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}')
+        print('Parsing input file...')
         parsed_out = _hf.parse_bulk_kegg_pathway_file(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column, log2fc_column=self.log2fc_column)
         print('Finished parsing input file')
+        print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info')
         os.chdir(output_folder)
+        print('Mapping pathways...')
         _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
-        print(f'Finished analysis! \nOutput files are located in {output_folder}')
+        print(f'Done! \nOutput files are located in {output_folder}')
