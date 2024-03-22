@@ -270,7 +270,7 @@ genes_column = "gene_symbol"
 log2fc_column = "logFC"
 analysis_type = 4
 methylation_path = "examples/methylation.csv"
-methylation_gene = "methylation_gene_symbol"
+methylation_genes = "methylation_gene_symbol"
 methylation_pvalue = "methylation_pval"
 methylation_pvalue_thresh = 0.05,
 count_threshold = 2
@@ -284,7 +284,7 @@ folder_extension = None
 ```
 import metaKEGG
 
-metaKEGG.Pipeline(input_file_path=input_file_path, input_label=input_label, sheet_name_paths=sheet_name_paths, sheet_name_genes=sheet_name_genes, genes_column=genes_column, log2fc_column=log2fc_column, analysis_type=analysis_type, methylation_path=methylation_path, methylation_gene=methylation_gene, methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh, count_threshold=count_threshold, benjamini_threshold=benjamini_threshold, save_to_eps=save_to_eps, folder_extension=folder_extension)
+metaKEGG.Pipeline(input_file_path=input_file_path, input_label=input_label, sheet_name_paths=sheet_name_paths, sheet_name_genes=sheet_name_genes, genes_column=genes_column, log2fc_column=log2fc_column, analysis_type=analysis_type, methylation_path=methylation_path, methylation_genes=methylation_genes, methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh, count_threshold=count_threshold, benjamini_threshold=benjamini_threshold, save_to_eps=save_to_eps, folder_extension=folder_extension)
 ```
 
 Alternatively using the CLI
@@ -292,7 +292,7 @@ Alternatively using the CLI
 ```
 metaKEGG --input_file_path="examples/single_input_genes.xlsx"  --input_label="input1"  --sheet_name_paths="pathways" --sheet_name_genes="gene_metrics" 
          --genes_column="gene_symbol" --log2fc_column="logFC" --analysis_type=4 
-         --methylation_path="examples/methylation.csv" --methylation_gene="methylation_gene_symbol" --methylation_pvalue="methylation_pval" --methylation_pvalue_thresh=0.05 
+         --methylation_path="examples/methylation.csv" --methylation_genes="methylation_gene_symbol" --methylation_pvalue="methylation_pval" --methylation_pvalue_thresh=0.05 
          --count_threshold=2 --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
 
@@ -309,7 +309,7 @@ genes_column = "gene_symbol"
 log2fc_column = "logFC"
 analysis_type = 5
 miRNA_path = "examples/miRNA.tsv"
-miRNA_gene = "miRNA_gene_symbol"
+miRNA_genes = "miRNA_gene_symbol"
 miRNA_pvalue = "miRNA_pval"
 miRNA_pvalue_thresh=0.05,
 count_threshold = 2
@@ -323,7 +323,7 @@ folder_extension = None
 ```
 import metaKEGG
 
-metaKEGG.Pipeline(input_file_path=input_file_path, input_label=input_label, sheet_name_paths=sheet_name_paths, sheet_name_genes=sheet_name_genes, genes_column=genes_column, log2fc_column=log2fc_column, analysis_type=analysis_type, miRNA_path=miRNA_path, miRNA_gene=miRNA_gene, miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh,count_threshold=count_threshold, benjamini_threshold=benjamini_threshold, save_to_eps=save_to_eps, folder_extension=folder_extension)
+metaKEGG.Pipeline(input_file_path=input_file_path, input_label=input_label, sheet_name_paths=sheet_name_paths, sheet_name_genes=sheet_name_genes, genes_column=genes_column, log2fc_column=log2fc_column, analysis_type=analysis_type, miRNA_path=miRNA_path, miRNA_genes=miRNA_genes, miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh,count_threshold=count_threshold, benjamini_threshold=benjamini_threshold, save_to_eps=save_to_eps, folder_extension=folder_extension)
 ```
 
 Alternatively using the CLI
@@ -331,7 +331,7 @@ Alternatively using the CLI
 ```
 metaKEGG --input_file_path="examples/single_input_genes.xlsx"  --input_label="input1"  --sheet_name_paths="pathways" --sheet_name_genes="gene_metrics" 
          --genes_column="gene_symbol" --log2fc_column="logFC" --analysis_type=5 
-         --miRNA_path="examples/miRNA.tsv" --miRNA_gene="miRNA_gene_symbol" --miRNA_pvalue="miRNA_pval" --miRNA_pvalue_thresh=0.05 
+         --miRNA_path="examples/miRNA.tsv" --miRNA_genes="miRNA_gene_symbol" --miRNA_pvalue="miRNA_pval" --miRNA_pvalue_thresh=0.05 
          --count_threshold=2 --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
 
@@ -348,11 +348,11 @@ genes_column = "gene_symbol"
 log2fc_column = "logFC"
 analysis_type = 6
 methylation_path = "examples/methylation.csv"
-methylation_gene = "methylation_gene_symbol"
+methylation_genes = "methylation_gene_symbol"
 methylation_pvalue = "methylation_pval"
 methylation_pvalue_thresh = 0.05
 miRNA_path = "examples/miRNA.tsv"
-miRNA_gene = "miRNA_gene_symbol"
+miRNA_genes = "miRNA_gene_symbol"
 miRNA_pvalue = "miRNA_pval"
 miRNA_pvalue_thresh = 0.05
 count_threshold = 2
@@ -366,7 +366,7 @@ folder_extension = None
 ```
 import metaKEGG
 
-metaKEGG.Pipeline(input_file_path=input_file_path, input_label=input_label, sheet_name_paths=sheet_name_paths, sheet_name_genes=sheet_name_genes, genes_column=genes_column, log2fc_column=log2fc_column, analysis_type=analysis_type, methylation_path=methylation_path, methylation_gene=methylation_gene, methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh, miRNA_path=miRNA_path, miRNA_gene=miRNA_gene, miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh, count_threshold=count_threshold, benjamini_threshold=benjamini_threshold, save_to_eps=save_to_eps, folder_extension=folder_extension)
+metaKEGG.Pipeline(input_file_path=input_file_path, input_label=input_label, sheet_name_paths=sheet_name_paths, sheet_name_genes=sheet_name_genes, genes_column=genes_column, log2fc_column=log2fc_column, analysis_type=analysis_type, methylation_path=methylation_path, methylation_genes=methylation_genes, methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh, miRNA_path=miRNA_path, miRNA_genes=miRNA_gene, miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh, count_threshold=count_threshold, benjamini_threshold=benjamini_threshold, save_to_eps=save_to_eps, folder_extension=folder_extension)
 ```
 
 Alternatively using the CLI
@@ -374,8 +374,8 @@ Alternatively using the CLI
 ```
 metaKEGG --input_file_path="examples/single_input_genes.xlsx"  --input_label="input1"  --sheet_name_paths="pathways" --sheet_name_genes="gene_metrics" 
          --genes_column="gene_symbol" --log2fc_column="logFC" --analysis_type=6 
-         --methylation_path="examples/methylation.csv" --methylation_gene="methylation_gene_symbol" --methylation_pvalue="methylation_pval" --methylation_pvalue_thresh=0.05 
-         --miRNA_path="examples/miRNA.tsv" --miRNA_gene="miRNA_gene_symbol" --miRNA_pvalue="miRNA_pval" --miRNA_pvalue_thresh=0.05 
+         --methylation_path="examples/methylation.csv" --methylation_genes="methylation_gene_symbol" --methylation_pvalue="methylation_pval" --methylation_pvalue_thresh=0.05 
+         --miRNA_path="examples/miRNA.tsv" --miRNA_genes="miRNA_gene_symbol" --miRNA_pvalue="miRNA_pval" --miRNA_pvalue_thresh=0.05 
          --count_threshold=2 --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
 
@@ -425,11 +425,11 @@ sheet_name_genes = "gene_metrics"
 genes_column = "gene_symbol"
 log2fc_column = "logFC"
 methylation_path = "examples/methylation.csv"
-methylation_gene = "methylation_gene_symbol"
+methylation_genes = "methylation_gene_symbol"
 methylation_pvalue = "methylation_pval"
 methylation_pvalue_thresh = 0.05
 miRNA_path = "examples/miRNA.tsv"
-miRNA_gene = "miRNA_gene_symbol"
+miRNA_genes = "miRNA_gene_symbol"
 miRNA_pvalue = "miRNA_pval"
 miRNA_pvalue_thresh = 0.05
 count_threshold = 2
@@ -445,7 +445,7 @@ analysis_type = None
 ```
 import metaKEGG
 
-m = metaKEGG.Pipeline(input_file_path=input_file_path, input_label=input_label, sheet_name_paths=sheet_name_paths, sheet_name_genes=sheet_name_genes, genes_column=genes_column, log2fc_column=log2fc_column, analysis_type=analysis_type, methylation_path=methylation_path, methylation_gene=methylation_gene, methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh, miRNA_path=miRNA_path, miRNA_gene=miRNA_gene, miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh, count_threshold=count_threshold, benjamini_threshold=benjamini_threshold, save_to_eps=save_to_eps, folder_extension=folder_extension)
+m = metaKEGG.Pipeline(input_file_path=input_file_path, input_label=input_label, sheet_name_paths=sheet_name_paths, sheet_name_genes=sheet_name_genes, genes_column=genes_column, log2fc_column=log2fc_column, analysis_type=analysis_type, methylation_path=methylation_path, methylation_genes=methylation_genes, methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh, miRNA_path=miRNA_path, miRNA_gene=miRNA_gene, miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh, count_threshold=count_threshold, benjamini_threshold=benjamini_threshold, save_to_eps=save_to_eps, folder_extension=folder_extension)
 ```
 
 ```
