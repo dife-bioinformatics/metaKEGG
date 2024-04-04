@@ -4,6 +4,7 @@ from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 from matplotlib.colors import Normalize
 import pandas as pd
 import os
@@ -48,16 +49,13 @@ def get_colors_from_colorscale(colorscale_list, how_many=None):
     color_list_out = []
     cmap = None
 
+    for cscale in colorscale_list:
+        cmap = cm.get_cmap(cscale)
+        color_list = [mcolors.to_hex(cmap(i)) for i in range(cmap.N)]
+        color_list_out.extend(color_list)
+
     if how_many:
-        for cscale in colorscale_list:
-            cmap = cm.get_cmap(cscale, how_many)
-            color_list = [matplotlib.colors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
-            color_list_out.extend(color_list)
-    else:
-        for cscale in colorscale_list:
-            cmap = cm.get_cmap(cscale)
-            color_list = [matplotlib.colors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
-            color_list_out.extend(color_list)
+        color_list_out = color_list_out[:how_many]
 
     return color_list_out
 
