@@ -5,7 +5,7 @@ from tests.test_config import (
     methylation_path, input_label_g, input_label_m,
     sheet_name_paths, sheet_name_genes, sheet_name_transcripts ,methylation_gene,
     methylation_pvalue, miRNA_pvalue, miRNA_gene, miRNA_path, methylation_pvalue_thresh, miRNA_pvalue_thresh,
-    genes_column, log2fc_column, genes_sheet_name, pathways_sheet_name, input_file_path_bulk , analysis_type, save_to_eps, count_threshold, benjamini_threshold, output_folder_name, miRNA_path_quant
+    genes_column, log2fc_column, genes_sheet_name, pathways_sheet_name, input_file_path_bulk , analysis_type, save_to_eps, count_threshold, benjamini_threshold, output_folder_name, metadata_path_quant
 )
 from src.metaKEGG.modules.pipeline import Pipeline
 
@@ -190,7 +190,7 @@ def test_single_input_with_miRNA_quantification():
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
         input_label=input_label,
-        miRNA_path=miRNA_path_quant,
+        miRNA_path=metadata_path_quant,
         miRNA_genes=miRNA_gene,
         miRNA_pvalue=miRNA_pvalue,
         analysis_type=analysis_type,
@@ -212,7 +212,7 @@ def test_single_input_with_methylation_quantification():
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
         input_label=input_label,
-        methylation_path=methylation_path,
+        methylation_path=metadata_path_quant,
         methylation_genes=methylation_gene,
         methylation_pvalue=methylation_pvalue,
         analysis_type=analysis_type,
