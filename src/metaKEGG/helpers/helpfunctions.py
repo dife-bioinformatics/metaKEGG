@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 import matplotlib.cm as cm
 from matplotlib.colors import Normalize
+import matplotlib.colors as mcolors
 import pandas as pd
 import os
 import time
@@ -48,16 +49,13 @@ def get_colors_from_colorscale(colorscale_list, how_many=None):
     color_list_out = []
     cmap = None
 
+    for cscale in colorscale_list:
+        cmap = cm.get_cmap(cscale)
+        color_list = [mcolors.to_hex(cmap(i)) for i in range(cmap.N)]
+        color_list_out.extend(color_list)
+
     if how_many:
-        for cscale in colorscale_list:
-            cmap = cm.get_cmap(cscale, how_many)
-            color_list = [matplotlib.colors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
-            color_list_out.extend(color_list)
-    else:
-        for cscale in colorscale_list:
-            cmap = cm.get_cmap(cscale)
-            color_list = [matplotlib.colors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
-            color_list_out.extend(color_list)
+        color_list_out = color_list_out[:how_many]
 
     return color_list_out
 
@@ -301,7 +299,7 @@ def create_output_folder(path , folder_extension=None):
 
     return path
 
-def compile_and_write_output_files(id, pathway_id, output_name, color_legend=None, cmap=None, vmin=None, vmax=None, save_to_eps=False):
+def compile_and_write_output_files(id, pathway_id, output_name, cmap_label=None, color_legend=None, cmap=None, vmin=None, vmax=None, save_to_eps=False, with_dist_plot=False, bin_labels=None):
     """
     Compile and write output files for a given pathway ID.
 
@@ -328,7 +326,7 @@ def compile_and_write_output_files(id, pathway_id, output_name, color_legend=Non
     >>> compile_and_write_output_files(id=id, pathway_id=pathway_id , cmap=cmap , vmin=vmin , vmax=vmax , output_name=output_name , save_to_eps=save_to_eps)
 
     """
-    if cmap is not None and vmin is not None and vmax is not None and color_legend is None:
+    if cmap is not None and vmin is not None and vmax is not None and color_legend is None and not with_dist_plot:
         # Use the colorbar version
         vertical_figsize = (1, 12)
         horizontal_figsize = (12, 1)
@@ -405,7 +403,7 @@ def compile_and_write_output_files(id, pathway_id, output_name, color_legend=Non
         os.remove(id + ".pdf")
         os.remove(pathway_id + "_colorbar.pdf")
 
-    elif color_legend is not None:
+    elif color_legend is not None and not with_dist_plot:
         # Use the legend version
         url = f'http://rest.kegg.jp/get/{id}/image'
         response = requests.get(url)
@@ -455,8 +453,162 @@ def compile_and_write_output_files(id, pathway_id, output_name, color_legend=Non
         os.remove(id + ".pdf")
         os.remove('legend.pdf')
 
+    elif with_dist_plot and cmap is None:
+
+        url = f'http://rest.kegg.jp/get/{id}/image'
+        response = requests.get(url)
+        image = PIL.Image.open(BytesIO(response.content))
+        pdf_file_name = f'{id}.pdf'
+        pdf_canvas = canvas.Canvas(pdf_file_name, pagesize=image.size)
+        temp_image_file = f'{id}.png'
+        image.save(temp_image_file)
+        pdf_canvas.drawImage(temp_image_file, 0, 0)
+        pdf_canvas.save()
+        os.remove(temp_image_file)
+        
+        handles = [Patch(color=color, label=f'{status_label}') for status_label, color in color_legend.items()]
+        fig, ax = plt.subplots(figsize=(6, 4), dpi=300)
+        legend = ax.legend(handles=handles, loc='center', bbox_to_anchor=(0, 0, 1, 1))
+        ax.axis('off')
+        fig.tight_layout()
+        plt.savefig('legend.pdf', bbox_inches='tight', pad_inches=0)
+        plt.close()
+
+        pdf1 = open(pathway_id + ".pdf", 'rb')
+        pdf_reader1 = PyPDF2.PdfReader(pdf1)
+        pdf2 = open(id + ".pdf", 'rb')
+        pdf_reader2 = PyPDF2.PdfReader(pdf2)
+        pdf3 = open('legend.pdf', 'rb')
+        pdf_reader3 = PyPDF2.PdfReader(pdf3)
+        pdf4 = open(id + "_per_gene_hist.pdf", 'rb')
+        pdf_reader4 = PyPDF2.PdfReader(pdf4)
+
+        pdf_writer = PyPDF2.PdfWriter()
+
+        for page_num in range(len(pdf_reader1.pages)):
+            page = pdf_reader1.pages[page_num]
+            pdf_writer.add_page(page)
+        for page_num in range(len(pdf_reader2.pages)):
+            page = pdf_reader2.pages[page_num]
+            pdf_writer.add_page(page)
+        for page_num in range(len(pdf_reader3.pages)):
+            page = pdf_reader3.pages[page_num]
+            pdf_writer.add_page(page)
+        for page_num in range(len(pdf_reader4.pages)):
+            page = pdf_reader4.pages[page_num]
+            pdf_writer.add_page(page)
+
+        output_file = open(id + "_" + output_name + '.pdf', 'wb')
+        pdf_writer.write(output_file)
+
+        pdf1.close()
+        pdf2.close()
+        pdf3.close()
+        pdf4.close()
+        output_file.close()
+        os.remove(pathway_id + ".pdf")
+        os.remove(id + ".pdf")
+        os.remove('legend.pdf')
+        os.remove(id + "_per_gene_hist.pdf")
+
+    elif with_dist_plot and bin_labels is not None and cmap_label is not None and cmap is not None and color_legend is None:
+        vertical_figsize = (1, 12)
+        horizontal_figsize = (12, 1)
+        cbar_width_ratios = [1, 6]
+        cbar_height_ratios = [6, 1]
+
+        with PdfPages(pathway_id + "_colorbar.pdf") as pdf:
+
+            fig_v, ax_v = plt.subplots(figsize=vertical_figsize)
+            sm_v = ScalarMappable(cmap=cmap, norm=Normalize(vmin=vmin, vmax=vmax))
+            cb_v = plt.colorbar(sm_v, cax=ax_v, orientation='vertical', shrink=1, aspect=20, pad=0)
+            cb_v.ax.set_ylabel(cmap_label, rotation=270, labelpad=20, fontsize=20)
+            
+            yticks = np.linspace(*cb_v.ax.get_ylim(), cmap.N+1)[:-1]
+            yticks += (yticks[1] - yticks[0]) / 2
+            cb_v.set_ticks(yticks, labels=bin_labels)
+            cb_v.ax.tick_params(length=0)
+            cb_v.ax.tick_params(labelsize=16)
+
+            if save_to_eps:
+                plt.savefig(f'{id}_{output_name}_colorbar.eps', bbox_inches='tight', pad_inches=0)
+
+            fig_h, ax_h = plt.subplots(figsize=horizontal_figsize)
+            sm_h = ScalarMappable(cmap=cmap, norm=Normalize(vmin=vmin, vmax=vmax))
+            cb_h = plt.colorbar(sm_h, cax=ax_h, orientation='horizontal', shrink=1, aspect=20)
+            cb_h.ax.set_xlabel(cmap_label, labelpad=10, fontsize=20)
+            
+            xticks = np.linspace(*cb_h.ax.get_ylim(), cmap.N+1)[:-1]
+            xticks += (xticks[1] - xticks[0]) / 2
+            cb_h.set_ticks(xticks, labels=bin_labels)
+            cb_h.ax.tick_params(length=0)          
+            cb_h.ax.tick_params(labelsize=16)
+
+            fig, axs = plt.subplots(nrows=2, ncols=2, gridspec_kw={'width_ratios': cbar_width_ratios, 'height_ratios': cbar_height_ratios})
+            axs[0, 1].remove()
+            axs[1, 0].remove()
+            fig.tight_layout()
+
+            pdf.savefig(fig_v, bbox_inches='tight' , dpi=300)
+            pdf.savefig(fig_h, bbox_inches='tight' , dpi=300)
+
+            plt.close(fig)            
+            plt.close(fig_v)            
+            plt.close(fig_h)            
+            plt.close()
+
+
+        url = f'http://rest.kegg.jp/get/{id}/image'
+        response = requests.get(url)
+        image = PIL.Image.open(BytesIO(response.content))
+        pdf_file_name = f'{id}.pdf'
+        pdf_canvas = canvas.Canvas(pdf_file_name, pagesize=image.size)
+        temp_image_file = f'{id}.png'
+        image.save(temp_image_file)
+        pdf_canvas.drawImage(temp_image_file, 0, 0)
+        pdf_canvas.save()
+        os.remove(temp_image_file)
+
+
+        pdf1 = open(pathway_id + ".pdf", 'rb')
+        pdf_reader1 = PyPDF2.PdfReader(pdf1)
+        pdf2 = open(id + ".pdf", 'rb')
+        pdf_reader2 = PyPDF2.PdfReader(pdf2)
+        pdf3 = open(pathway_id + "_colorbar.pdf", 'rb')
+        pdf_reader3 = PyPDF2.PdfReader(pdf3)
+        pdf4 = open(id + "_per_gene_hist.pdf", 'rb')
+        pdf_reader4 = PyPDF2.PdfReader(pdf4)
+
+        pdf_writer = PyPDF2.PdfWriter()
+
+        for page_num in range(len(pdf_reader1.pages)):
+            page = pdf_reader1.pages[page_num]
+            pdf_writer.add_page(page)
+        for page_num in range(len(pdf_reader2.pages)):
+            page = pdf_reader2.pages[page_num]
+            pdf_writer.add_page(page)
+        for page_num in range(len(pdf_reader3.pages)):
+            page = pdf_reader3.pages[page_num]
+            pdf_writer.add_page(page)
+        for page_num in range(len(pdf_reader4.pages)):
+            page = pdf_reader4.pages[page_num]
+            pdf_writer.add_page(page)
+
+        output_file = open(id + "_" + output_name + '.pdf', 'wb')
+        pdf_writer.write(output_file)
+
+        pdf1.close()
+        pdf2.close()
+        pdf3.close()
+        pdf4.close()
+        output_file.close()
+        os.remove(pathway_id + ".pdf")
+        os.remove(id + ".pdf")
+        os.remove(pathway_id + "_colorbar.pdf")
+        os.remove(id + "_per_gene_hist.pdf")
     else:
         raise ValueError("Color legend cannot be used with cmap, vmin, vmax")
+
 
 def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, genes_column, log2fc_column, count_threshold, benjamini_threshold , number_interventions = 1 , name_interventions = None):
     """
@@ -616,6 +768,31 @@ def generate_colorscale_map(log2fc):
 
     return cmap , vmin, vmax
 
+
+def assign_color_to_metadata(queried_number, label_to_color):
+    """
+    Assigns a color based on the queried number and the provided label-to-color mapping.
+
+    Parameters:
+    - queried_number (int): The number to be queried.
+    - label_to_color (dict): A dictionary mapping bin labels to their corresponding colors.
+
+    Returns:
+    str: The assigned color for the queried number.
+    """
+    for label in label_to_color:
+        if '-' not in label:
+            bin_value = int(label)
+            if queried_number == bin_value:
+                return label_to_color[label]
+        else:
+            min_value, max_value = map(int, label.split('-'))
+            if min_value <= queried_number <= max_value:
+                return label_to_color[label]
+    # Return a default color if the queried number does not match any bin label
+    return f"No corresponding color found for the number {queried_number}."
+
+
 def generate_genes_per_cell_spreadsheet(writer , genes_per_cell , id):
     """
     Generate a spreadsheet with genes per cell information.
@@ -732,8 +909,15 @@ def evaluate_metadata(metadata_df , pval_column , genes_column):
         raise ValueError(f'{genes_column} not found in metadata dataframe columns')
 
 
+def get_duplicate_entries_grouped_all(df, column):
 
+    duplicate_entries = df[df.duplicated(subset=[column], keep=False)]
+    grouped_duplicates = duplicate_entries.groupby([column]).size().reset_index(name='counts')
+    unique_values = df.drop_duplicates(subset=[column])
+    result_df = pd.merge(unique_values, grouped_duplicates, on=[column], how='left').fillna(1)
+    result_df['counts'] = result_df['counts'].astype(int)
 
+    return result_df
 
 
 

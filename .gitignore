@@ -170,3 +170,4 @@ examples/draw_KEGG_*
 examples/my_folder*
 examples/my_folder*/
 example_usage*
+examples/miRNA2.tsv

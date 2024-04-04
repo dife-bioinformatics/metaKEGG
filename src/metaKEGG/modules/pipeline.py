@@ -79,7 +79,7 @@ class Pipeline:
         Returns:
         None
         """
-        valid_analysis_types = set([1, 2, 3, 4, 5, 6, 7])
+        valid_analysis_types = set([1, 2, 3, 4, 5, 6, 7, 99, 66])
         
         if self.analysis_type in valid_analysis_types:
             if self.analysis_type == 1:
@@ -96,6 +96,10 @@ class Pipeline:
                 self.single_input_with_methylation_and_miRNA()
             elif self.analysis_type == 7:
                 self.single_input_genes_bulk_mapping()
+            elif self.analysis_type == 99:
+                self.single_input_with_miRNA_quantification()
+            elif self.analysis_type == 66:
+                self.single_input_with_methylation_quantification()
         elif self.analysis_type is None:
             print('Initialized class. Have to run analysis in expert mode.\nValid choices are:')
             for value in analysis_types_to_execute.values():
@@ -579,4 +583,144 @@ class Pipeline:
         os.chdir(output_folder)
         print('Mapping pathways...')
         _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
+        print(f'Done! \nOutput files are located in {output_folder}')
+
+    def single_input_with_miRNA_quantification(self):
+        """
+        Perform Single Input Analysis with miRNA.
+
+        Raises:
+        TypeError: If the input_file_path is a list.
+
+        ValueError: If the miRNA file path is not provided or is invalid, or if there are no genes with a miRNA profile.
+
+        Prints:
+        - Execution message.
+        - Output folder path.
+        - Parsing and collecting pathway information messages.
+        - Completion message.
+
+        Notes:
+        - Calls helper functions to load and evaluate miRNA metadata, filter KEGG pathways for genes with miRNA,
+        and draw KEGG pathways for genes with miRNA.
+        - The output files are located in the created output folder.
+        """
+        if isinstance(self.input_file_path , list):
+            raise TypeError('Please provide a single input to perform \'Single input analysis w miRNA quantification')
+        
+        print("Executing analysis : Single input w miRNA quantification...")
+
+        folder_of_input = self.find_file_folder()    
+        analysis_extension = 'miRNA_quantification'
+        output_folder = self.make_output_folder(folder_of_input , analysis_extension)
+        print(f'Output folder is {output_folder}')
+
+        if self.miRNA_path is not None or isinstance(self.miRNA_path, (str , os.PathLike)):
+            try:
+                miRNA_df = _hf.load_metadata(self.miRNA_path)
+            except ValueError:
+                raise ValueError(f'Please provide a proper miRNA file path')
+
+        _hf.evaluate_metadata(miRNA_df , self.miRNA_pvalue , self.miRNA_genes)
+
+        if self.miRNA_pvalue_thresh is None or not isinstance(self.miRNA_pvalue_thresh, (int, float)) or self.miRNA_pvalue is None:
+            genes_from_miRNA = miRNA_df[self.miRNA_genes].unique().tolist()
+        else:
+            if self.miRNA_pvalue is not None and self.miRNA_pvalue not in miRNA_df.columns:
+                raise KeyError(f'Column {self.miRNA_pvalue} not found in the miRNA dataframe.')
+            
+            try:
+                genes_from_miRNA = miRNA_df.loc[miRNA_df[self.miRNA_pvalue] < self.miRNA_pvalue_thresh][self.miRNA_genes].unique().tolist()
+            except ValueError:
+                raise ValueError(f'Invalid value provided for pvalue_thresh. It should be a number.')
+
+        if len(genes_from_miRNA) == 0:
+            raise ValueError('There are no genes with a miRNA profile')
+
+        miRNA_options = ['miRNA detected' , 'miRNA not detected']
+        color_to_miRNA = {miRNA : color for (miRNA , color) in zip(miRNA_options , _cs.colors_list)}
+        print('Parsing input file...')
+        parsed_out = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
+                                                    sheet_name_paths=self.sheet_name_paths,
+                                                    sheet_name_genes=self.sheet_name_genes,
+                                                    genes_column=self.genes_column,
+                                                    log2fc_column=self.log2fc_column,
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
+        print('Finished parsing input file')
+        print('Collecting pathway info...')
+        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        print('Finished collecting pathway info')
+        os.chdir(output_folder)
+        print('Mapping pathways...')
+        _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = self.miRNA_genes , save_to_eps=self.save_to_eps)
+        print(f'Done! \nOutput files are located in {output_folder}')
+
+    def single_input_with_methylation_quantification(self):
+        """
+        Perform Single Input Analysis with methylation.
+
+        Raises:
+        TypeError: If the input_file_path is a list.
+
+        ValueError: If the methylation file path is not provided or is invalid, or if there are no genes with a methylation profile.
+
+        Prints:
+        - Execution message.
+        - Output folder path.
+        - Parsing and collecting pathway information messages.
+        - Completion message.
+
+        Notes:
+        - Calls helper functions to load and evaluate methylation metadata, filter KEGG pathways for genes with methylation,
+        and draw KEGG pathways for genes with methylation.
+        - The output files are located in the created output folder.
+        """
+        if isinstance(self.input_file_path , list):
+            raise TypeError('Please provide a single input to perform \'Single input analysis w methylation quantification')
+        
+        print("Executing analysis : Single input w methylation methylation...")
+
+        folder_of_input = self.find_file_folder()    
+        analysis_extension = 'methylation_quantification'
+        output_folder = self.make_output_folder(folder_of_input , analysis_extension)
+        print(f'Output folder is {output_folder}')
+
+        if self.methylation_path is not None or isinstance(self.methylation_path, (str , os.PathLike)):
+            try:
+                methylation_df = _hf.load_metadata(self.methylation_path)
+            except ValueError:
+                raise ValueError(f'Please provide a proper methylation file path')
+
+        _hf.evaluate_metadata(methylation_df , self.methylation_pvalue , self.methylation_genes)
+
+        if self.methylation_pvalue_thresh is None or not isinstance(self.methylation_pvalue_thresh, (int, float)) or self.methylation_pvalue is None:
+            genes_from_methylation = methylation_df[self.methylation_genes].unique().tolist()
+        else:
+            if self.methylation_pvalue is not None and self.methylation_pvalue not in methylation_df.columns:
+                raise KeyError(f'Column {self.methylation_pvalue} not found in the methylation dataframe.')
+            
+            try:
+                genes_from_methylation = methylation_df.loc[methylation_df[self.methylation_pvalue] < self.methylation_pvalue_thresh][self.methylation_genes].unique().tolist()
+            except ValueError:
+                raise ValueError(f'Invalid value provided for pvalue_thresh. It should be a number.')
+
+        if len(genes_from_methylation) == 0:
+            raise ValueError('There are no genes with a genes_from_methylation profile')
+
+        methylation_options = ['Differentially methylated' , 'Not differentially methylated']
+        color_to_methylation = { meth : color for (meth , color) in zip(methylation_options , _cs.colors_list)}
+        print('Parsing input file...')
+        parsed_out = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
+                                                    sheet_name_paths=self.sheet_name_paths,
+                                                    sheet_name_genes=self.sheet_name_genes,
+                                                    genes_column=self.genes_column,
+                                                    log2fc_column=self.log2fc_column,
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
+        print('Finished parsing input file')
+        print('Collecting pathway info...')
+        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        print('Finished collecting pathway info')
+        os.chdir(output_folder)
+        print('Mapping pathways...')
+        _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = self.methylation_genes , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')

@@ -6,8 +6,14 @@ from Bio.KEGG.KGML import KGML_parser
 from Bio.Graphics.KGML_vis import KGMLCanvas
 from pylab import *
 from itertools import combinations
+from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.ticker import MaxNLocator
 
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from ..config import gray as gray
+from ..config import dark_gray as dark_gray
 from ..helpers import helpfunctions as _hf
 
 def make_new_graphic(input_entry):
@@ -522,7 +528,6 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
                         genes_per_cell[gene] = corresponding_genes
                     elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
                         subcell.bgcolor = color_legend['miRNA not detected']
-                        subcell.name = gene
 
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
@@ -638,5 +643,375 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
             cnvs.draw(id + "_" + output_name + ".eps")
 
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=color_legend , output_name=output_name , save_to_eps=save_to_eps)
+
+    writer.close()
+
+def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , genes_from_miRNA , miRNA_df , miRNA_genes_col ,save_to_eps):
+    """
+    Draw KEGG pathways with gene expression and miRNA information.
+
+    Parameters:
+    - parsed_output (dict): Parsed output containing gene expression information.
+    - info (dict): Information about pathways, genes, and miRNA status.
+    - genes_from_miRNA (list): List of genes that are detected by miRNA.
+    - color_legend (dict): Dictionary mapping miRNA status labels to colors.
+    - save_to_eps (bool): Flag to save output to EPS format.
+
+    Returns:
+    None
+
+    Example:
+    >>> draw_KEGG_pathways_genes_with_miRNA(parsed_output, info, genes_from_miRNA, color_legend, save_to_eps=True)
+    """
+    writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    for id , path_data in parsed_output.items():
+        genes_per_cell = {}
+        pathway_id = info[id]['corresponding_KO']
+        pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
+        genes_in_pathway = path_data['genes']
+        gene_symbol_KO = info[id]['gene_symbol_KO']
+        output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
+
+        miRNA_df_sub = miRNA_df[miRNA_df[miRNA_genes_col].isin(genes_in_pathway)]
+        miRNA_df_sub_dup = _hf.get_duplicate_entries_grouped_all(miRNA_df_sub, column=miRNA_genes_col)
+        mirs_per_gene = { k : v for k, v in  zip(miRNA_df_sub_dup[miRNA_genes_col] , miRNA_df_sub_dup['counts'])}
+
+        not_meta_profile = set()
+        for gene in genes_in_pathway:
+            if gene not in miRNA_df_sub_dup[miRNA_genes_col].to_list() and gene not in not_meta_profile:
+                not_meta_profile.add(gene)
+        not_meta_profile_list = list(not_meta_profile)
+        for gene in not_meta_profile_list:
+            if gene not in mirs_per_gene:
+                mirs_per_gene[gene] = 0
+
+        vmax = np.max(list(mirs_per_gene.values()))
+        last_decade = (vmax // 10) * 10
+        if 6 <= vmax <= 9:
+            bin_ranges = [0, 1, 3, 6]
+            bin_ranges.append(vmax)
+        elif 1 < vmax <= 2:
+            bin_ranges = [0, 1]
+            bin_ranges.append(vmax)
+        elif 3 <= vmax <= 5:
+            bin_ranges = [0, 1 , 3]
+            bin_ranges.append(vmax )
+        elif vmax == 1:
+            bin_ranges = [0, 1]
+            bin_ranges.append(vmax)
+        elif vmax == 10:
+            bin_ranges = [0, 1, 3, 6 ]
+            bin_ranges.append(vmax)
+        else:
+            bin_ranges = [0, 1, 3, 6 , 10]
+            for i in range(20, vmax + 1, 10):
+                if i != vmax:
+                    bin_ranges.append(i)
+            bin_ranges.append(vmax)
+
+        bin_counts, _ = np.histogram(list(mirs_per_gene.values()), bins=bin_ranges)
+
+        bin_labels = []
+        for i in range(len(bin_ranges) - 1):
+            if i == 0:
+                bin_labels.append('0')
+            elif i == 1:
+                if bin_ranges[i] == bin_ranges[i+1]:
+                    bin_labels.append(f'{bin_ranges[i]}')
+                else:
+                    bin_labels.append('1-2')
+            elif i == len(bin_ranges) - 1:
+                bin_labels.append(f'{last_decade+1}-{vmax}')
+            else:
+                if bin_ranges[i] == bin_ranges[i+1]:
+                    bin_labels.append(f'{bin_ranges[i]}')
+
+                elif bin_ranges[i+1] == vmax:
+                    bin_labels.append(f'{bin_ranges[i]}-{bin_ranges[i+1]}')
+                else:
+                    bin_labels.append(f'{bin_ranges[i]}-{bin_ranges[i+1]-1}')
+
+        bin_counts_dict = dict(zip(bin_labels, bin_counts))
+
+
+        colorlist = _hf.get_colors_from_colorscale(['tab10' , 'tab20b', 'tab20c',
+                                                    'Pastel1', 'Pastel2',
+                                                    'Paired', 'Accent', 'Dark2',
+                                                    'Set1', 'Set2', 'Set3'],
+                                                    how_many=len(bin_labels)-1)
+        colorlist.insert(0 , dark_gray)
+        cmap = mcolors.ListedColormap(colorlist)
+        norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
+        # colors = [cmap(norm(i)) for i in range(len(bin_labels))]
+
+        label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
+
+
+        for entry in pathway.orthologs:
+            entry.graphics[0].bgcolor = gray
+            entry.graphics[0].name = ''
+            multiple_kos = [name.split(":")[1] for name in entry.name.split()]
+            corresponding_genes = [key for key, values in gene_symbol_KO.items() if values in multiple_kos]
+
+            if not corresponding_genes:
+                entry.graphics[0].name = ""
+                entry.graphics[0].bgcolor = gray
+            if entry.graphics[0].type == 'line':
+                continue
+            if  len(corresponding_genes) > 1:
+                for ko in range(len(corresponding_genes) -1):
+                    new_entry = make_new_graphic(entry)
+
+                num_subcells = len(entry.graphics)
+                subcell_width = new_entry.width / num_subcells
+                left_x = new_entry.graphics[0].x - new_entry.width/2
+            
+            
+                for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
+                    subcell.x = left_x + subcell_width * (i + 0.5)
+                    subcell.width = subcell_width
+                    subcell.bgcolor = gray
+                    subcell.name = ""
+
+                    if (gene in genes_in_pathway) and (gene in genes_from_miRNA):
+                        subcell.bgcolor = _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                    elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
+                        subcell.bgcolor =  dark_gray
+
+            else:
+                for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
+                    element.bgcolor = gray
+                    element.name = gene
+                    if (gene in genes_in_pathway) and (gene in genes_from_miRNA):
+                        element.bgcolor =  _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        genes_per_cell[gene] = gene
+                    elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
+                        element.bgcolor =  dark_gray
+        
+
+        with PdfPages(id + "_per_gene_hist.pdf") as pdf:
+
+            fig1 = plt.figure()
+            labels, counts = np.unique(list(mirs_per_gene.values()), return_counts=True)
+            colors_for_bars = [ _hf.assign_color_to_metadata(xpoint, label_to_color=label_to_color) for xpoint in labels]
+            plt.bar(labels, counts, align='center', edgecolor='black' , color=colors_for_bars)
+            plt.xlabel('miRNAs per gene', fontsize=14)
+            plt.ylabel('Count', fontsize=14)
+            plt.xticks(fontsize=12)
+            plt.yticks(fontsize=12)
+            plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+            pdf.savefig(fig1, bbox_inches='tight' , dpi=300)
+            plt.close(fig1)
+            plt.close()
+
+            fig2 = plt.figure()
+            plt.bar(bin_counts_dict.keys(), bin_counts_dict.values() , color=label_to_color.values(), edgecolor='black')
+            plt.xlabel('miRNAs per gene (grouped)', fontsize=14)
+            plt.ylabel('Count', fontsize=14)
+            plt.xticks(fontsize=12, rotation=45)
+            plt.yticks(fontsize=12)
+            plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+            plt.tight_layout()
+            pdf.savefig(fig2, bbox_inches='tight' , dpi=300)
+            plt.close(fig2)
+            plt.close()
+
+
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
+
+        cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
+        cnvs.draw(pathway_id + ".pdf")
+
+        if save_to_eps:
+            cnvs.draw(id + "_" + output_name + ".eps")
+
+        _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='miRNAs per gene')
+
+    writer.close()
+
+def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , info , genes_from_MM , MM_df , MM_genes_col ,save_to_eps):
+    """
+    Draw KEGG pathways with gene expression and methylation information.
+
+    Parameters:
+    - parsed_output (dict): Parsed output containing gene expression information.
+    - info (dict): Information about pathways, genes, and methylation status.
+    - genes_from_MM (list): List of genes that are detected by methylation.
+    - color_legend (dict): Dictionary mapping methylation status labels to colors.
+    - save_to_eps (bool): Flag to save output to EPS format.
+
+    Returns:
+    None
+
+    Example:
+    >>> draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_MM , MM_df , MM_genes_col ,save_to_eps)
+    """
+    writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    for id , path_data in parsed_output.items():
+        genes_per_cell = {}
+        pathway_id = info[id]['corresponding_KO']
+        pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
+        genes_in_pathway = path_data['genes']
+        gene_symbol_KO = info[id]['gene_symbol_KO']
+        output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
+
+        MM_df_sub = MM_df[MM_df[MM_genes_col].isin(genes_in_pathway)]
+        MM_df_sub_dup = _hf.get_duplicate_entries_grouped_all(MM_df_sub, column=MM_genes_col)
+        cpgs_per_gene = { k : v for k, v in  zip(MM_df_sub_dup[MM_genes_col] , MM_df_sub_dup['counts'])}
+
+        not_meta_profile = set()
+        for gene in genes_in_pathway:
+            if gene not in MM_df_sub_dup[MM_genes_col].to_list() and gene not in not_meta_profile:
+                not_meta_profile.add(gene)
+        not_meta_profile_list = list(not_meta_profile)
+        for gene in not_meta_profile_list:
+            if gene not in cpgs_per_gene:
+                cpgs_per_gene[gene] = 0
+
+        vmax = np.max(list(cpgs_per_gene.values()))
+        last_decade = (vmax // 10) * 10
+        if 6 <= vmax <= 9:
+            bin_ranges = [0, 1, 3, 6]
+            bin_ranges.append(vmax)
+        elif 1 < vmax <= 2:
+            bin_ranges = [0, 1]
+            bin_ranges.append(vmax)
+        elif 3 <= vmax <= 5:
+            bin_ranges = [0, 1 , 3]
+            bin_ranges.append(vmax )
+        elif vmax == 1:
+            bin_ranges = [0, 1]
+            bin_ranges.append(vmax)
+        elif vmax == 10:
+            bin_ranges = [0, 1, 3, 6 ]
+            bin_ranges.append(vmax)
+        else:
+            bin_ranges = [0, 1, 3, 6 , 10]
+            for i in range(20, vmax + 1, 10):
+                if i != vmax:
+                    bin_ranges.append(i)
+            bin_ranges.append(vmax)
+
+        bin_counts, _ = np.histogram(list(cpgs_per_gene.values()), bins=bin_ranges)
+
+        bin_labels = []
+        for i in range(len(bin_ranges) - 1):
+            if i == 0:
+                bin_labels.append('0')
+            elif i == 1:
+                if bin_ranges[i] == bin_ranges[i+1]:
+                    bin_labels.append(f'{bin_ranges[i]}')
+                else:
+                    bin_labels.append('1-2')
+            elif i == len(bin_ranges) - 1:
+                bin_labels.append(f'{last_decade+1}-{vmax}')
+            else:
+                if bin_ranges[i] == bin_ranges[i+1]:
+                    bin_labels.append(f'{bin_ranges[i]}')
+
+                elif bin_ranges[i+1] == vmax:
+                    bin_labels.append(f'{bin_ranges[i]}-{bin_ranges[i+1]}')
+                else:
+                    bin_labels.append(f'{bin_ranges[i]}-{bin_ranges[i+1]-1}')
+
+        bin_counts_dict = dict(zip(bin_labels, bin_counts))
+
+
+        colorlist = _hf.get_colors_from_colorscale(['tab10' , 'tab20b', 'tab20c',
+                                                    'Pastel1', 'Pastel2',
+                                                    'Paired', 'Accent', 'Dark2',
+                                                    'Set1', 'Set2', 'Set3'],
+                                                    how_many=len(bin_labels)-1)
+        colorlist.insert(0 , dark_gray)
+        cmap = mcolors.ListedColormap(colorlist)
+        norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
+        # colors = [cmap(norm(i)) for i in range(len(bin_labels))]
+
+        label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
+
+
+        for entry in pathway.orthologs:
+            entry.graphics[0].bgcolor = gray
+            entry.graphics[0].name = ''
+            multiple_kos = [name.split(":")[1] for name in entry.name.split()]
+            corresponding_genes = [key for key, values in gene_symbol_KO.items() if values in multiple_kos]
+
+            if not corresponding_genes:
+                entry.graphics[0].name = ""
+                entry.graphics[0].bgcolor = gray
+            if entry.graphics[0].type == 'line':
+                continue
+            if  len(corresponding_genes) > 1:
+                for ko in range(len(corresponding_genes) -1):
+                    new_entry = make_new_graphic(entry)
+
+                num_subcells = len(entry.graphics)
+                subcell_width = new_entry.width / num_subcells
+                left_x = new_entry.graphics[0].x - new_entry.width/2
+            
+            
+                for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
+                    subcell.x = left_x + subcell_width * (i + 0.5)
+                    subcell.width = subcell_width
+                    subcell.bgcolor = gray
+                    subcell.name = ""
+
+                    if (gene in genes_in_pathway) and (gene in genes_from_MM):
+                        subcell.bgcolor = _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM):
+                        subcell.bgcolor =  dark_gray
+
+            else:
+                for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
+                    element.bgcolor = gray
+                    element.name = gene
+                    if (gene in genes_in_pathway) and (gene in genes_from_MM):
+                        element.bgcolor =  _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        genes_per_cell[gene] = gene
+                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM):
+                        element.bgcolor =  dark_gray
+        
+
+        with PdfPages(id + "_per_gene_hist.pdf") as pdf:
+
+            fig1 = plt.figure()
+            labels, counts = np.unique(list(cpgs_per_gene.values()), return_counts=True)
+            colors_for_bars = [ _hf.assign_color_to_metadata(xpoint, label_to_color=label_to_color) for xpoint in labels]
+            plt.bar(labels, counts, align='center', edgecolor='black' , color=colors_for_bars)
+            plt.xlabel('CPGs per gene', fontsize=14)
+            plt.ylabel('Count', fontsize=14)
+            plt.xticks(fontsize=12)
+            plt.yticks(fontsize=12)
+            plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+            pdf.savefig(fig1, bbox_inches='tight' , dpi=300)
+            plt.close(fig1)
+            plt.close()
+
+            fig2 = plt.figure()
+            plt.bar(bin_counts_dict.keys(), bin_counts_dict.values() , color=label_to_color.values(), edgecolor='black')
+            plt.xlabel('CPGs per gene (grouped)', fontsize=14)
+            plt.ylabel('Count', fontsize=14)
+            plt.xticks(fontsize=12, rotation=45)
+            plt.yticks(fontsize=12)
+            plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+            plt.tight_layout()
+            pdf.savefig(fig2, bbox_inches='tight' , dpi=300)
+            plt.close(fig2)
+            plt.close()
+
+
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
+
+        cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
+        cnvs.draw(pathway_id + ".pdf")
+
+        if save_to_eps:
+            cnvs.draw(id + "_" + output_name + ".eps")
+
+        _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='CPGs per gene')
 
     writer.close()

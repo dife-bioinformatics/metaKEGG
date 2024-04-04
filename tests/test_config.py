@@ -36,3 +36,5 @@ benjamini_threshold=None
 methylation_pvalue_thresh=None
 miRNA_pvalue_thresh=None
 output_folder_name = 'my_folder_name'
+
+miRNA_path_quant = '../examples/miRNA2.tsv'
