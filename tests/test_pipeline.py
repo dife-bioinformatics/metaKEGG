@@ -212,7 +212,7 @@ def test_single_input_with_methylation_quantification():
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
         input_label=input_label,
-        methylation_path=metadata_path_quant,
+        methylation_path=methylation_path,
         methylation_genes=methylation_gene,
         methylation_pvalue=methylation_pvalue,
         analysis_type=analysis_type,

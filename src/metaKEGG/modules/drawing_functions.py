@@ -56,8 +56,9 @@ def draw_KEGG_pathways_genes(parsed_output , info , save_to_eps):
     >>> draw_KEGG_pathways_genes(parsed_output, info, save_to_eps=True)
     """    
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
-
+    pathway_counter = 1
     for id , path_data in parsed_output.items():
+        print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
@@ -116,7 +117,7 @@ def draw_KEGG_pathways_genes(parsed_output , info , save_to_eps):
             cnvs.draw(id + "_" + output_name + ".eps")
         
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , cmap=cmap , vmin=vmin , vmax=vmax , output_name=output_name , save_to_eps=save_to_eps)
-
+        pathway_counter += 1
     writer.close()
 
 def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
@@ -135,8 +136,9 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
     >>> draw_KEGG_pathways_transcripts(parsed_output, info, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
-
+    pathway_counter = 1
     for id , path_data in parsed_output.items():
+        print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
         transcripts_per_cell = {}
         pathway_id = info[id]['corresponding_KO']
@@ -229,7 +231,7 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
             cnvs.draw(id + "_" + output_name + ".eps")
         
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , cmap=cmap , vmin=vmin , vmax=vmax , output_name=output_name , save_to_eps=save_to_eps)
-
+        pathway_counter += 1
     
     writer.close()
 
@@ -304,8 +306,9 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
         color_to_intervention = {inter: color for (inter, color) in zip(intervention_names_w_combos, colors_list)}
 
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
-
+    pathway_counter = 1
     for common_key , common_list in common_key_dict.items():
+        print(f'[{pathway_counter}/{len(common_key_dict)}] {common_key} ({common_list[0][common_key]["name"]})')
         collect_info = _hf.collect_pathway_info_multiple_interventions(common_key)
         genes_per_cell = {}
         pathway_id = collect_info[common_key]['corresponding_KO']
@@ -383,7 +386,7 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
             cnvs.draw(id + "_" + output_name + ".eps")
 
         _hf.compile_and_write_output_files(id=common_key, pathway_id=pathway_id , color_legend=color_to_intervention , output_name=output_name , save_to_eps=save_to_eps)
-
+        pathway_counter += 1
     writer.close()
 
 def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_MM , color_legend, save_to_eps):
@@ -404,7 +407,9 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
     >>> draw_KEGG_pathways_genes_with_methylation(parsed_output, info, genes_from_MM, color_legend, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    pathway_counter = 1
     for id , path_data in parsed_output.items():
+        print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
@@ -466,7 +471,7 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
             cnvs.draw(id + "_" + output_name + ".eps")
 
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=color_legend , output_name=output_name , save_to_eps=save_to_eps)
-
+        pathway_counter += 1
     writer.close()
 
 def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA , color_legend, save_to_eps):
@@ -487,7 +492,9 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
     >>> draw_KEGG_pathways_genes_with_miRNA(parsed_output, info, genes_from_miRNA, color_legend, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    pathway_counter = 1
     for id , path_data in parsed_output.items():
+        print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
@@ -548,7 +555,7 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
             cnvs.draw(id + "_" + output_name + ".eps")
 
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=color_legend , output_name=output_name , save_to_eps=save_to_eps)
-
+        pathway_counter += 1
     writer.close()
 
 def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , genes_from_MM , genes_from_miRNA, color_legend, save_to_eps):
@@ -570,7 +577,9 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
     >>> draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output, info, genes_from_MM, genes_from_miRNA, color_legend, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    pathway_counter = 1
     for id , path_data in parsed_output.items():
+        print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
@@ -643,7 +652,7 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
             cnvs.draw(id + "_" + output_name + ".eps")
 
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=color_legend , output_name=output_name , save_to_eps=save_to_eps)
-
+        pathway_counter += 1
     writer.close()
 
 def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , genes_from_miRNA , miRNA_df , miRNA_genes_col ,save_to_eps):
@@ -664,7 +673,9 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
     >>> draw_KEGG_pathways_genes_with_miRNA(parsed_output, info, genes_from_miRNA, color_legend, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    pathway_counter = 1
     for id , path_data in parsed_output.items():
+        print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
@@ -702,6 +713,9 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
         elif vmax == 10:
             bin_ranges = [0, 1, 3, 6 ]
             bin_ranges.append(vmax)
+        elif vmax == 0:
+            bin_ranges = [0]
+            bin_ranges.append(vmax)        
         else:
             bin_ranges = [0, 1, 3, 6 , 10]
             for i in range(20, vmax + 1, 10):
@@ -733,15 +747,26 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
 
         bin_counts_dict = dict(zip(bin_labels, bin_counts))
 
-
-        colorlist = _hf.get_colors_from_colorscale(['tab10' , 'tab20b', 'tab20c',
-                                                    'Pastel1', 'Pastel2',
-                                                    'Paired', 'Accent', 'Dark2',
-                                                    'Set1', 'Set2', 'Set3'],
-                                                    how_many=len(bin_labels)-1)
-        colorlist.insert(0 , dark_gray)
-        cmap = mcolors.ListedColormap(colorlist)
-        norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
+        if vmax == 0:
+            howmany = 1
+            colorlist = _hf.get_colors_from_colorscale(['tab10' , 'tab20b', 'tab20c',
+                                            'Pastel1', 'Pastel2',
+                                            'Paired', 'Accent', 'Dark2',
+                                            'Set1', 'Set2', 'Set3'],
+                                            how_many=howmany)
+            colorlist[0] = dark_gray
+            cmap = mcolors.ListedColormap(colorlist)
+            norm = mcolors.Normalize(vmin=0, vmax=howmany)
+        else:
+            howmany = len(bin_labels)-1
+            colorlist = _hf.get_colors_from_colorscale(['tab10' , 'tab20b', 'tab20c',
+                                'Pastel1', 'Pastel2',
+                                'Paired', 'Accent', 'Dark2',
+                                'Set1', 'Set2', 'Set3'],
+                                how_many=howmany)
+            colorlist.insert(0 , dark_gray)
+            cmap = mcolors.ListedColormap(colorlist)
+            norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
         # colors = [cmap(norm(i)) for i in range(len(bin_labels))]
 
         label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
@@ -801,6 +826,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             plt.ylabel('Count', fontsize=14)
             plt.xticks(fontsize=12)
             plt.yticks(fontsize=12)
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
             pdf.savefig(fig1, bbox_inches='tight' , dpi=300)
             plt.close(fig1)
@@ -812,6 +838,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             plt.ylabel('Count', fontsize=14)
             plt.xticks(fontsize=12, rotation=45)
             plt.yticks(fontsize=12)
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
             plt.tight_layout()
             pdf.savefig(fig2, bbox_inches='tight' , dpi=300)
@@ -828,7 +855,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             cnvs.draw(id + "_" + output_name + ".eps")
 
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='miRNAs per gene')
-
+        pathway_counter += 1
     writer.close()
 
 def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , info , genes_from_MM , MM_df , MM_genes_col ,save_to_eps):
@@ -849,7 +876,9 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
     >>> draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_MM , MM_df , MM_genes_col ,save_to_eps)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    pathway_counter = 1
     for id , path_data in parsed_output.items():
+        print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
@@ -883,6 +912,9 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             bin_ranges.append(vmax )
         elif vmax == 1:
             bin_ranges = [0, 1]
+            bin_ranges.append(vmax)
+        elif vmax == 0:
+            bin_ranges = [0]
             bin_ranges.append(vmax)
         elif vmax == 10:
             bin_ranges = [0, 1, 3, 6 ]
@@ -919,14 +951,28 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
         bin_counts_dict = dict(zip(bin_labels, bin_counts))
 
 
-        colorlist = _hf.get_colors_from_colorscale(['tab10' , 'tab20b', 'tab20c',
-                                                    'Pastel1', 'Pastel2',
-                                                    'Paired', 'Accent', 'Dark2',
-                                                    'Set1', 'Set2', 'Set3'],
-                                                    how_many=len(bin_labels)-1)
-        colorlist.insert(0 , dark_gray)
-        cmap = mcolors.ListedColormap(colorlist)
-        norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
+        if vmax == 0:
+            howmany = 1
+            colorlist = _hf.get_colors_from_colorscale(['tab10' , 'tab20b', 'tab20c',
+                                            'Pastel1', 'Pastel2',
+                                            'Paired', 'Accent', 'Dark2',
+                                            'Set1', 'Set2', 'Set3'],
+                                            how_many=howmany)
+            colorlist[0] = dark_gray
+            cmap = mcolors.ListedColormap(colorlist)
+            norm = mcolors.Normalize(vmin=0, vmax=howmany)
+        else:
+            howmany = len(bin_labels)-1
+            colorlist = _hf.get_colors_from_colorscale(['tab10' , 'tab20b', 'tab20c',
+                                'Pastel1', 'Pastel2',
+                                'Paired', 'Accent', 'Dark2',
+                                'Set1', 'Set2', 'Set3'],
+                                how_many=howmany)
+            colorlist.insert(0 , dark_gray)
+            cmap = mcolors.ListedColormap(colorlist)
+            norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
+        
+        
         # colors = [cmap(norm(i)) for i in range(len(bin_labels))]
 
         label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
@@ -986,6 +1032,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             plt.ylabel('Count', fontsize=14)
             plt.xticks(fontsize=12)
             plt.yticks(fontsize=12)
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
             pdf.savefig(fig1, bbox_inches='tight' , dpi=300)
             plt.close(fig1)
@@ -997,6 +1044,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             plt.ylabel('Count', fontsize=14)
             plt.xticks(fontsize=12, rotation=45)
             plt.yticks(fontsize=12)
+            plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
             plt.tight_layout()
             pdf.savefig(fig2, bbox_inches='tight' , dpi=300)
@@ -1012,6 +1060,6 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
         if save_to_eps:
             cnvs.draw(id + "_" + output_name + ".eps")
 
-        _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='CPGs per gene')
-
+        _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='CpGs per gene')
+        pathway_counter += 1
     writer.close()

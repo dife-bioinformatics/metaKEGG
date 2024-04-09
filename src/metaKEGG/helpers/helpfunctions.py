@@ -524,8 +524,11 @@ def compile_and_write_output_files(id, pathway_id, output_name, cmap_label=None,
             cb_v = plt.colorbar(sm_v, cax=ax_v, orientation='vertical', shrink=1, aspect=20, pad=0)
             cb_v.ax.set_ylabel(cmap_label, rotation=270, labelpad=20, fontsize=20)
             
-            yticks = np.linspace(*cb_v.ax.get_ylim(), cmap.N+1)[:-1]
-            yticks += (yticks[1] - yticks[0]) / 2
+            if cmap.N  == 1:
+                yticks = [0]
+            else:
+                yticks = np.linspace(*cb_v.ax.get_ylim(), cmap.N+1)[:-1]
+                yticks += (yticks[1] - yticks[0]) / 2
             cb_v.set_ticks(yticks, labels=bin_labels)
             cb_v.ax.tick_params(length=0)
             cb_v.ax.tick_params(labelsize=16)
@@ -537,9 +540,13 @@ def compile_and_write_output_files(id, pathway_id, output_name, cmap_label=None,
             sm_h = ScalarMappable(cmap=cmap, norm=Normalize(vmin=vmin, vmax=vmax))
             cb_h = plt.colorbar(sm_h, cax=ax_h, orientation='horizontal', shrink=1, aspect=20)
             cb_h.ax.set_xlabel(cmap_label, labelpad=10, fontsize=20)
-            
-            xticks = np.linspace(*cb_h.ax.get_ylim(), cmap.N+1)[:-1]
-            xticks += (xticks[1] - xticks[0]) / 2
+
+            if cmap.N  == 1:
+                xticks = [0]
+            else:
+                xticks = np.linspace(*cb_h.ax.get_ylim(), cmap.N+1)[:-1]
+                xticks += (xticks[1] - xticks[0]) / 2
+
             cb_h.set_ticks(xticks, labels=bin_labels)
             cb_h.ax.tick_params(length=0)          
             cb_h.ax.tick_params(labelsize=16)
