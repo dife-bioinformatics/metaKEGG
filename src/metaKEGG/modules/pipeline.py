@@ -1,5 +1,7 @@
 import os
 import datetime
+import sys
+import shutil
 from ..helpers import helpfunctions as _hf
 from ..modules import drawing_functions as _df
 from ..modules import colorscale as _cs
@@ -43,9 +45,9 @@ class Pipeline:
     6. Single input with Methylation and miRNA
     7. Single input (Bulk mapping)
     """
-    def __init__(self, input_file_path, sheet_name_paths, sheet_name_genes, analysis_type=None, input_label=None,
-                methylation_path=None, methylation_pvalue=None, methylation_genes=None, methylation_pvalue_thresh=0.05,
-                miRNA_path=None, miRNA_pvalue=None, miRNA_genes=None, miRNA_pvalue_thresh=0.05,
+    def __init__(self, input_file_path, sheet_name_paths, sheet_name_genes, analysis_type=None, input_label=None, pathway_pvalue=None,
+                methylation_path=None, methylation_pvalue=None, methylation_genes=None, methylation_pvalue_thresh=0.05, methylation_probe_column=None, probes_to_cgs=False,
+                miRNA_path=None, miRNA_pvalue=None, miRNA_genes=None, miRNA_pvalue_thresh=0.05, miRNA_ID_column=None,
                 folder_extension=None, genes_column='gene_symbol', log2fc_column='logFC', count_threshold=2, benjamini_threshold=None ,save_to_eps=False, output_folder_name=None):
 
         self.input_file_path = input_file_path
@@ -57,14 +59,18 @@ class Pipeline:
         self.analysis_type = analysis_type
         self.count_threshold = count_threshold
         self.input_label = input_label
+        self.pathway_pvalue = pathway_pvalue
         self.methylation_path = methylation_path
         self.methylation_pvalue = methylation_pvalue
         self.methylation_genes = methylation_genes
         self.methylation_pvalue_thresh = methylation_pvalue_thresh
+        self.methylation_probe_column = methylation_probe_column
+        self.probes_to_cgs = probes_to_cgs
         self.miRNA_path = miRNA_path
         self.miRNA_pvalue = miRNA_pvalue
         self.miRNA_genes = miRNA_genes
         self.miRNA_pvalue_thresh = miRNA_pvalue_thresh
+        self.miRNA_ID_column = miRNA_ID_column
 
         self.benjamini_threshold = benjamini_threshold
         self.save_to_eps = save_to_eps
@@ -79,7 +85,7 @@ class Pipeline:
         Returns:
         None
         """
-        valid_analysis_types = set([1, 2, 3, 4, 5, 6, 7, 99, 66])
+        valid_analysis_types = set([1, 2, 3, 4, 5, 6, 7, 8, 9])
         
         if self.analysis_type in valid_analysis_types:
             if self.analysis_type == 1:
@@ -96,17 +102,18 @@ class Pipeline:
                 self.single_input_with_methylation_and_miRNA()
             elif self.analysis_type == 7:
                 self.single_input_genes_bulk_mapping()
-            elif self.analysis_type == 99:
-                self.single_input_with_miRNA_quantification()
-            elif self.analysis_type == 66:
+            elif self.analysis_type == 8:
                 self.single_input_with_methylation_quantification()
+            elif self.analysis_type == 9:
+                self.single_input_with_miRNA_quantification()
+
         elif self.analysis_type is None:
             print('Initialized class. Have to run analysis in expert mode.\nValid choices are:')
             for value in analysis_types_to_execute.values():
                 print(f'{value}')
             pass
         else:
-            raise ValueError(f"Invalid analysis type: {self.analysis_type}. Please provide a value between 1 and 7.")
+            raise ValueError(f"Invalid analysis type: {self.analysis_type}. Please provide a value between 1 and 9.")
 
     def find_file_folder(self):
         """
@@ -177,7 +184,7 @@ class Pipeline:
         Notes:
         - Calls helper functions to filter KEGG pathways for genes, parse the input file, and draw KEGG pathways.
         - The output files are located in the created output folder.
-        """   
+        """
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis (Genes)')
 
@@ -193,7 +200,7 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column= self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
         print('Finished parsing input file')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
@@ -219,7 +226,7 @@ class Pipeline:
         Notes:
         - Calls helper functions to filter KEGG pathways for genes, parse the input file, and draw KEGG pathways for transcripts.
         - The output files are located in the created output folder.
-        """
+        """    
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis (Transcripts)')
         
@@ -234,7 +241,7 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
         print('Finished parsing input file')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
@@ -297,7 +304,7 @@ class Pipeline:
                                                                             genes_column=self.genes_column,
                                                                             log2fc_column=self.log2fc_column,
                                                                             count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold,
-                                                                            number_interventions=file_counter , name_interventions=inter_name)
+                                                                            number_interventions=file_counter , name_interventions=inter_name, raw_pvalue_threshold=self.pathway_pvalue)
 
             parsed_out_list.append(globals()[parsed_out_counter])
 
@@ -369,7 +376,7 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold,  benjamini_threshold=self.benjamini_threshold)
+                                                    count_threshold = self.count_threshold,  benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
         print('Finished parsing input file')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
@@ -439,7 +446,7 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
         print('Finished parsing input file')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
@@ -533,7 +540,7 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
         print('Finished parsing input file')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
@@ -637,6 +644,12 @@ class Pipeline:
         if len(genes_from_miRNA) == 0:
             raise ValueError('There are no genes with a miRNA profile')
 
+        if self.miRNA_ID_column is None:
+            raise KeyError(f'Please provide the column name with the miRNA IDs')
+        elif self.miRNA_ID_column is not None and self.miRNA_ID_column not in miRNA_df.columns:
+            raise KeyError(f'Column {self.miRNA_ID_column} not found in the miRNAs dataframe.')
+
+
         miRNA_options = ['miRNA detected' , 'miRNA not detected']
         color_to_miRNA = {miRNA : color for (miRNA , color) in zip(miRNA_options , _cs.colors_list)}
         print('Parsing input file...')
@@ -645,14 +658,14 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
         print('Finished parsing input file')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info')
         os.chdir(output_folder)
         print('Mapping pathways...')
-        _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = self.miRNA_genes , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = self.miRNA_genes , miRNA_id_col=self.miRNA_ID_column ,save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_methylation_quantification(self):
@@ -707,6 +720,23 @@ class Pipeline:
         if len(genes_from_methylation) == 0:
             raise ValueError('There are no genes with a genes_from_methylation profile')
 
+
+        if self.methylation_probe_column is None:
+            raise KeyError(f'Please provide the column name with the probe IDs.')
+        elif self.methylation_probe_column is not None and self.methylation_probe_column not in methylation_df.columns:
+            raise KeyError(f'Column {self.methylation_probe_column} not found in the methylation dataframe.')
+        else:
+            metadata_id_col = self.methylation_probe_column
+            methylation_df = methylation_df.drop_duplicates(subset=[metadata_id_col , self.methylation_genes] , keep='first')
+            if self.probes_to_cgs:
+                insert_new_column = 'unique_CG_quantification'
+                if insert_new_column in methylation_df.columns:
+                    raise KeyError(f'Could not insert unique probe column ({insert_new_column}). It already exists in the dataframe.')
+                else:
+                    methylation_df[insert_new_column] = methylation_df[self.methylation_probe_column].str.split("_").str[0]
+                    methylation_df = methylation_df.drop_duplicates(subset=[insert_new_column, self.methylation_genes] , keep='first')
+                    metadata_id_col = insert_new_column
+
         methylation_options = ['Differentially methylated' , 'Not differentially methylated']
         color_to_methylation = { meth : color for (meth , color) in zip(methylation_options , _cs.colors_list)}
         print('Parsing input file...')
@@ -715,12 +745,12 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold)
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
         print('Finished parsing input file')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info')
         os.chdir(output_folder)
         print('Mapping pathways...')
-        _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = self.methylation_genes , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = self.methylation_genes , MM_id_col=metadata_id_col , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')

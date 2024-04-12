@@ -16,12 +16,14 @@ methylation_path = '../examples/methylation.csv'
 methylation_gene = 'methylation_gene_symbol'
 methylation_pvalue = 'methylation_pval'
 methylation_pvalue = None
+methylation_probe_column = 'CG_ID'
+probes_to_cgs=False
 
 miRNA_path = '../examples/miRNA.tsv'
 miRNA_gene = 'miRNA_gene_symbol'
 miRNA_pvalue = 'miRNA_pval'
 miRNA_pvalue = None
-
+miRNA_column = 'miRNA_ID'
 
 input_file_path_bulk = '../examples/single_input_bulk.xlsx'
 pathways_sheet_name = 'pathways'
@@ -38,3 +40,4 @@ miRNA_pvalue_thresh=None
 output_folder_name = 'my_folder_name'
 
 metadata_path_quant = '../examples/metadata_for_quantification.tsv'
+methylation_quantification = '../examples/methylation_for_quantification.csv'

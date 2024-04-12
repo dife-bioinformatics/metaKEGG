@@ -171,3 +171,5 @@ examples/my_folder*
 examples/my_folder*/
 example_usage*
 examples/miRNA2.tsv
+examples/methylation_for_quantification.csv
+examples/methylation_for_quantification.tsv

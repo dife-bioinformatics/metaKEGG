@@ -5,7 +5,9 @@ from tests.test_config import (
     methylation_path, input_label_g, input_label_m,
     sheet_name_paths, sheet_name_genes, sheet_name_transcripts ,methylation_gene,
     methylation_pvalue, miRNA_pvalue, miRNA_gene, miRNA_path, methylation_pvalue_thresh, miRNA_pvalue_thresh,
-    genes_column, log2fc_column, genes_sheet_name, pathways_sheet_name, input_file_path_bulk , analysis_type, save_to_eps, count_threshold, benjamini_threshold, output_folder_name, metadata_path_quant
+    genes_column, log2fc_column, genes_sheet_name, pathways_sheet_name, input_file_path_bulk , analysis_type,
+    save_to_eps, count_threshold, benjamini_threshold, output_folder_name, metadata_path_quant,
+    methylation_probe_column, miRNA_column, probes_to_cgs, methylation_quantification
 )
 from src.metaKEGG.modules.pipeline import Pipeline
 
@@ -212,7 +214,7 @@ def test_single_input_with_methylation_quantification():
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
         input_label=input_label,
-        methylation_path=methylation_path,
+        methylation_path=methylation_quantification,
         methylation_genes=methylation_gene,
         methylation_pvalue=methylation_pvalue,
         analysis_type=analysis_type,
@@ -220,6 +222,30 @@ def test_single_input_with_methylation_quantification():
         count_threshold=count_threshold,
         benjamini_threshold=benjamini_threshold,
         miRNA_pvalue_thresh=miRNA_pvalue_thresh
+    )
+
+    my_pipeline.single_input_with_methylation_quantification()
+    os.chdir(current_dir)
+
+
+def test_single_input_with_methylation_quantification_correct_probes():
+    os.chdir(current_dir)
+    input_file_path = input_file_path_g
+    input_label = input_label_g
+    my_pipeline = Pipeline(
+        input_file_path=input_file_path,
+        sheet_name_paths=sheet_name_paths,
+        sheet_name_genes=sheet_name_genes,
+        input_label=input_label,
+        methylation_path=methylation_quantification,
+        methylation_genes=methylation_gene,
+        methylation_pvalue=methylation_pvalue,
+        methylation_probe_column=methylation_probe_column,
+        probes_to_cgs=False,
+        analysis_type=analysis_type,
+        save_to_eps=save_to_eps,
+        count_threshold=count_threshold,
+        benjamini_threshold=benjamini_threshold
     )
 
     my_pipeline.single_input_with_methylation_quantification()

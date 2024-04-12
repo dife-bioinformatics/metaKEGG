@@ -29,7 +29,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 from ..config import csv_suffixes, tsv_suffixes, excel_suffixes
 
-def get_colors_from_colorscale(colorscale_list, how_many=None):
+def get_colors_from_colorscale(colorscale_list, how_many=None , skip=None):
     """
     Generate a list of hex color codes from a given colorscale list.
 
@@ -53,6 +53,9 @@ def get_colors_from_colorscale(colorscale_list, how_many=None):
         cmap = cm.get_cmap(cscale)
         color_list = [mcolors.to_hex(cmap(i)) for i in range(cmap.N)]
         color_list_out.extend(color_list)
+
+    if skip:
+        color_list_out = color_list_out[1::skip]
 
     if how_many:
         color_list_out = color_list_out[:how_many]
@@ -617,7 +620,7 @@ def compile_and_write_output_files(id, pathway_id, output_name, cmap_label=None,
         raise ValueError("Color legend cannot be used with cmap, vmin, vmax")
 
 
-def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, genes_column, log2fc_column, count_threshold, benjamini_threshold , number_interventions = 1 , name_interventions = None):
+def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, genes_column, log2fc_column, count_threshold, benjamini_threshold , raw_pvalue_threshold, number_interventions = 1 , name_interventions = None):
     """
     Filter KEGG pathways based on specified criteria.
 
@@ -653,13 +656,13 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
         pathway_id = row['Term'].split(':')[0]
         pathway_name = row['Term'].split(':')[1]
         pathway_count = row['Count']
+        pathway_pval = row['PValue']
         pathway_genes = row['Genes'].split(', ')
         pathway_benjamini = row['Benjamini']
         
-        if pathway_count >= count_threshold and (benjamini_threshold is None or pathway_benjamini <= benjamini_threshold):
+        if pathway_count >= count_threshold and ((benjamini_threshold is None or pathway_benjamini <= benjamini_threshold) or (benjamini_threshold is None or pathway_pval <= raw_pvalue_threshold) or (benjamini_threshold is not None and pathway_benjamini <= benjamini_threshold and pathway_pval <= raw_pvalue_threshold)):
             gene_logFC_dict = {}
             gene_logFC_secondary_dict = {}
-
 
             for gene in pathway_genes:               
                 logFC_values = list(gene_input.loc[gene_input[genes_column] == gene, log2fc_column])
@@ -670,12 +673,15 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
             results_dict[pathway_id] = {'name': pathway_name,
                                         'count': pathway_count,
                                         'genes': pathway_genes,
+                                        'pvalue':pathway_pval,
                                         'benjamini': pathway_benjamini,
                                         'logFC_dict': gene_logFC_dict,
                                         'logFC_secondary_dict': gene_logFC_secondary_dict,
                                         'intervention_number': number_interventions,
                                         'intervention_name' : name_interventions}             
-
+        else:
+            raise ValueError(f'Could not parse input file with the combination of benjamini_threshold {benjamini_threshold} , count_threshold {count_threshold} , raw_pvalue_threshold {raw_pvalue_threshold}')
+        
     return results_dict
 
 def parse_bulk_kegg_pathway_file(filepath, sheet_name_paths, sheet_name_genes, genes_column, log2fc_column, number_interventions = 1 , name_interventions = None ):
@@ -834,6 +840,42 @@ def generate_genes_per_cell_spreadsheet(writer , genes_per_cell , id):
 
     df['All Genes in Pathway cell'] = df['All Genes in Pathway cell'].apply(lambda x: ', '.join(x))
     df['Genes in Dataset'] = df['Genes in Dataset'].map(lambda x: ', '.join(map(str, x)))
+    df.to_excel(writer, sheet_name=id, index=False, header=True)
+
+
+def generate_metadata_per_gene_spreadsheet(writer , metadata_df , metadata_dict , metadata_id_col , symbol_col , id):
+    """
+    Generate a spreadsheet with metadata (CpGs / miRNA) per gene information.
+
+    Parameters:
+    - writer: Excel writer object.
+    - genes_per_cell (dict): Dictionary containing genes per cell information.
+    - id (str): Identifier for the sheet in the Excel file.
+
+    Returns:
+    None
+
+    Example:
+    >>> generate_metadata_per_gene_spreadsheet(writer=writer , metadata_dict=metadata_dict , id=id)
+    """
+    meta_per_gene_to_df = {}
+
+    for key, value in metadata_dict.items():
+        metas_list = metadata_df.loc[metadata_df[symbol_col] == key][metadata_id_col].to_list()
+        metas_list = tuple(metas_list)
+
+        if key not in meta_per_gene_to_df:
+            meta_per_gene_to_df[key] = metas_list
+        else:
+            raise KeyError(f'Key {key} is already in the dictionary')
+
+    # df = pd.DataFrame([(k, v, len(v)) for k, v in meta_per_gene_to_df.items()], columns=['Genes in Dataset','Metadata per gene','Number of Metadata entries'])
+    # df['Metadata per gene'] = df['Metadata per gene'].apply(lambda x: ', '.join(x))
+    # df['Genes in Dataset'] = df['Genes in Dataset'].map(lambda x: ', '.join(map(str, x)))
+
+    df = pd.DataFrame([(k, ', '.join(map(str, v)), len(v)) for k, v in meta_per_gene_to_df.items()],
+                    columns=['Genes in Dataset', 'Metadata per gene', 'Number of Metadata entries'])
+
     df.to_excel(writer, sheet_name=id, index=False, header=True)
 
 def load_metadata(filepath):
