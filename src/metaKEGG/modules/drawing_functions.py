@@ -826,6 +826,8 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             plt.yticks(fontsize=12)
             plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+            if save_to_eps:
+                plt.savefig(id + "_per_gene_hist.eps", dpi=300, format='eps')
             pdf.savefig(fig1, bbox_inches='tight' , dpi=300)
             plt.close(fig1)
             plt.close()
@@ -839,6 +841,8 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
             plt.tight_layout()
+            if save_to_eps:
+                plt.savefig(id + "_per_gene_hist_grouped.eps" , dpi=300, format='eps')
             pdf.savefig(fig2, bbox_inches='tight' , dpi=300)
             plt.close(fig2)
             plt.close()
@@ -1033,6 +1037,8 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             plt.yticks(fontsize=12)
             plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+            if save_to_eps:
+                plt.savefig(id + "_per_gene_hist.eps", dpi=300, format='eps')
             pdf.savefig(fig1, bbox_inches='tight' , dpi=300)
             plt.close(fig1)
             plt.close()
@@ -1046,6 +1052,8 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
             plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
             plt.tight_layout()
+            if save_to_eps:
+                plt.savefig(id + "_per_gene_hist_grouped.eps" , dpi=300, format='eps')
             pdf.savefig(fig2, bbox_inches='tight' , dpi=300)
             plt.close(fig2)
             plt.close()

@@ -682,7 +682,7 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
         else:
             raise ValueError(f'Could not parse input file with the combination of benjamini_threshold {benjamini_threshold} , count_threshold {count_threshold} , raw_pvalue_threshold {raw_pvalue_threshold}')
         
-    return results_dict
+    return results_dict, gene_input[genes_column].unique().tolist()
 
 def parse_bulk_kegg_pathway_file(filepath, sheet_name_paths, sheet_name_genes, genes_column, log2fc_column, number_interventions = 1 , name_interventions = None ):
     """
@@ -737,7 +737,7 @@ def parse_bulk_kegg_pathway_file(filepath, sheet_name_paths, sheet_name_genes, g
                                         'intervention_number': number_interventions,
                                         'intervention_name' : name_interventions}
 
-    return results_dict
+    return results_dict, gene_input[genes_column].unique().tolist()
 
 def generate_colorscale_map(log2fc):
     """
@@ -842,7 +842,6 @@ def generate_genes_per_cell_spreadsheet(writer , genes_per_cell , id):
     df['Genes in Dataset'] = df['Genes in Dataset'].map(lambda x: ', '.join(map(str, x)))
     df.to_excel(writer, sheet_name=id, index=False, header=True)
 
-
 def generate_metadata_per_gene_spreadsheet(writer , metadata_df , metadata_dict , metadata_id_col , symbol_col , id):
     """
     Generate a spreadsheet with metadata (CpGs / miRNA) per gene information.
@@ -860,7 +859,7 @@ def generate_metadata_per_gene_spreadsheet(writer , metadata_df , metadata_dict 
     """
     meta_per_gene_to_df = {}
 
-    for key, value in metadata_dict.items():
+    for key, _ in metadata_dict.items():
         metas_list = metadata_df.loc[metadata_df[symbol_col] == key][metadata_id_col].to_list()
         metas_list = tuple(metas_list)
 
@@ -869,14 +868,51 @@ def generate_metadata_per_gene_spreadsheet(writer , metadata_df , metadata_dict 
         else:
             raise KeyError(f'Key {key} is already in the dictionary')
 
-    # df = pd.DataFrame([(k, v, len(v)) for k, v in meta_per_gene_to_df.items()], columns=['Genes in Dataset','Metadata per gene','Number of Metadata entries'])
-    # df['Metadata per gene'] = df['Metadata per gene'].apply(lambda x: ', '.join(x))
-    # df['Genes in Dataset'] = df['Genes in Dataset'].map(lambda x: ', '.join(map(str, x)))
-
-    df = pd.DataFrame([(k, ', '.join(map(str, v)), len(v)) for k, v in meta_per_gene_to_df.items()],
-                    columns=['Genes in Dataset', 'Metadata per gene', 'Number of Metadata entries'])
-
+    df = pd.DataFrame([(k, len(v), ', '.join(map(str, v))) for k, v in meta_per_gene_to_df.items()],
+                    columns=['Genes in Dataset', 'Number of Metadata entries', 'Metadata per gene'])    
+    df = df.sort_values(by='Number of Metadata entries', ascending=False)
+    df.reset_index(inplace=True , drop=True)
     df.to_excel(writer, sheet_name=id, index=False, header=True)
+
+def generate_pathways_per_gene_spreadsheet(gene_list, pathway_dict , name_extension=None):
+    """
+    Generate an Excel spreadsheet containing information about pathways for each gene.
+
+    Args:
+    - gene_list (list): A list of gene names.
+    - pathway_dict (dict): A dictionary where keys are pathway names and values are dictionaries containing gene information.
+
+    Returns:
+    None
+
+    This function creates an Excel spreadsheet named 'pathways_per_gene.xlsx' containing the following columns:
+    - Gene: The name of the gene.
+    - Number of pathways: The number of pathways in which the gene is found.
+    - List of pathways: A comma-separated list of pathways in which the gene is found.
+    - Pathway names: A comma-separated list of the pathway names in which the gene is found.
+    The spreadsheet is sorted by the 'Number of pathways' column in descending order.
+    """
+    if name_extension is not None and isinstance(name_extension, str):
+        writer = pd.ExcelWriter(f'pathways_per_gene_{name_extension}.xlsx', engine='xlsxwriter')
+    else:
+        writer = pd.ExcelWriter(f'pathways_per_gene.xlsx', engine='xlsxwriter')
+
+    gene_info = []
+    
+    for gene in gene_list:
+        pathways = []
+        pathway_names = []
+        for pathway, pathway_data in pathway_dict.items():
+            if gene in pathway_data['genes']:
+                pathways.append(pathway)
+                pathway_names.append(pathway_data['name'])
+        gene_info.append({'Gene': gene, 'Number of pathways': len(pathways), 'List of pathways': ', '.join(pathways), 'Path names': ', '.join(pathway_names)})
+    
+    df = pd.DataFrame(gene_info)
+    df = df.sort_values(by='Number of pathways', ascending=False)
+    df.reset_index(inplace=True , drop=True)
+    df.to_excel(writer, index=False, header=True)
+    writer.close()
 
 def load_metadata(filepath):
     """
