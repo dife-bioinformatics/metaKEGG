@@ -381,9 +381,9 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
         cnvs.draw(pathway_id + ".pdf")
-
+        print(pathway_id , type(pathway_id) , output_name, type(output_name))
         if save_to_eps:
-            cnvs.draw(id + "_" + output_name + ".eps")
+            cnvs.draw(pathway_id + "_" + output_name + ".eps")
 
         _hf.compile_and_write_output_files(id=common_key, pathway_id=pathway_id , color_legend=color_to_intervention , output_name=output_name , save_to_eps=save_to_eps)
         pathway_counter += 1

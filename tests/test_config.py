@@ -31,7 +31,7 @@ genes_column = 'gene_symbol'
 log2fc_column = 'logFC'
 
 analysis_type = None
-save_to_eps = False
+save_to_eps = True
 count_threshold=2
 benjamini_threshold=None
 methylation_pvalue_thresh=None
