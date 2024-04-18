@@ -974,12 +974,8 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             colorlist.insert(0 , dark_gray)
             cmap = mcolors.ListedColormap(colorlist)
             norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
-        
-        
-        # colors = [cmap(norm(i)) for i in range(len(bin_labels))]
 
         label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
-
 
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray

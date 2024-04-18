@@ -108,12 +108,12 @@ class Pipeline:
                 self.single_input_with_miRNA_quantification()
 
         elif self.analysis_type is None:
-            print('Initialized class. Have to run analysis in expert mode.\nValid choices are:')
+            print('Initialized class. Have to run analysis in expert mode.\nValid choices are:\n')
             for value in analysis_types_to_execute.values():
                 print(f'{value}')
             pass
         else:
-            raise ValueError(f"Invalid analysis type: {self.analysis_type}. Please provide a value between 1 and 9.")
+            raise ValueError(f"Invalid analysis type: {self.analysis_type}. Please provide a value between 1 and 9.\n")
 
     def find_file_folder(self):
         """
@@ -188,28 +188,30 @@ class Pipeline:
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis (Genes)')
 
-        print("Executing analysis: Single input (Gene IDs)...")
+        print("Executing analysis: Single input (Gene IDs)...\n")
         folder_of_input = self.find_file_folder()
 
         analysis_extension = 'genes'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
-        print(f'Output folder is {output_folder}')
-        print('Parsing input file...')
+        print(f'Output folder is {output_folder}\n')
+        print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column= self.genes_column,
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
-        print('Finished parsing input file')
+        if len(parsed_out) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
+        print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
-        print('Finished collecting pathway info')
+        print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
-        print('Mapping pathways...')
+        print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
-        print(f'Done! \nOutput files are located in {output_folder}')
+        print(f'\nDone! \nOutput files are located in {output_folder}')
 
     def single_input_transcripts(self):
         """
@@ -231,25 +233,27 @@ class Pipeline:
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis (Transcripts)')
         
-        print("Executing analysis: Single input (Transcript IDs)...")
+        print("Executing analysis: Single input (Transcript IDs)...\n")
         folder_of_input = self.find_file_folder()
         analysis_extension = 'transcripts'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
-        print(f'Output folder is {output_folder}')
-        print('Parsing input file...')
+        print(f'Output folder is {output_folder}\n')
+        print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
-        print('Finished parsing input file')
+        if len(parsed_out) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
+        print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
-        print('Finished collecting pathway info')
+        print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
-        print('Mapping pathways...')
+        print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_transcripts(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
@@ -279,7 +283,7 @@ class Pipeline:
             raise TypeError('Please provide a list with a label for each input file.')
         elif isinstance(self.input_label , list) and isinstance(self.input_file_path , list) and (len(self.input_file_path) != len(self.input_label)):
             raise TypeError('Please make sure that every input file has a corresponding label.')
-        print("Executing analysis : Multiple inputs...")
+        print("Executing analysis : Multiple inputs...\n")
         
         
         how_many =  len(self.input_label)
@@ -287,7 +291,7 @@ class Pipeline:
         
         folder_of_input = self.find_file_folder()
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
-        print(f'Output folder is {output_folder}')
+        print(f'Output folder is {output_folder}\n')
         if how_many > 1:
             print(f"You want to map {how_many} inputs in total.")
         else:
@@ -297,7 +301,7 @@ class Pipeline:
         all_genes_list = []
         file_counter = 1
         
-        print('Parsing input file...')
+        print('Parsing input file...\n')
         for (file, inter_name), file_counter in zip(zip(self.input_file_path, self.input_label), range(1, len(self.input_file_path) + 1)):
             print(f"File Counter: {file_counter}, File: {file}, with name {inter_name}")
             parsed_out_counter = 'parsed_out_' + str(file_counter)
@@ -312,17 +316,19 @@ class Pipeline:
 
             parsed_out_list.append(globals()[parsed_out_counter])
             all_genes_list.append(globals()[all_genes_counter])
-            # _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=globals()[parsed_out_counter] , name_extension="input"+str(file_counter))
+            if len(globals()[parsed_out_counter]) == 0:
+                print(f"Input file {file_counter} located in {file}, with name {inter_name} did not return any pathways with the selected default & user settings. Check your input file and/or settings.")
             file_counter += 1
-
-        print('Finished parsing input file')
+        if len(parsed_out_list) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
+        print('Finished parsing input file\n')
         os.chdir(output_folder)
         for list_counter , (parsed_out_i, all_genes_i) in enumerate(zip(parsed_out_list , all_genes_list)):
             _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes_i, pathway_dict=parsed_out_i , name_extension="input"+str(list_counter+1))
 
         print('Collecting pathway info & mapping pathways...')
         _df.draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list=parsed_out_list , intervention_names=self.input_label , colors_list=_cs.colors_list , save_to_eps=self.save_to_eps)
-        print(f'Done! \nOutput files are located in {output_folder}')
+        print(f'Done! \nOutput files are located in {output_folder}\n')
 
     def single_input_with_methylation(self):
         """
@@ -347,12 +353,12 @@ class Pipeline:
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis w Methylation')
         
-        print("Executing analysis : Single input w Methylation...")
+        print("Executing analysis : Single input w Methylation...\n")
 
         folder_of_input = self.find_file_folder()
         analysis_extension = 'methylation'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
-        print(f'Output folder is {output_folder}')
+        print(f'Output folder is {output_folder}\n')
         
         if self.methylation_path is not None or isinstance(self.methylation_path, (str , os.PathLike)):
             try:
@@ -378,20 +384,22 @@ class Pipeline:
         
         methylation_options = ['Differentially methylated' , 'Not differentially methylated']
         color_to_methylation = { meth : color for (meth , color) in zip(methylation_options , _cs.colors_list)}
-        print('Parsing input file...')
+        print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold,  benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
-        print('Finished parsing input file')
+        if len(parsed_out) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
+        print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
-        print('Finished collecting pathway info')
+        print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
-        print('Mapping pathways...')
+        print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_methylation(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_MM , color_legend=color_to_methylation , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
@@ -418,12 +426,12 @@ class Pipeline:
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis w miRNA')
         
-        print("Executing analysis : Single input w miRNA...")
+        print("Executing analysis : Single input w miRNA...\n")
 
         folder_of_input = self.find_file_folder()    
         analysis_extension = 'miRNA'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
-        print(f'Output folder is {output_folder}')
+        print(f'Output folder is {output_folder}\n')
 
         if self.miRNA_path is not None or isinstance(self.miRNA_path, (str , os.PathLike)):
             try:
@@ -449,20 +457,22 @@ class Pipeline:
 
         miRNA_options = ['miRNA detected' , 'miRNA not detected']
         color_to_miRNA = {miRNA : color for (miRNA , color) in zip(miRNA_options , _cs.colors_list)}
-        print('Parsing input file...')
+        print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
-        print('Finished parsing input file')
+        if len(parsed_out) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
-        print('Finished collecting pathway info')
+        print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
-        print('Mapping pathways...')
+        print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_miRNA(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , color_legend=color_to_miRNA , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
@@ -486,12 +496,12 @@ class Pipeline:
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis w Methylation & miRNA')
         
-        print("Executing analysis : Single input w Methylation & miRNA...")
+        print("Executing analysis : Single input w Methylation & miRNA...\n")
 
         folder_of_input = self.find_file_folder()    
         analysis_extension = 'methylation_and_miRNA'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
-        print(f'Output folder is {output_folder}')
+        print(f'Output folder is {output_folder}\n')
 
         if self.methylation_path is not None or isinstance(self.methylation_path, (str , os.PathLike)):
             try:
@@ -544,20 +554,22 @@ class Pipeline:
         methylation_w_miRNA_options = ['Differentially methylated and miRNA detected', 'Not differentially methylated and miRNA detected',
                                        'Differentially methylated and not miRNA detected' , 'Not differentially methylated and not miRNA detected']
         color_to_methylation_w_miRNA = { meth_miRNA : color for (meth_miRNA , color) in zip(methylation_w_miRNA_options , _cs.colors_list)}
-        print('Parsing input file...')
+        print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
-        print('Finished parsing input file')
+        if len(parsed_out) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
-        print('Finished collecting pathway info')
+        print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
-        print('Mapping pathways...')
+        print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output=parsed_out , info=pathway_info ,
                                                                 genes_from_MM=genes_from_MM , genes_from_miRNA=genes_from_miRNA,
                                                                 color_legend=color_to_methylation_w_miRNA , save_to_eps=self.save_to_eps)
@@ -583,24 +595,26 @@ class Pipeline:
         if self.benjamini_threshold is not None or self.count_threshold is not None:
             raise TypeError('\'Single input (Bulk mapping)\' analysis does not accept \'benjamini_threshold\' or \'count_threshold\' values. Set to None')
 
-        print("Executing analysis : Single input (Bulk mapping)...")
+        print("Executing analysis : Single input (Bulk mapping)...\n")
 
         folder_of_input = self.find_file_folder()    
         analysis_extension = 'bulk'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}')
-        print('Parsing input file...')
+        print('Parsing input file...\n')
         parsed_out, all_genes = _hf.parse_bulk_kegg_pathway_file(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column, log2fc_column=self.log2fc_column)
-        print('Finished parsing input file')
+        if len(parsed_out) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
-        print('Finished collecting pathway info')
+        print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
-        print('Mapping pathways...')
+        print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
@@ -627,12 +641,12 @@ class Pipeline:
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis w miRNA quantification')
         
-        print("Executing analysis : Single input w miRNA quantification...")
+        print("Executing analysis : Single input w miRNA quantification...\n")
 
         folder_of_input = self.find_file_folder()    
         analysis_extension = 'miRNA_quantification'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
-        print(f'Output folder is {output_folder}')
+        print(f'Output folder is {output_folder}\n')
 
         if self.miRNA_path is not None or isinstance(self.miRNA_path, (str , os.PathLike)):
             try:
@@ -664,20 +678,22 @@ class Pipeline:
 
         miRNA_options = ['miRNA detected' , 'miRNA not detected']
         color_to_miRNA = {miRNA : color for (miRNA , color) in zip(miRNA_options , _cs.colors_list)}
-        print('Parsing input file...')
+        print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
-        print('Finished parsing input file')
+        if len(parsed_out) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
-        print('Finished collecting pathway info')
+        print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
-        print('Mapping pathways...')
+        print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = self.miRNA_genes , miRNA_id_col=self.miRNA_ID_column ,save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
@@ -704,17 +720,17 @@ class Pipeline:
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input analysis w methylation quantification')
         
-        print("Executing analysis : Single input w methylation quantification...")
+        print("Executing analysis : Single input w methylation quantification...\n")
 
         folder_of_input = self.find_file_folder()    
         if self.probes_to_cgs:
             analysis_extension = 'methylation_quantification_probe_correction'
-            print("Selected setting : Probe correction")
+            print("Selected setting : Probe correction\n")
         else:
             analysis_extension = 'methylation_quantification'
 
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
-        print(f'Output folder is {output_folder}')
+        print(f'Output folder is {output_folder}\n')
 
         if self.methylation_path is not None or isinstance(self.methylation_path, (str , os.PathLike)):
             try:
@@ -738,7 +754,6 @@ class Pipeline:
         if len(genes_from_methylation) == 0:
             raise ValueError('There are no genes with a genes_from_methylation profile')
 
-
         if self.methylation_probe_column is None:
             raise KeyError(f'Please provide the column name with the probe IDs.')
         elif self.methylation_probe_column is not None and self.methylation_probe_column not in methylation_df.columns:
@@ -757,19 +772,21 @@ class Pipeline:
 
         methylation_options = ['Differentially methylated' , 'Not differentially methylated']
         color_to_methylation = { meth : color for (meth , color) in zip(methylation_options , _cs.colors_list)}
-        print('Parsing input file...')
+        print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
                                                     count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
-        print('Finished parsing input file')
+        if len(parsed_out) == 0:
+            raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
-        print('Finished collecting pathway info')
+        print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
-        print('Mapping pathways...')
+        print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = self.methylation_genes , MM_id_col=metadata_id_col , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')

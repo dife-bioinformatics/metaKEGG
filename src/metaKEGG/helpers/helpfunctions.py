@@ -286,10 +286,10 @@ def create_output_folder(path , folder_extension=None):
         if os.path.exists(path):
             shutil.rmtree(path)
             os.makedirs(path, mode=0o755)
-            print(f"The contents of '{path}' have been removed, and the directory has been recreated.", '\n') 
+            print(f"The contents of '{path}' have been removed, and the directory has been recreated.") 
         else:    
             os.makedirs(path, mode=0o755)
-            print(f"New directory '{path}' created with extension {folder_extension} ", '\n')
+            print(f"New directory '{path}' created with extension {folder_extension} ")
 
     else:
         if not os.path.exists(path):
@@ -298,7 +298,7 @@ def create_output_folder(path , folder_extension=None):
         else:
             shutil.rmtree(path)
             os.makedirs(path, mode=0o755)
-            print(f"The contents of '{path}' have been removed, and the directory has been recreated.", '\n')                    
+            print(f"The contents of '{path}' have been removed, and the directory has been recreated.")                    
 
     return path
 
@@ -652,6 +652,8 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
     kegg_pathways = df[df['Category'] == 'KEGG_PATHWAY']
     results_dict = {}
 
+    print(f"Will use thresholds:\nMinimum number of genes in pathway : {count_threshold} (included)\npathway raw pvalue : {raw_pvalue_threshold}\npathway Benjamini-Hochberg : {benjamini_threshold}\n")
+
     for _, row in kegg_pathways.iterrows():
         pathway_id = row['Term'].split(':')[0]
         pathway_name = row['Term'].split(':')[1]
@@ -680,8 +682,8 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
                                         'intervention_number': number_interventions,
                                         'intervention_name' : name_interventions}             
         else:
-            raise ValueError(f'Could not parse input file with the combination of benjamini_threshold {benjamini_threshold} , count_threshold {count_threshold} , raw_pvalue_threshold {raw_pvalue_threshold}')
-        
+            print(f"Pathway {pathway_name} with {pathway_count} genes, raw pvalue {pathway_pval} and Benjamini-Hochberg {pathway_benjamini} will not be mapped due to user settings. Skipping.")
+
     return results_dict, gene_input[genes_column].unique().tolist()
 
 def parse_bulk_kegg_pathway_file(filepath, sheet_name_paths, sheet_name_genes, genes_column, log2fc_column, number_interventions = 1 , name_interventions = None ):
