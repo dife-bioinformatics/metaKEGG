@@ -662,7 +662,13 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
         pathway_genes = row['Genes'].split(', ')
         pathway_benjamini = row['Benjamini']
         
-        if pathway_count >= count_threshold and ((benjamini_threshold is None or pathway_benjamini <= benjamini_threshold) or (benjamini_threshold is None or pathway_pval <= raw_pvalue_threshold) or (benjamini_threshold is not None and pathway_benjamini <= benjamini_threshold and pathway_pval <= raw_pvalue_threshold)):
+
+        if (pathway_count >= count_threshold) and \
+            ((benjamini_threshold is None and pathway_pval is not None and pathway_pval <= raw_pvalue_threshold) or \
+            (raw_pvalue_threshold is None and pathway_benjamini is not None and pathway_benjamini <= benjamini_threshold) or \
+            (benjamini_threshold is not None and raw_pvalue_threshold is not None and \
+            pathway_benjamini <= benjamini_threshold and pathway_pval <= raw_pvalue_threshold)):
+            
             gene_logFC_dict = {}
             gene_logFC_secondary_dict = {}
 
