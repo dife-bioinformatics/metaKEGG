@@ -44,8 +44,10 @@ class Pipeline:
     5. Single input with miRNA
     6. Single input with Methylation and miRNA
     7. Single input (Bulk mapping)
+    8. Single input w Methylation & Quantification (Gene IDs)
+    9. Single input w miRNA & Quantification (Gene IDs)
     """
-    def __init__(self, input_file_path, sheet_name_paths, sheet_name_genes, analysis_type=None, input_label=None, pathway_pvalue=None,
+    def __init__(self, input_file_path, sheet_name_paths='pathways', sheet_name_genes='gene_metrics', analysis_type=None, input_label=None, pathway_pvalue=None,
                 methylation_path=None, methylation_pvalue=None, methylation_genes=None, methylation_pvalue_thresh=0.05, methylation_probe_column=None, probes_to_cgs=False,
                 miRNA_path=None, miRNA_pvalue=None, miRNA_genes=None, miRNA_pvalue_thresh=0.05, miRNA_ID_column=None,
                 folder_extension=None, genes_column='gene_symbol', log2fc_column='logFC', count_threshold=2, benjamini_threshold=None ,save_to_eps=False, output_folder_name=None):
@@ -303,7 +305,7 @@ class Pipeline:
         
         print('Parsing input file...\n')
         for (file, inter_name), file_counter in zip(zip(self.input_file_path, self.input_label), range(1, len(self.input_file_path) + 1)):
-            print(f"File Counter: {file_counter}, File: {file}, with name {inter_name}")
+            print(f"File Counter: {file_counter}, File: {file}, with name {inter_name}\n")
             parsed_out_counter = 'parsed_out_' + str(file_counter)
             all_genes_counter = 'all_genes_' + str(file_counter)
             globals()[parsed_out_counter], globals()[all_genes_counter] =  _hf.filter_kegg_pathways_genes(filepath=file,
@@ -316,13 +318,19 @@ class Pipeline:
 
             parsed_out_list.append(globals()[parsed_out_counter])
             all_genes_list.append(globals()[all_genes_counter])
+
             if len(globals()[parsed_out_counter]) == 0:
                 print(f"Input file {file_counter} located in {file}, with name {inter_name} did not return any pathways with the selected default & user settings. Check your input file and/or settings.")
+            
             file_counter += 1
+            print("\n")
+    
         if len(parsed_out_list) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
         print('Finished parsing input file\n')
+
         os.chdir(output_folder)
+
         for list_counter , (parsed_out_i, all_genes_i) in enumerate(zip(parsed_out_list , all_genes_list)):
             _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes_i, pathway_dict=parsed_out_i , name_extension="input"+str(list_counter+1))
 
