@@ -161,6 +161,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# VScode
+.vscode
+
 #example_files
 /draw_KEGG_*
 draw_KEGG_*

@@ -1,25 +1,32 @@
+[![Stars](https://img.shields.io/github/stars/dife-bioinformatics/metaKEGG?style=flat&logo=GitHub&color=yellow)](https://github.com/dife-bioinformatics/metaKEGG)
+[![PyPI](https://img.shields.io/pypi/v/metaKEGG?logo=PyPI)](https://pypi.org/project/metaKEG)
+
+
 # `metaKEGG`
 
+metaKEGG is a fully integrated solution with class-leading features to visualize the KEGG pathway enrichment analysis results from the DAVID Functional Annotation Tool, or RNAseq data.
+
+## Table of Contents
 - [Disclaimer](#disclaimer)
-- [Installing metaKEGG](#installing-metaKEGG)
-    + [Environment preparation](#environment-preparation)
-    + [Install from PyPI](#install-from-PyPI)
-    + [Local installation with venv and requirement.txt in Windows](#local-venv)
-    + [Local installation with conda env and environment.yml](#local-conda)
+- [Installing metaKEGG](#installing-metakegg)
+    - [Environment preparation](#environment-preparation)
+    - [Install from PyPI](#install-from-pypi)
+    - [Local installation with venv and requirement.txt in Windows](#local-installation-with-venv-and-requirementtxt-in-windows)
+    - [Local installation with conda env and environment.yml](#local-installation-with-conda-env-and-environmentyml)
 - [Getting started](#getting-started)
-    + [CLI usage](#cli-usage)
-    + [Programmatic/Library usage](#programmatic-library-usage)
+    - [CLI usage](#cli-usage)
+    - [Programmatic/Library usage](#programmaticlibrary-usage)
 - [Example usage](#example-usage)
-    + [Single Input Analysis (Gene IDs)](#single-input-analysis-genes)
-    + [Single Input Analysis (Transcript IDs)](#single-input-analysis-transcripts)
-    + [Multiple Input Analysis (Gene IDs)](#multiple-input-analysis)
-    + [Single Input Analysis with Methylation (Gene IDs)](#single-input-analysis-methylation)
-    + [Single Input Analysis with miRNA (Gene IDs)](#single-input-analysis-mirna)
-    + [Single Input Analysis with Methylation and miRNA (Gene IDs)](#single-input-analysis-methylation-mirna)
-    + [Single input (Gene IDs) Bulk mapping](#single-input-analysis-bulk)
-    + [Single input with Methylation & Quantification (Gene IDs)](#single-input-analysis-methylation-quant)    
-    + [Single input with miRNA & Quantification (Gene IDs)](#single-input-analysis-mirna-quant)    
-    + [Example of using multiple modules with one initialization](#one-initialization)
+    - [Single Input Analysis (Gene IDs)](#single-input-analysis-gene-ids)
+    - [Single Input Analysis (Transcript IDs)](#single-input-analysis-transcript-ids)
+    - [Multiple Input Analysis (Gene IDs)](#multiple-input-analysis-gene-ids)
+    - [Single Input Analysis with Methylation (Gene IDs)](#single-input-analysis-with-methylation-gene-ids)
+    - [Single Input Analysis with miRNA (Gene IDs)](#single-input-analysis-with-mirna-gene-ids)
+    - [Single Input Analysis with Methylation and miRNA (Gene IDs)](#single-input-analysis-with-methylation-and-mirna-gene-ids)
+    - [Single Input Analysis (Gene IDs) Bulk mapping](#single-input-analysis-gene-ids-bulk-mapping)
+    - [Single Input Analysis with Methylation & Quantification (Gene IDs)](#single-input-analysis-with-methylation--quantification-gene-ids)    
+    - [Single Input Analysis with miRNA & Quantification (Gene IDs)](#single-input-analysis-with-mirna--quantification-gene-ids)    
+    - [Example of using multiple modules with one initialization](#example-of-using-multiple-modules-with-one-initialization)
 
 ## Disclaimer
 
@@ -27,9 +34,9 @@ metaKEGG uses the KEGG API, and is restricted to academic use by academic users 
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU General Public License for more details.
-You should have received a copy of the GNU General Public License along with this
-program. If not, see https://www.gnu.org/licenses/.
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License along with this
+program. If not, see [GNU Affero General Public License](https://www.gnu.org/licenses/#AGPL).
 
 Author: Michail Lazaratos, Deutsches Institut für Ernährungsforschung Potsdam-Rehbrücke / German Institute of Human Nutrition Potsdam-Rehbrücke (DIfE)
 
@@ -98,7 +105,7 @@ CLI usage can be also wrapped in bash scripts and integrated in pipelines.
 
 ### Programmatic/Library usage
 
-Import
+Import the class
 
 Note: The Pipeline class requires specific arguments for initialization.
 ```
@@ -164,8 +171,10 @@ analysis_type = None (required to be set between 1 and 9 for CLI usage)
 
 If usage is programmatic and analysis_type = None see section [Example of using multiple modules with one initialization](#one-initialization) below for executing the pipeline.
 
-
+-----
 ### Single Input Analysis (Gene IDs)
+
+This function takes a single input file as an argument and maps the detected genes on the enriched KEGG reference pathway, and colors them according to their log2FC values.
 
 1. Define input arguments
 
@@ -198,7 +207,12 @@ Alternatively using the CLI
 metaKEGG --input_file_path="examples/single_input_genes.xlsx"  --input_label="input1"  --sheet_name_paths="pathways" --sheet_name_genes="gene_metrics" --genes_column="gene_symbol" --log2fc_column="logFC" --analysis_type=1 --count_threshold=2 --pathway_pvalue=None --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
 
+-----
 ### Single Input Analysis (Transcript IDs)
+
+This function takes a single input file as an argument and maps the detected transcripts on the enriched KEGG reference pathway, and colors them according to their log2FC values.
+
+**_NOTE:_**  Pathway enrichement analysis with the DAVID Functional Annotation Tool, should be performed using transcript IDs.
 
 1. Define input arguments
 
@@ -230,8 +244,13 @@ Alternatively using the CLI
 ```
 metaKEGG --input_file_path="examples/single_input_transcripts.xlsx" --input_label="input1" --sheet_name_paths="pathways" --sheet_name_genes="transcript_metrics" --genes_column="gene_symbol" --log2fc_column="logFC" --analysis_type=2 --count_threshold=2 --pathway_pvalue=None --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
-
+-----
 ### Multiple Input Analysis (Gene IDs)
+
+This function takes a list of inputs file as an argument and only maps pathways that are found in all of the inputs files.
+For a common pathway, it will generate all possible states for a gene, from each individual input, to all possible combinations and assignes a unique color code to each combination.
+The detected genes are mapped enriched KEGG reference pathway, based on the state they're in.
+
 
 1. Define input arguments
 
@@ -270,8 +289,11 @@ metaKEGG --input_file_path=["examples/single_input_genes.xlsx",
          --input_label=["input1" , "input2" , "input3"] 
          --sheet_name_paths="pathways" --sheet_name_genes="gene_metrics" --genes_column="gene_symbol" --log2fc_column="logFC" --analysis_type=3 --count_threshold=2 --pathway_pvalue=None --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
-
+-----
 ### Single Input Analysis with Methylation (Gene IDs)
+
+This function takes a single input file and a methylation metadata file as arguments and maps the detected genes on the enriched KEGG reference pathway, and colors them according to their methylation state. The state is defined as a binary reprsentation, depending if DMPs corresponding to a given gene are detected, or not.
+
 
 1. Define input arguments
 
@@ -310,8 +332,10 @@ metaKEGG --input_file_path="examples/single_input_genes.xlsx" --input_label="inp
          --methylation_path="examples/methylation.csv" --methylation_genes="methylation_gene_symbol" --methylation_pvalue="methylation_pval" --methylation_pvalue_thresh=0.05 
          --count_threshold=2 --pathway_pvalue=None --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
-
+-----
 ### Single Input Analysis with miRNA (Gene IDs)
+
+This function takes a single input file and a miRNA metadata file as arguments and maps the detected genes on the enriched KEGG reference pathway, and colors them according to their miRNA state. The state is defined as a binary reprsentation, depending if DEmiRs are targeting a given gene, or not.
 
 1. Define input arguments
 
@@ -350,8 +374,10 @@ metaKEGG --input_file_path="examples/single_input_genes.xlsx" --input_label="inp
          --miRNA_path="examples/miRNA.tsv" --miRNA_genes="miRNA_gene_symbol" --miRNA_pvalue="miRNA_pval" --miRNA_pvalue_thresh=0.05 
          --count_threshold=2 --pathway_pvalue=None --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
-
+------
 ### Single Input Analysis with Methylation and miRNA (Gene IDs)
+
+This function takes a single input file, a methylation, and a miRNA metadata file as arguments and maps the detected genes on the enriched KEGG reference pathway. Genes are colored according to their methylation and miRNA states. The states is defined as a binary reprsentations of the methylation and miRNA combinations.
 
 1. Define input arguments
 
@@ -395,8 +421,10 @@ metaKEGG --input_file_path="examples/single_input_genes.xlsx" --input_label="inp
          --miRNA_path="examples/miRNA.tsv" --miRNA_genes="miRNA_gene_symbol" --miRNA_pvalue="miRNA_pval" --miRNA_pvalue_thresh=0.05 
          --count_threshold=2 --pathway_pvalue=None --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
+-----
+### Single Input Analysis (Gene IDs) Bulk mapping
 
-### Single input (Gene IDs) Bulk mapping
+This function takes RANseq data, as single input file argument, maps the genes on a provided list of target pathways (assuming they are also found in the target pathways), and colors them according to their log2FC values.
 
 1. Define input arguments
 
@@ -425,8 +453,10 @@ Alternatively using the CLI
 ```
 metaKEGG --input_file_path="examples/single_input_genes.xlsx" --input_label="input1" --sheet_name_paths="pathways" --sheet_name_genes="gene_metrics" --genes_column="gene_symbol" --log2fc_column="logFC" --analysis_type=7 --save_to_eps=False --folder_extension=None
 ```
+-----
+### Single Input Analysis with Methylation & Quantification (Gene IDs)
 
-### Single input with Methylation & Quantification (Gene IDs)
+This function takes a single input file and a methylation metadata file as arguments and maps the detected genes on the enriched KEGG reference pathway. It generates bins to quantify the number of DMPs that correspond to a given gene, and colors a gege according to its DMP bin. The function also returns the quantification histogram plots, both in a grouped and an absolute count representation.
 
 1. Define input arguments
 
@@ -469,10 +499,12 @@ metaKEGG --input_file_path="examples/single_input_genes.xlsx" --input_label="inp
          --count_threshold=2 --pathway_pvalue=None --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
 
-> [!NOTE]
-> When using probes_to_cgs=True, the pipeline will split the CG probes by the underscore '_' character and keep the first part, essentially correcting for different probe chemistry that could occur in the same position. Examples format is cg00000000_BC21 and cg00000000_TC21, which would be counted as two seperate probes targeting the same gene. Using the argument probes_to_cgs with True, the probes become cg00000000 & cg00000000, and duplicated entries per gene are eliminated, essentially counting one probe for the target gene.
+**_NOTE:_**  When using probes_to_cgs=True, the pipeline will split the CG probes by the underscore '_' character and keep the first part, essentially correcting for different probe chemistry that could occur in the same position. Example format is cg00000000_BC21 and cg00000000_TC21, which would be counted as two separate probes targeting the same gene. Using the argument probes_to_cgs with True, the probes become cg00000000 & cg00000000, and duplicated entries per gene are eliminated, essentially counting one probe for the target gene.
 
-### Single input with miRNA & Quantification (Gene IDs)
+------
+### Single Input Analysis with miRNA & Quantification (Gene IDs)
+
+This function takes a single input file and a miRNA metadata file as arguments and maps the detected genes on the enriched KEGG reference pathway. It generates bins to quantify the number of DEmiRs that correspond to a given gene, and colors a gege according to its DEmiR bin. The function also returns the quantification histogram plots, both in a grouped and an absolute count representation.
 
 1. Define input arguments
 
@@ -513,6 +545,7 @@ metaKEGG --input_file_path="examples/single_input_genes.xlsx" --input_label="inp
          --count_threshold=2 --pathway_pvalue=None --benjamini_threshold=None --save_to_eps=False --folder_extension=None
 ```
 
+-------
 ### Example of using multiple modules with one initialization
 
 Define as many input arguments that can be used for multiple modules and leave the `analysis_type` to `None`
@@ -557,3 +590,4 @@ m.single_input_with_miRNA()
 m.single_input_with_methylation_and_miRNA()
 ```
 
+-----
