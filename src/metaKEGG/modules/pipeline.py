@@ -323,7 +323,6 @@ class Pipeline:
                 print(f"Input file {file_counter} located in {file}, with name {inter_name} did not return any pathways with the selected default & user settings. Check your input file and/or settings.")
             
             file_counter += 1
-            print("\n")
     
         if len(parsed_out_list) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
