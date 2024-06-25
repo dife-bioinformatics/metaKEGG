@@ -12,18 +12,19 @@ description = "A python package to map enrichment analysis on KEGG pathways."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-  'matplotlib',
-  'openpyxl',
-  'pyopenssl',
-  'pandas',
+  'matplotlib <= 3.6.2',
+  'numpy <= 1.26.0',
+  'openpyxl <= 3.0.10',
+  'pyopenssl <= 24.0.0',
+  'pandas <= 1.5.2',
   'pip',
-  'setuptools',
-  'biopython',
-  'pypdf2',
-  'pytest',
-  'reportlab',
-  'requests',
-  'xlsxwriter'
+  'setuptools <= 65.6.3',
+  'biopython <= 1.81',
+  'pypdf2 <= 3.0.1',
+  'pytest <= 8.0.1',
+  'reportlab <= 3.6.12',
+  'requests <= 2.28.2',
+  'xlsxwriter <= 3.1.0'
 ]
 license = { "text" = "AGPL-3.0" }
 classifiers = [
