@@ -171,7 +171,6 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
                 num_subcells = len(entry.graphics)
                 subcell_width = new_entry.width / num_subcells
                 left_x = new_entry.graphics[0].x - new_entry.width/2
-
             
                 for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     subcell.x = left_x + subcell_width * (i + 0.5)
