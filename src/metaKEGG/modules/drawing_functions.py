@@ -171,13 +171,14 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
                 num_subcells = len(entry.graphics)
                 subcell_width = new_entry.width / num_subcells
                 left_x = new_entry.graphics[0].x - new_entry.width/2
-            
+
             
                 for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     subcell.x = left_x + subcell_width * (i + 0.5)
                     subcell.width = subcell_width
                     subcell.bgcolor =  gray
                     subcell.name = ""
+
                     if gene in log2fc:
                         subcell.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
                         subcell.name = gene
@@ -201,27 +202,47 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     if entry.graphics[0].type == 'line':
                         continue
+                    if entry.graphics[0].type == 'compound':
+                        entry.graphics[0].name = ''
+                        continue
                     element.bgcolor = gray
                     if gene in log2fc:
                         element.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
                         element.name = gene
                     if gene in corresponding_transcripts:
+                        og_x = entry.graphics[0].x
+                        og_y = entry.graphics[0].y
+                        og_width = entry.graphics[0].width
+                        og_height = entry.graphics[0].height
+
                         for transcript in range(len(log2fc_secondary[gene]) -1):
-                            try:
-                                new_entry_v = make_new_graphic(entry)
-                            except: pass
+                            new_entry_v = make_new_graphic(entry)
+
                         num_subcells_vertical = len(log2fc_secondary[gene])
                         subcell_height = new_entry_v.height / num_subcells_vertical
                         top_y = new_entry_v.graphics[0].y - new_entry_v.height / 2
-                        for j in range(num_subcells_vertical):
-                            new_entry_v.y = top_y + subcell_height * (j + 0.5)
-                            new_entry_v.x = element.x
-                            new_entry_v.height = subcell_height
-                            new_entry_v.bgcolor = cmap((log2fc_secondary[gene][j] - vmin) / (vmax - vmin))
-                            new_entry_v.name = ''
+                        for j, vertical_cell in enumerate((entry.graphics)):
+                            vertical_cell.y = top_y + subcell_height * (j + 0.5)
+                            vertical_cell.x = element.x
+                            vertical_cell.height = subcell_height
+                            vertical_cell.bgcolor = cmap((log2fc_secondary[gene][j] - vmin) / (vmax - vmin))
+                            vertical_cell.name = ''
+    
                             transcripts_per_cell[gene] = corresponding_transcripts
 
-                            
+                        name_cell = make_new_graphic(entry)
+                        name_cell.x = og_x
+                        name_cell.y = og_y
+                        name_cell.width = og_width
+                        name_cell.height = og_height
+                        name_cell.bgcolor = '#ffffff00'
+                        name_cell.name = gene
+
+        for entry in pathway.compounds:
+            entry.graphics[0].name = ""
+            if entry.graphics[0].type == 'line':
+                continue
+
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
