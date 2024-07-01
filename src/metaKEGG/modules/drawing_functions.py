@@ -148,7 +148,8 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
         gene_symbol_KO = info[id]['gene_symbol_KO']
         output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
         corresponding_transcripts = [key for key, values in log2fc_secondary.items() if len(values) > 1]
-
+        print(corresponding_transcripts)
+        print(log2fc)
         log2fc_extended = list(log2fc.values()) + [value for values in log2fc_secondary.values() for value in values]
 
         cmap , vmin, vmax = _hf.generate_colorscale_map(log2fc=log2fc_extended)
@@ -179,24 +180,44 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
                     subcell.name = ""
 
                     if gene in log2fc:
+                        print(gene)
                         subcell.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
+                        print(subcell.bgcolor)
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
+
                     if gene in corresponding_transcripts:
                         for transcript in range(len(log2fc_secondary[gene]) -1):
-                            try:
-                                new_entry_v = make_new_graphic(subcell)
-                            except: pass
+                            new_entry_v = make_new_graphic(entry)
+                            new_entry_v.width = subcell_width
+                            # new_entry_v.bgcolor = gray
+                            new_entry_v.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
+                            new_entry_v.name = gene
+                            new_entry_v.x = subcell.x
+
                         num_subcells_vertical = len(log2fc_secondary[gene])
                         subcell_height = new_entry_v.height / num_subcells_vertical
                         top_y = new_entry_v.graphics[0].y - new_entry_v.height / 2
-                        for j in range(num_subcells_vertical):
-                            new_entry_v.y = top_y + subcell_height * (j + 0.5)
-                            new_entry_v.x = subcell.x
-                            new_entry_v.height = subcell_height
-                            new_entry_v.bgcolor = cmap((log2fc_secondary[gene][j] - vmin) / (vmax - vmin))
-                            new_entry_v.name = ''
-                            transcripts_per_cell[gene] = corresponding_transcripts
+                        transcript_counter = 0
+
+                        for j, vertical_cell in enumerate((entry.graphics)):
+                            if entry.graphics[j].name == gene:
+                                vertical_cell.y = top_y + subcell_height * (transcript_counter + 0.5)
+                                vertical_cell.x = subcell.x
+                                vertical_cell.height = subcell_height
+                                vertical_cell.bgcolor = cmap((log2fc_secondary[gene][transcript_counter] - vmin) / (vmax - vmin))
+                                vertical_cell.name = ''
+                                transcript_counter += 1
+                                transcripts_per_cell[gene] = corresponding_transcripts
+
+                        name_cell_horiz = make_new_graphic(entry)
+                        name_cell_horiz.x = new_entry_v.x
+                        name_cell_horiz.y = new_entry.y
+                        name_cell_horiz.width = new_entry_v.width
+                        name_cell_horiz.height = new_entry_v.height # possible new_entry.height
+                        name_cell_horiz.bgcolor = '#ffffff00'
+                        name_cell_horiz.name = gene
+
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     if entry.graphics[0].type == 'line':
