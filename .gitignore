@@ -165,14 +165,3 @@ cython_debug/
 .vscode
 
 #example_files
-/draw_KEGG_*
-draw_KEGG_*
-draw_KEGG_*/
-examples/draw_KEGG_*/
-examples/draw_KEGG_*
-examples/my_folder*
-examples/my_folder*/
-example_usage*
-examples/miRNA2.tsv
-examples/methylation_for_quantification.csv
-examples/methylation_for_quantification.tsv
