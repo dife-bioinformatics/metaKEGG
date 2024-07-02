@@ -35,6 +35,7 @@ def parse_args():
     parser.add_argument('--benjamini_threshold', required=False, type=float, default=None, help='Benjamini Hochberg p-value threshold for the pathway')
     parser.add_argument('--save_to_eps', required=False, default=False, help='True/False statement to save the maps and colorscales or legends as seperate .eps files in addition to the .pdf exports')
     parser.add_argument('--output_folder_name', required=False, default=None, help='Name of output folder. Will overpower default scheme. Combines with extension')
+    parser.add_argument('--compounds_list', required=False, type=list, default=None, help='List of compound IDs to mapped in pathways if found.')
 
     return parser.parse_args()
 
@@ -46,6 +47,7 @@ def main():
     args = parse_args()
 
     if args.analysis_type is not None:
+        compounds_list = args.compounds_list if args.compounds_list is not None else []
         Pipeline(
             input_file_path=args.input_file_path,
             sheet_name_paths=args.sheet_name_paths,
@@ -71,6 +73,7 @@ def main():
             benjamini_threshold=args.benjamini_threshold,
             save_to_eps=args.save_to_eps,
             output_folder_name=args.output_folder_name,
+            compounds_list=compounds_list
         )
     else:
         print(f'Could not initiate the pipeline dues to missing value for the analysis_type. You provided {args.analysis_type}')

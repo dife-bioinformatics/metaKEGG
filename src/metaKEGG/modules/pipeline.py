@@ -50,7 +50,7 @@ class Pipeline:
     def __init__(self, input_file_path, sheet_name_paths='pathways', sheet_name_genes='gene_metrics', analysis_type=None, input_label=None, pathway_pvalue=None,
                 methylation_path=None, methylation_pvalue=None, methylation_genes=None, methylation_pvalue_thresh=0.05, methylation_probe_column=None, probes_to_cgs=False,
                 miRNA_path=None, miRNA_pvalue=None, miRNA_genes=None, miRNA_pvalue_thresh=0.05, miRNA_ID_column=None,
-                folder_extension=None, genes_column='gene_symbol', log2fc_column='logFC', count_threshold=2, benjamini_threshold=None ,save_to_eps=False, output_folder_name=None):
+                folder_extension=None, genes_column='gene_symbol', log2fc_column='logFC', count_threshold=2, benjamini_threshold=None ,save_to_eps=False, output_folder_name=None, compounds_list=None):
 
         self.input_file_path = input_file_path
         self.sheet_name_paths = sheet_name_paths
@@ -77,6 +77,7 @@ class Pipeline:
         self.benjamini_threshold = benjamini_threshold
         self.save_to_eps = save_to_eps
         self.output_folder_name = output_folder_name
+        self.compounds_list = compounds_list if compounds_list is not None else []
 
         self.select_analysis()
 
@@ -212,7 +213,7 @@ class Pipeline:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , compounds_list=self.compounds_list ,save_to_eps=self.save_to_eps)
         print(f'\nDone! \nOutput files are located in {output_folder}')
 
     def single_input_transcripts(self):
@@ -256,7 +257,7 @@ class Pipeline:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_transcripts(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_transcripts(parsed_output=parsed_out , info=pathway_info , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def multiple_inputs(self):
@@ -314,7 +315,7 @@ class Pipeline:
                                                                             genes_column=self.genes_column,
                                                                             log2fc_column=self.log2fc_column,
                                                                             count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold,
-                                                                            number_interventions=file_counter , name_interventions=inter_name, raw_pvalue_threshold=self.pathway_pvalue)
+                                                                            number_interventions=file_counter , name_interventions=inter_name, raw_pvalue_threshold=self.pathway_pvalue , compounds_list=self.compounds_list)
 
             parsed_out_list.append(globals()[parsed_out_counter])
             all_genes_list.append(globals()[all_genes_counter])
@@ -407,7 +408,7 @@ class Pipeline:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes_with_methylation(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_MM , color_legend=color_to_methylation , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_with_methylation(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_MM , color_legend=color_to_methylation , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_miRNA(self):
@@ -480,7 +481,7 @@ class Pipeline:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes_with_miRNA(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , color_legend=color_to_miRNA , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_with_miRNA(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , color_legend=color_to_miRNA , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_methylation_and_miRNA(self):
@@ -579,7 +580,7 @@ class Pipeline:
         print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output=parsed_out , info=pathway_info ,
                                                                 genes_from_MM=genes_from_MM , genes_from_miRNA=genes_from_miRNA,
-                                                                color_legend=color_to_methylation_w_miRNA , save_to_eps=self.save_to_eps)
+                                                                color_legend=color_to_methylation_w_miRNA , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_genes_bulk_mapping(self):
@@ -622,7 +623,7 @@ class Pipeline:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_miRNA_quantification(self):
@@ -691,7 +692,7 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, compounds_list=self.compounds_list,  raw_pvalue_threshold=self.pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
@@ -701,7 +702,7 @@ class Pipeline:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = self.miRNA_genes , miRNA_id_col=self.miRNA_ID_column ,save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = self.miRNA_genes , miRNA_id_col=self.miRNA_ID_column , compounds_list=self.compounds_list ,save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_methylation_quantification(self):
@@ -795,5 +796,5 @@ class Pipeline:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = self.methylation_genes , MM_id_col=metadata_id_col , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = self.methylation_genes , MM_id_col=metadata_id_col , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}')

@@ -1,6 +1,8 @@
 pale_yellow = '#ffffd1'
 gray = '#d6d6d6'
 dark_gray = '#8a8a8a'
+white = '#ffffff'
+lipid_yellow = '#e7ba52'
 
 tsv_suffixes = ['.tsv']
 csv_suffixes = ['.csv']

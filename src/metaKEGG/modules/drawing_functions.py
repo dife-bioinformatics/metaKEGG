@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from ..config import gray as gray
 from ..config import dark_gray as dark_gray
+from ..config import white as white
+from ..config import lipid_yellow as lipid_yellow
 from ..helpers import helpfunctions as _hf
 
 def make_new_graphic(input_entry):
@@ -40,7 +42,7 @@ def make_new_graphic(input_entry):
         
     return output_entry
 
-def draw_KEGG_pathways_genes(parsed_output , info , save_to_eps):
+def draw_KEGG_pathways_genes(parsed_output , info , compounds_list ,save_to_eps):
     """
     Draw KEGG pathways and save to file, with gene expression information.
 
@@ -69,12 +71,12 @@ def draw_KEGG_pathways_genes(parsed_output , info , save_to_eps):
         log2fc_values = log2fc.values()
 
         cmap , vmin, vmax = _hf.generate_colorscale_map(log2fc=log2fc_values)
-
+        print(log2fc)
         for entry in pathway.orthologs:
             entry.graphics[0].name = ""
             multiple_kos = [name.split(":")[1] for name in entry.name.split()]
             corresponding_genes = [key for key, values in gene_symbol_KO.items() if values in multiple_kos]
-
+            print(corresponding_genes)
             if not corresponding_genes:
                 entry.graphics[0].name = ""
                 entry.graphics[0].bgcolor = gray
@@ -108,6 +110,17 @@ def draw_KEGG_pathways_genes(parsed_output , info , save_to_eps):
                         element.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
                         genes_per_cell[gene] = gene
 
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
+                continue
+
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
@@ -120,7 +133,7 @@ def draw_KEGG_pathways_genes(parsed_output , info , save_to_eps):
         pathway_counter += 1
     writer.close()
 
-def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
+def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to_eps):
     """
     Draw KEGG pathways and save to file, with transcript expression information.
 
@@ -218,7 +231,7 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
                                 vertical_cell.bgcolor = cmap((log2fc_secondary[gene][transcript_counter] - vmin) / (vmax - vmin))
                                 vertical_cell.name = ''
                                 transcript_counter += 1
-                                
+
                                 transcripts_per_cell[gene] = corresponding_transcripts
 
                         name_cell_horiz = make_new_graphic(entry)
@@ -268,9 +281,15 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
                         name_cell.bgcolor = '#ffffff00'
                         name_cell.name = gene
 
-        for entry in pathway.compounds:
-            entry.graphics[0].name = ""
-            if entry.graphics[0].type == 'line':
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
                 continue
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
@@ -286,7 +305,7 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, save_to_eps):
     
     writer.close()
 
-def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , intervention_names , colors_list , save_to_eps):
+def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , intervention_names , colors_list , compounds_list, save_to_eps):
     """
     Draw KEGG pathways with gene expression information for multiple interventions.
 
@@ -428,6 +447,17 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
                             element.name = gene
                             genes_per_cell[gene] = corresponding_genes
 
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
+                continue
+
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=common_key)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
@@ -440,7 +470,7 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
         pathway_counter += 1
     writer.close()
 
-def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_MM , color_legend, save_to_eps):
+def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_MM , color_legend, compounds_list, save_to_eps):
     """
     Draw KEGG pathways with gene expression and methylation information.
 
@@ -513,6 +543,17 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
                     elif (gene in genes_in_pathway) and not (gene in genes_from_MM):
                         element.bgcolor = color_legend['Not differentially methylated']
 
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
+                continue
+
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
@@ -525,7 +566,7 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
         pathway_counter += 1
     writer.close()
 
-def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA , color_legend, save_to_eps):
+def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA , color_legend, compounds_list, save_to_eps):
     """
     Draw KEGG pathways with gene expression and miRNA information.
 
@@ -597,6 +638,17 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
                     elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
                         element.bgcolor = color_legend['miRNA not detected']
 
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
+                continue
+
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
@@ -609,7 +661,7 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
         pathway_counter += 1
     writer.close()
 
-def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , genes_from_MM , genes_from_miRNA, color_legend, save_to_eps):
+def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , genes_from_MM , genes_from_miRNA, color_legend, compounds_list, save_to_eps):
     """
     Draw KEGG pathways with gene expression, methylation, and miRNA information.
 
@@ -693,6 +745,16 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
                     elif (gene in genes_in_pathway) and (gene in genes_from_MM) and not (gene in genes_from_miRNA):
                         element.bgcolor = color_legend['Differentially methylated and not miRNA detected']
 
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
+                continue
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
 
@@ -706,7 +768,7 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
         pathway_counter += 1
     writer.close()
 
-def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , genes_from_miRNA , miRNA_df , miRNA_genes_col  ,  miRNA_id_col, save_to_eps):
+def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , genes_from_miRNA , miRNA_df , miRNA_genes_col  ,  miRNA_id_col, compounds_list, save_to_eps):
     """
     Draw KEGG pathways with gene expression and miRNA information.
 
@@ -864,6 +926,16 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
                     elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
                         element.bgcolor =  dark_gray
         
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
+                continue
 
         with PdfPages(id + "_per_gene_hist.pdf") as pdf:
 
@@ -913,7 +985,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
     writer.close()
     writer_metadata.close()
 
-def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , info , genes_from_MM , MM_df , MM_genes_col , MM_id_col ,save_to_eps):
+def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , info , genes_from_MM , MM_df , MM_genes_col , MM_id_col ,compounds_list, save_to_eps):
     """
     Draw KEGG pathways with gene expression and methylation information.
 
@@ -1071,6 +1143,16 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
                     elif (gene in genes_in_pathway) and not (gene in genes_from_MM):
                         element.bgcolor =  dark_gray
         
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
+                continue
 
         with PdfPages(id + "_per_gene_hist.pdf") as pdf:
 
