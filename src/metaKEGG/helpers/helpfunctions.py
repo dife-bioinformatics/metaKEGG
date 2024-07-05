@@ -619,7 +619,6 @@ def compile_and_write_output_files(id, pathway_id, output_name, cmap_label=None,
     else:
         raise ValueError("Color legend cannot be used with cmap, vmin, vmax")
 
-
 def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, genes_column, log2fc_column, count_threshold, benjamini_threshold , raw_pvalue_threshold, number_interventions = 1 , name_interventions = None):
     """
     Filter KEGG pathways based on specified criteria.
@@ -654,6 +653,8 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
 
     print(f"Will use thresholds:\nMinimum number of genes in pathway : {count_threshold} (included)\npathway raw pvalue : {raw_pvalue_threshold}\npathway Benjamini-Hochberg : {benjamini_threshold}\n")
 
+    log2fc_dict = {gene.upper(): value for gene, value in zip(gene_input[genes_column], gene_input[log2fc_column])}
+
     for _, row in kegg_pathways.iterrows():
         pathway_id = row['Term'].split(':')[0]
         pathway_name = row['Term'].split(':')[1]
@@ -661,7 +662,6 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
         pathway_pval = row['PValue']
         pathway_genes = row['Genes'].split(', ')
         pathway_benjamini = row['Benjamini']
-        
 
         if (pathway_count >= count_threshold) and \
             ((raw_pvalue_threshold is None and benjamini_threshold is None) or \
@@ -672,11 +672,16 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
             gene_logFC_dict = {}
             gene_logFC_secondary_dict = {}
 
-            for gene in pathway_genes:               
-                logFC_values = list(gene_input.loc[gene_input[genes_column] == gene, log2fc_column])
-                max_logFC = max(logFC_values, key=abs)
-                gene_logFC_dict[gene] = max_logFC
-                gene_logFC_secondary_dict[gene] = logFC_values
+            for gene in pathway_genes:
+                gene_upper = gene.upper()
+                if gene_upper in log2fc_dict:               
+                    original_gene = next(g for g in gene_input[genes_column] if g.upper() == gene_upper)
+                    logFC_values = list(gene_input.loc[gene_input[genes_column].str.upper() == gene_upper, log2fc_column])
+                    max_logFC = max(logFC_values, key=abs)
+                    gene_logFC_dict[original_gene] = max_logFC
+                    gene_logFC_secondary_dict[original_gene] = logFC_values
+                else:
+                    print(f'Warning! Gene {gene} is found pathway {pathway_id} : {pathway_name}, but does not have a log2FC value.\n')
 
             results_dict[pathway_id] = {'name': pathway_name,
                                         'count': pathway_count,
@@ -789,7 +794,6 @@ def generate_colorscale_map(log2fc):
 
     return cmap , vmin, vmax
 
-
 def assign_color_to_metadata(queried_number, label_to_color):
     """
     Assigns a color based on the queried number and the provided label-to-color mapping.
@@ -812,7 +816,6 @@ def assign_color_to_metadata(queried_number, label_to_color):
                 return label_to_color[label]
     # Return a default color if the queried number does not match any bin label
     return f"No corresponding color found for the number {queried_number}."
-
 
 def generate_genes_per_cell_spreadsheet(writer , genes_per_cell , id):
     """
@@ -1000,7 +1003,6 @@ def evaluate_metadata(metadata_df , pval_column , genes_column):
         raise ValueError('genes column is not of the correct type (str)')
     elif genes_column not in metadata_df.columns:
         raise ValueError(f'{genes_column} not found in metadata dataframe columns')
-
 
 def get_duplicate_entries_grouped_all(df, column):
 
