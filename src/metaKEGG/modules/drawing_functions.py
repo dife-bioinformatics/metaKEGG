@@ -247,7 +247,7 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
 
                     if gene in corresponding_transcripts or gene.upper() in corresponding_transcripts_upper:
                         # for transcript in range(len(log2fc_secondary[gene]) -1):
-                        for transcript in range(len(corresponding_transcripts) -1):
+                        for transcript in range(len(log2fc_secondary_upper[gene.upper()]) -1):
                             new_entry_v = make_new_graphic(entry)
                             new_entry_v.width = subcell_width
                             new_entry_v.height = og_height
@@ -265,7 +265,7 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
                             new_entry_v.x = subcell.x
                             new_entry_v.y = og_y
 
-                        num_subcells_vertical = len(corresponding_transcripts)
+                        num_subcells_vertical = len(log2fc_secondary_upper[gene.upper()])
                         subcell_height = new_entry_v.height / num_subcells_vertical
                         top_y = og_y - new_entry_v.height / 2
                         transcript_counter = 0
@@ -283,8 +283,8 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
                                         vertical_cell.bgcolor = cmap((log2fc_secondary[gene][transcript_counter] - vmin) / (vmax - vmin))
                                     elif gene.upper() in log2fc_secondary_upper:
                                         print(log2fc_secondary_upper[gene.upper()])
-                                        # print(log2fc_secondary_upper[gene.upper()][transcript_counter])
-                                        # vertical_cell.bgcolor = cmap((log2fc_secondary_upper[gene.upper()][transcript_counter] - vmin) / (vmax - vmin))
+                                        print(log2fc_secondary_upper[gene.upper()][transcript_counter])
+                                        vertical_cell.bgcolor = cmap((log2fc_secondary_upper[gene.upper()][transcript_counter] - vmin) / (vmax - vmin))
                                     else:
                                         raise KeyError(f'Transcript {transcript + 1} for gene {gene} does not have a log2FC value.')
                                 except KeyError as e:
@@ -326,10 +326,10 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
                         og_width = entry.graphics[0].width
                         og_height = entry.graphics[0].height
 
-                        for transcript in range(len(corresponding_transcripts) -1):
+                        for transcript in range(len(log2fc_secondary_upper[gene.upper()]) -1):
                             new_entry_v = make_new_graphic(entry)
 
-                        num_subcells_vertical = len(corresponding_transcripts)
+                        num_subcells_vertical = len(log2fc_secondary_upper[gene.upper()])
                         subcell_height = new_entry_v.height / num_subcells_vertical
                         top_y = new_entry_v.graphics[0].y - new_entry_v.height / 2
 
