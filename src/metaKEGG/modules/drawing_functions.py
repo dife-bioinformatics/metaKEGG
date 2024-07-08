@@ -63,7 +63,7 @@ def draw_KEGG_pathways_genes(parsed_output , info , compounds_list ,save_to_eps)
     for id , path_data in parsed_output.items():
         print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
-        genes_per_cell_upper = {}
+        genes_per_cell_og = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
         log2fc = path_data['logFC_dict']
@@ -104,13 +104,12 @@ def draw_KEGG_pathways_genes(parsed_output , info , compounds_list ,save_to_eps)
                         subcell.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
-                        genes_per_cell_upper[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
                     elif gene.upper() in log2fc_upper:
                             subcell.bgcolor = cmap((log2fc_upper[gene.upper()] - vmin) / (vmax - vmin))
                             subcell.name = gene
                             genes_per_cell[gene] = corresponding_genes
-                            # genes_per_cell_upper[gene.upper()] = corresponding_genes
-                            genes_per_cell_upper[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                            genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
@@ -118,13 +117,12 @@ def draw_KEGG_pathways_genes(parsed_output , info , compounds_list ,save_to_eps)
                     if gene in log2fc:
                         element.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
                         genes_per_cell[gene] = gene
-                        genes_per_cell_upper[gene.upper()] = gene
+                        genes_per_cell_og[gene] = gene
                     elif gene.upper() in log2fc_upper:
                         element.bgcolor = cmap((log2fc_upper[gene.upper()] - vmin) / (vmax - vmin))
                         element.name = gene
                         genes_per_cell[gene] = gene
-                        # genes_per_cell_upper[gene.upper()] = gene
-                        genes_per_cell_upper[log2fc_upper_to_original[gene.upper()]] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
 
 
         for compound_entry in pathway.compounds:
@@ -139,7 +137,7 @@ def draw_KEGG_pathways_genes(parsed_output , info , compounds_list ,save_to_eps)
                 continue
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
-        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_upper , id=id)
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
         cnvs.draw(pathway_id + ".pdf")
@@ -174,13 +172,12 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
     for id , path_data in parsed_output.items():
         print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
-        genes_per_cell_upper = {}
+        genes_per_cell_og = {}
         transcripts_per_cell = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
         log2fc = path_data['logFC_dict']
         log2fc_secondary = path_data['logFC_secondary_dict']
-        print('log2fc_secondary' , log2fc_secondary)
         log2fc_upper = {k.upper() : v for k , v in log2fc.items()}
         log2fc_secondary_upper = {k.upper() : v for k , v in log2fc_secondary.items()}
         log2fc_upper_to_original = {original.upper(): original for original in log2fc.keys()}
@@ -189,8 +186,7 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
         output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
         corresponding_transcripts = [key for key, values in log2fc_secondary.items() if len(values) > 1]
         corresponding_transcripts_upper = [key.upper() for key, values in log2fc_secondary.items() if len(values) > 1]
-        print('corresponding_transcripts',corresponding_transcripts)
-        print('corresponding_transcripts_upper' , corresponding_transcripts_upper)
+
         log2fc_extended = list(log2fc.values()) + [value for values in log2fc_secondary.values() for value in values]
 
         cmap , vmin, vmax = _hf.generate_colorscale_map(log2fc=log2fc_extended)
@@ -236,17 +232,15 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
                         subcell.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
-                        genes_per_cell_upper[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
 
                     elif gene.upper() in log2fc_upper:
                             subcell.bgcolor = cmap((log2fc_upper[gene.upper()] - vmin) / (vmax - vmin))
                             subcell.name = gene
                             genes_per_cell[gene] = corresponding_genes
-                            # genes_per_cell_upper[gene.upper()] = corresponding_genes
-                            genes_per_cell_upper[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                            genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
 
                     if gene in corresponding_transcripts or gene.upper() in corresponding_transcripts_upper:
-                        # for transcript in range(len(log2fc_secondary[gene]) -1):
                         for transcript in range(len(log2fc_secondary_upper[gene.upper()]) -1):
                             new_entry_v = make_new_graphic(entry)
                             new_entry_v.width = subcell_width
@@ -272,9 +266,6 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
 
                         for j, vertical_cell in enumerate((entry.graphics)):
                             if entry.graphics[j].name == gene:
-                                print(gene , j , transcript_counter)
-                                print(log2fc_secondary)
-                                print(log2fc_secondary_upper)
                                 vertical_cell.y = top_y + subcell_height * (transcript_counter + 0.5)
                                 vertical_cell.x = subcell.x
                                 vertical_cell.height = subcell_height
@@ -282,14 +273,11 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
                                     if gene in log2fc_secondary:
                                         vertical_cell.bgcolor = cmap((log2fc_secondary[gene][transcript_counter] - vmin) / (vmax - vmin))
                                     elif gene.upper() in log2fc_secondary_upper:
-                                        print(log2fc_secondary_upper[gene.upper()])
-                                        print(log2fc_secondary_upper[gene.upper()][transcript_counter])
                                         vertical_cell.bgcolor = cmap((log2fc_secondary_upper[gene.upper()][transcript_counter] - vmin) / (vmax - vmin))
                                     else:
                                         raise KeyError(f'Transcript {transcript + 1} for gene {gene} does not have a log2FC value.')
                                 except KeyError as e:
                                     print(e)
-                                # vertical_cell.bgcolor = cmap((log2fc_secondary[gene][transcript_counter] - vmin) / (vmax - vmin))
                                 vertical_cell.name = ''
                                 transcript_counter += 1
 
@@ -314,12 +302,12 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
                         element.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
                         element.name = gene
                         genes_per_cell[gene] = gene
-                        genes_per_cell_upper[gene.upper()] = gene
+                        genes_per_cell_og[gene] = gene
                     elif gene.upper() in log2fc_upper:
                         element.bgcolor = cmap((log2fc_upper[gene.upper()] - vmin) / (vmax - vmin))
                         element.name = gene
                         genes_per_cell[gene] = gene
-                        genes_per_cell_upper[log2fc_upper_to_original[gene.upper()]] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
                     if gene in corresponding_transcripts or gene.upper() in corresponding_transcripts:
                         og_x = entry.graphics[0].x
                         og_y = entry.graphics[0].y
@@ -339,23 +327,16 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
                             vertical_cell.y = top_y + subcell_height * (transcript_counter + 0.5)
                             vertical_cell.x = element.x
                             vertical_cell.height = subcell_height
-                            print(gene , j , transcript_counter)
-                            print(log2fc_secondary)
-                            print(log2fc_secondary_upper)
-
                             try:
                                 if gene in log2fc_secondary:
                                     vertical_cell.bgcolor = cmap((log2fc_secondary[gene][transcript_counter] - vmin) / (vmax - vmin))
                                 elif gene.upper() in log2fc_secondary_upper:
-                                    print(log2fc_secondary_upper[gene.upper()])
-                                    print(log2fc_secondary_upper[gene.upper()][transcript_counter])
                                     vertical_cell.bgcolor = cmap((log2fc_secondary_upper[gene.upper()][transcript_counter] - vmin) / (vmax - vmin))
                                 else:
                                     raise KeyError(f'Gene {gene} is not found does not have log2FC info.')
                             except KeyError as e:
                                 print(e)
 
-                            # vertical_cell.bgcolor = cmap((log2fc_secondary[gene][j] - vmin) / (vmax - vmin))
                             vertical_cell.name = ''
                             transcript_counter += 1
                             transcripts_per_cell[gene] = corresponding_transcripts
@@ -380,7 +361,7 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
                 continue
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
-        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_upper , id=id)
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
         cnvs.draw(pathway_id + ".pdf")
 
@@ -576,16 +557,21 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
     >>> draw_KEGG_pathways_genes_with_methylation(parsed_output, info, genes_from_MM, color_legend, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    writer_upper = pd.ExcelWriter('genes_per_cell_input_format.xlsx', engine='xlsxwriter')
     pathway_counter = 1
+    genes_from_MM_upper = [gene.upper() for gene in genes_from_MM]
     for id , path_data in parsed_output.items():
         print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
+        genes_per_cell_og = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
         genes_in_pathway = path_data['genes']
+        log2fc = path_data['logFC_dict']
+        log2fc_upper = {k.upper() : v for k , v in log2fc.items()}
+        log2fc_upper_to_original = {original.upper(): original for original in log2fc.keys()}
         gene_symbol_KO = info[id]['gene_symbol_KO']
         output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
-
 
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray
@@ -606,30 +592,54 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
                 subcell_width = new_entry.width / num_subcells
                 left_x = new_entry.graphics[0].x - new_entry.width/2
             
-            
                 for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     subcell.x = left_x + subcell_width * (i + 0.5)
                     subcell.width = subcell_width
                     subcell.bgcolor = gray
                     subcell.name = ""
 
-                    if (gene in genes_in_pathway) and (gene in genes_from_MM):
+                    if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
                         subcell.bgcolor = color_legend['Differentially methylated']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM):
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper):
                         subcell.bgcolor = color_legend['Not differentially methylated']
                         subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
+                        subcell.bgcolor = color_legend['Differentially methylated']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper):
+                        subcell.bgcolor = color_legend['Not differentially methylated']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
 
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
                     element.name = gene
-                    if (gene in genes_in_pathway) and (gene in genes_from_MM):
+                    if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
                         element.bgcolor = color_legend['Differentially methylated']
                         genes_per_cell[gene] = gene
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM):
+                        genes_per_cell_og[gene] = gene
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
+                        element.bgcolor = color_legend['Differentially methylated']
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper):
                         element.bgcolor = color_legend['Not differentially methylated']
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[gene] = gene
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper):
+                        element.bgcolor = color_legend['Not differentially methylated']
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
+
 
         for compound_entry in pathway.compounds:
             if compound_entry.graphics[0].name in compounds_list:  
@@ -643,6 +653,7 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
                 continue
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
         cnvs.draw(pathway_id + ".pdf")
@@ -672,16 +683,21 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
     >>> draw_KEGG_pathways_genes_with_miRNA(parsed_output, info, genes_from_miRNA, color_legend, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    writer_upper = pd.ExcelWriter('genes_per_cell_input_format.xlsx', engine='xlsxwriter')
     pathway_counter = 1
+    genes_from_miRNA_upper = [gene.upper() for gene in genes_from_miRNA]
     for id , path_data in parsed_output.items():
         print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
+        genes_per_cell_og = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
         genes_in_pathway = path_data['genes']
+        log2fc = path_data['logFC_dict']
+        log2fc_upper = {k.upper() : v for k , v in log2fc.items()}
+        log2fc_upper_to_original = {original.upper(): original for original in log2fc.keys()}
         gene_symbol_KO = info[id]['gene_symbol_KO']
         output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
-
 
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray
@@ -702,29 +718,53 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
                 subcell_width = new_entry.width / num_subcells
                 left_x = new_entry.graphics[0].x - new_entry.width/2
             
-            
                 for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     subcell.x = left_x + subcell_width * (i + 0.5)
                     subcell.width = subcell_width
                     subcell.bgcolor = gray
                     subcell.name = ""
 
-                    if (gene in genes_in_pathway) and (gene in genes_from_miRNA):
+                    if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
                         subcell.bgcolor = color_legend['miRNA detected']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_miRNA_upper):
                         subcell.bgcolor = color_legend['miRNA not detected']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['miRNA detected']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['miRNA not detected']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
 
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
                     element.name = gene
-                    if (gene in genes_in_pathway) and (gene in genes_from_miRNA):
+                    if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
                         element.bgcolor = color_legend['miRNA detected']
                         genes_per_cell[gene] = gene
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
+                        genes_per_cell_og[gene] = gene
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['miRNA detected']
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_miRNA_upper):
                         element.bgcolor = color_legend['miRNA not detected']
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[gene] = gene
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['miRNA not detected']
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
 
         for compound_entry in pathway.compounds:
             if compound_entry.graphics[0].name in compounds_list:  
@@ -738,6 +778,7 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
                 continue
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
         cnvs.draw(pathway_id + ".pdf")

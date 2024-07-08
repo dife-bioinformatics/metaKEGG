@@ -729,6 +729,8 @@ def parse_bulk_kegg_pathway_file(filepath, sheet_name_paths, sheet_name_genes, g
     pathway_genes = gene_input[genes_column].to_list()
     results_dict = {}
 
+    log2fc_dict = {gene.upper(): value for gene, value in zip(gene_input[genes_column], gene_input[log2fc_column])}
+
     for _, row in kegg_pathways.iterrows():
         try:
             pathway_info = row['Term'].split(':')
@@ -740,15 +742,20 @@ def parse_bulk_kegg_pathway_file(filepath, sheet_name_paths, sheet_name_genes, g
         gene_logFC_dict = {}
 
         for gene in pathway_genes:
-            logFC_values = list(gene_input.loc[gene_input[genes_column] == gene, log2fc_column])
-            max_logFC = max(logFC_values, key=abs)
-            gene_logFC_dict[gene] = max_logFC
-
-            results_dict[pathway_id] = {'name': pathway_name,
-                                        'genes': pathway_genes,
-                                        'logFC_dict': gene_logFC_dict,
-                                        'intervention_number': number_interventions,
-                                        'intervention_name' : name_interventions}
+            gene_upper = gene.upper()
+            if gene_upper in log2fc_dict:               
+                original_gene = next(g for g in gene_input[genes_column] if g.upper() == gene_upper)
+                logFC_values = list(gene_input.loc[gene_input[genes_column].str.upper() == gene_upper, log2fc_column])
+                max_logFC = max(logFC_values, key=abs)
+                gene_logFC_dict[original_gene] = max_logFC
+            else:
+                print(f'Warning! Gene {gene} is found pathway {pathway_id} : {pathway_name}, but does not have a log2FC value.\n')
+            
+        results_dict[pathway_id] = {'name': pathway_name,
+                                    'genes': pathway_genes,
+                                    'logFC_dict': gene_logFC_dict,
+                                    'intervention_number': number_interventions,
+                                    'intervention_name' : name_interventions}
 
     return results_dict, gene_input[genes_column].unique().tolist()
 
