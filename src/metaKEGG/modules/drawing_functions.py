@@ -622,24 +622,27 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
-                    element.name = gene
+                    element.name = ""
                     if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
                         element.bgcolor = color_legend['Differentially methylated']
+                        element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
                         element.bgcolor = color_legend['Differentially methylated']
+                        element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
                     elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper):
                         element.bgcolor = color_legend['Not differentially methylated']
+                        element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper):
                         element.bgcolor = color_legend['Not differentially methylated']
+                        element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
-
 
         for compound_entry in pathway.compounds:
             if compound_entry.graphics[0].name in compounds_list:  
@@ -725,22 +728,22 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
                     subcell.name = ""
 
                     if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['miRNA detected']
+                        subcell.bgcolor = color_legend['miRNA target']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene in log2fc) and not (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['miRNA not detected']
+                        subcell.bgcolor = color_legend['Not miRNA target']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['miRNA detected']
+                        subcell.bgcolor = color_legend['miRNA target']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['miRNA not detected']
+                        subcell.bgcolor = color_legend['Not miRNA target']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
@@ -748,21 +751,25 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
-                    element.name = gene
+                    element.name = ""
                     if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['miRNA detected']
+                        element.bgcolor = color_legend['miRNA target']
+                        element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['miRNA detected']
+                        element.name = gene
+                        element.bgcolor = color_legend['miRNA target']
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
                     elif (gene in log2fc) and not (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['miRNA not detected']
+                        element.name = gene
+                        element.bgcolor = color_legend['Not miRNA target']
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['miRNA not detected']
+                        element.name = gene
+                        element.bgcolor = color_legend['Not miRNA target']
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
 
@@ -809,20 +816,26 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
     >>> draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output, info, genes_from_MM, genes_from_miRNA, color_legend, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    writer_upper = pd.ExcelWriter('genes_per_cell_input_format.xlsx', engine='xlsxwriter')
     pathway_counter = 1
+    genes_from_MM_upper = [gene.upper() for gene in genes_from_MM]
+    genes_from_miRNA_upper = [gene.upper() for gene in genes_from_miRNA]
     for id , path_data in parsed_output.items():
         print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
+        genes_per_cell_og = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
         genes_in_pathway = path_data['genes']
+        log2fc = path_data['logFC_dict']
+        log2fc_upper = {k.upper() : v for k , v in log2fc.items()}
+        log2fc_upper_to_original = {original.upper(): original for original in log2fc.keys()}
         gene_symbol_KO = info[id]['gene_symbol_KO']
         output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
 
-
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray
-            entry.graphics[0].name = ''
+            entry.graphics[0].name = ""
             multiple_kos = [name.split(":")[1] for name in entry.name.split()]
             corresponding_genes = [key for key, values in gene_symbol_KO.items() if values in multiple_kos]
 
@@ -839,40 +852,96 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
                 subcell_width = new_entry.width / num_subcells
                 left_x = new_entry.graphics[0].x - new_entry.width/2
             
-            
                 for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     subcell.x = left_x + subcell_width * (i + 0.5)
                     subcell.width = subcell_width
                     subcell.bgcolor = gray
                     subcell.name = ""
 
-                    if (gene in genes_in_pathway) and (gene in genes_from_MM) and (gene in genes_from_miRNA):
-                        subcell.bgcolor = color_legend['Differentially methylated and miRNA detected']
+                    if (gene in log2fc) and (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['Differentially methylated and miRNA target']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM) and not (gene in genes_from_miRNA):
-                        subcell.bgcolor = color_legend['Not differentially methylated and not miRNA detected']
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['Differentially methylated and miRNA target']
                         subcell.name = gene
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM) and (gene in genes_from_miRNA):
-                        subcell.bgcolor = color_legend['Not differentially methylated and miRNA detected']
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['Not differentially methylated and not miRNA target']
                         subcell.name = gene
-                    elif (gene in genes_in_pathway) and (gene in genes_from_MM) and not (gene in genes_from_miRNA):
-                        subcell.bgcolor = color_legend['Differentially methylated and not miRNA detected']
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['Not differentially methylated and not miRNA target']
                         subcell.name = gene
-
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['Not differentially methylated and miRNA target']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['Not differentially methylated and miRNA target']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene in log2fc) and (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['Differentially methylated and not miRNA target']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = color_legend['Differentially methylated and not miRNA target']
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
-                    element.name = gene
-                    if (gene in genes_in_pathway) and (gene in genes_from_MM) and (gene in genes_from_miRNA):
-                        element.bgcolor = color_legend['Differentially methylated and miRNA detected']
-                        genes_per_cell[gene] = gene
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM) and not (gene in genes_from_miRNA):
-                        element.bgcolor = color_legend['Not differentially methylated and not miRNA detected']
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM) and (gene in genes_from_miRNA):
-                        element.bgcolor = color_legend['Not differentially methylated and miRNA detected']
-                    elif (gene in genes_in_pathway) and (gene in genes_from_MM) and not (gene in genes_from_miRNA):
-                        element.bgcolor = color_legend['Differentially methylated and not miRNA detected']
+                    element.name = ""
+                    if (gene in log2fc) and (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['Differentially methylated and miRNA target']
+                        element.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['Differentially methylated and miRNA target']
+                        element.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['Not differentially methylated and not miRNA target']
+                        element.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['Not differentially methylated and not miRNA target']
+                        element.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['Not differentially methylated and miRNA target']
+                        element.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['Not differentially methylated and miRNA target']
+                        element.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene in log2fc) and (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['Differentially methylated and not miRNA target']
+                        element.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor = color_legend['Differentially methylated and not miRNA target']
+                        element.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
 
         for compound_entry in pathway.compounds:
             if compound_entry.graphics[0].name in compounds_list:  
@@ -886,6 +955,7 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
                 continue
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
         cnvs.draw(pathway_id + ".pdf")
@@ -915,24 +985,31 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
     >>> draw_KEGG_pathways_genes_with_miRNA(parsed_output, info, genes_from_miRNA, color_legend, save_to_eps=True)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    writer_upper = pd.ExcelWriter('genes_per_cell_input_format.xlsx', engine='xlsxwriter')
     writer_metadata = pd.ExcelWriter('miRNAs_per_gene.xlsx', engine='xlsxwriter')
     pathway_counter = 1
+    genes_from_miRNA_upper = [gene.upper() for gene in genes_from_miRNA]
     for id , path_data in parsed_output.items():
         print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
+        genes_per_cell_og = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
         genes_in_pathway = path_data['genes']
+        genes_in_pathway_upper = [g.upper() for g in genes_in_pathway]
+        log2fc = path_data['logFC_dict']
+        log2fc_upper = {k.upper() : v for k , v in log2fc.items()}
+        log2fc_upper_to_original = {original.upper(): original for original in log2fc.keys()}
         gene_symbol_KO = info[id]['gene_symbol_KO']
         output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
-
-        miRNA_df_sub = miRNA_df[miRNA_df[miRNA_genes_col].isin(genes_in_pathway)]
+            
+        miRNA_df_sub = miRNA_df[miRNA_df[miRNA_genes_col].str.upper().isin(genes_in_pathway_upper)]
         miRNA_df_sub_dup = _hf.get_duplicate_entries_grouped_all(miRNA_df_sub, column=miRNA_genes_col)
         mirs_per_gene = { k : v for k, v in  zip(miRNA_df_sub_dup[miRNA_genes_col] , miRNA_df_sub_dup['counts'])}
 
         not_meta_profile = set()
         for gene in genes_in_pathway:
-            if gene not in miRNA_df_sub_dup[miRNA_genes_col].to_list() and gene not in not_meta_profile:
+            if (gene not in miRNA_df_sub_dup[miRNA_genes_col].to_list() or gene.upper() not in miRNA_df_sub_dup[miRNA_genes_col].str.upper().to_list()) and (gene not in not_meta_profile):
                 not_meta_profile.add(gene)
         not_meta_profile_list = list(not_meta_profile)
         for gene in not_meta_profile_list:
@@ -1007,10 +1084,8 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             colorlist.insert(0 , dark_gray)
             cmap = mcolors.ListedColormap(colorlist)
             norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
-        # colors = [cmap(norm(i)) for i in range(len(bin_labels))]
 
         label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
-
 
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray
@@ -1031,30 +1106,58 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
                 subcell_width = new_entry.width / num_subcells
                 left_x = new_entry.graphics[0].x - new_entry.width/2
             
-            
                 for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     subcell.x = left_x + subcell_width * (i + 0.5)
                     subcell.width = subcell_width
                     subcell.bgcolor = gray
                     subcell.name = ""
 
-                    if (gene in genes_in_pathway) and (gene in genes_from_miRNA):
+                    if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
                         subcell.bgcolor = _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
-                        subcell.bgcolor =  dark_gray
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = dark_gray
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        subcell.bgcolor = dark_gray
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
 
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
-                    element.name = gene
-                    if (gene in genes_in_pathway) and (gene in genes_from_miRNA):
+                    element.name = ""
+                    if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
                         element.bgcolor =  _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        element.name = gene
                         genes_per_cell[gene] = gene
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_miRNA):
+                        genes_per_cell_og[gene] = gene
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor =  _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        element.name = gene
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_miRNA_upper):
                         element.bgcolor =  dark_gray
-        
+                        element.name = gene
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[gene] = gene
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_miRNA_upper):
+                        element.bgcolor =  dark_gray
+                        element.name = gene
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
+
         for compound_entry in pathway.compounds:
             if compound_entry.graphics[0].name in compounds_list:  
                 compound_entry.graphics[0].bgcolor = lipid_yellow
@@ -1102,6 +1205,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
         _hf.generate_metadata_per_gene_spreadsheet(writer=writer_metadata , metadata_df=miRNA_df_sub , metadata_id_col=miRNA_id_col , symbol_col=miRNA_genes_col , metadata_dict=mirs_per_gene , id=id)
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
         cnvs.draw(pathway_id + ".pdf")
@@ -1132,25 +1236,31 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
     >>> draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_MM , MM_df , MM_genes_col ,save_to_eps)
     """
     writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    writer_upper = pd.ExcelWriter('genes_per_cell_input_format.xlsx', engine='xlsxwriter')
     writer_metadata = pd.ExcelWriter('cgs_per_gene.xlsx', engine='xlsxwriter')
-
     pathway_counter = 1
+    genes_from_MM_upper = [gene.upper() for gene in genes_from_MM]
     for id , path_data in parsed_output.items():
         print(f'[{pathway_counter}/{len(parsed_output)}] {id} ({parsed_output[id]["name"]})')
         genes_per_cell = {}
+        genes_per_cell_og = {}
         pathway_id = info[id]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
         genes_in_pathway = path_data['genes']
+        genes_in_pathway_upper = [g.upper() for g in genes_in_pathway]
+        log2fc = path_data['logFC_dict']
+        log2fc_upper = {k.upper() : v for k , v in log2fc.items()}
+        log2fc_upper_to_original = {original.upper(): original for original in log2fc.keys()}
         gene_symbol_KO = info[id]['gene_symbol_KO']
         output_name = _hf.file_naming_scheme(input_data=parsed_output , id = id)
 
-        MM_df_sub = MM_df[MM_df[MM_genes_col].isin(genes_in_pathway)]
+        MM_df_sub = MM_df[MM_df[MM_genes_col].str.upper().isin(genes_in_pathway_upper)]
         MM_df_sub_dup = _hf.get_duplicate_entries_grouped_all(MM_df_sub, column=MM_genes_col)
         cpgs_per_gene = { k : v for k, v in  zip(MM_df_sub_dup[MM_genes_col] , MM_df_sub_dup['counts'])}
 
         not_meta_profile = set()
         for gene in genes_in_pathway:
-            if gene not in MM_df_sub_dup[MM_genes_col].to_list() and gene not in not_meta_profile:
+            if (gene not in MM_df_sub_dup[MM_genes_col].to_list() or gene.upper() not in MM_df_sub_dup[MM_genes_col].str.upper().to_list()) and (gene not in not_meta_profile):
                 not_meta_profile.add(gene)
         not_meta_profile_list = list(not_meta_profile)
         for gene in not_meta_profile_list:
@@ -1255,23 +1365,53 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
                     subcell.bgcolor = gray
                     subcell.name = ""
 
-                    if (gene in genes_in_pathway) and (gene in genes_from_MM):
+                    if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
                         subcell.bgcolor = _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM):
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
+                        subcell.bgcolor = _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper):
                         subcell.bgcolor =  dark_gray
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[gene] = corresponding_genes
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper):
+                        subcell.bgcolor =  dark_gray
+                        subcell.name = gene
+                        genes_per_cell[gene] = corresponding_genes
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
 
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
-                    element.name = gene
-                    if (gene in genes_in_pathway) and (gene in genes_from_MM):
+                    element.name = ""
+                    if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
                         element.bgcolor =  _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        element.name = gene
                         genes_per_cell[gene] = gene
-                    elif (gene in genes_in_pathway) and not (gene in genes_from_MM):
+                        genes_per_cell_og[gene] = gene
+                    elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
+                        element.bgcolor =  _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        element.name = gene
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
+                    elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper):
                         element.bgcolor =  dark_gray
-        
+                        element.name = gene
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[gene] = gene
+                    elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper):
+                        element.bgcolor =  dark_gray
+                        element.name = gene
+                        genes_per_cell[gene] = gene
+                        genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
+
+
         for compound_entry in pathway.compounds:
             if compound_entry.graphics[0].name in compounds_list:  
                 compound_entry.graphics[0].bgcolor = lipid_yellow
@@ -1316,9 +1456,9 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             plt.close(fig2)
             plt.close()
 
-
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
         _hf.generate_metadata_per_gene_spreadsheet(writer=writer_metadata , metadata_df=MM_df_sub , metadata_id_col=MM_id_col , symbol_col=MM_genes_col , metadata_dict=cpgs_per_gene , id=id)
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
         cnvs.draw(pathway_id + ".pdf")
