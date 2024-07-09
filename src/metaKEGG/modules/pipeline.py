@@ -315,7 +315,7 @@ class Pipeline:
                                                                             genes_column=self.genes_column,
                                                                             log2fc_column=self.log2fc_column,
                                                                             count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold,
-                                                                            number_interventions=file_counter , name_interventions=inter_name, raw_pvalue_threshold=self.pathway_pvalue , compounds_list=self.compounds_list)
+                                                                            number_interventions=file_counter , name_interventions=inter_name, raw_pvalue_threshold=self.pathway_pvalue)
 
             parsed_out_list.append(globals()[parsed_out_counter])
             all_genes_list.append(globals()[all_genes_counter])
@@ -335,7 +335,7 @@ class Pipeline:
             _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes_i, pathway_dict=parsed_out_i , name_extension="input"+str(list_counter+1))
 
         print('Collecting pathway info & mapping pathways...')
-        _df.draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list=parsed_out_list , intervention_names=self.input_label , colors_list=_cs.colors_list , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list=parsed_out_list , intervention_names=self.input_label , colors_list=_cs.colors_list , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}\n')
 
     def single_input_with_methylation(self):

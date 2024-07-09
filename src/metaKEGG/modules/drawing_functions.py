@@ -405,13 +405,16 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
             if key in d:
                 common_key_dict[key].append({key: d[key]})
 
-
     combination_dict = {common_key: [] for common_key in common_key_dict}
+    print("common_key_dict",common_key_dict)
+    print("combination_dict",combination_dict)
+
     for common_key , common_list in common_key_dict.items():
         for r in range(2, num_interventions + 1):
             for combination in combinations(common_key_dict[common_key], r):
                 combination_key = '+'.join(sorted(interv_dict[common_key]['intervention_name'] for interv_dict in combination))
-                genes_lists = [interv_dict[common_key]['genes'] for interv_dict in combination]
+                # genes_lists = [interv_dict[common_key]['genes'] for interv_dict in combination]
+                genes_lists = [interv_dict[common_key]['genes_upper'] for interv_dict in combination]
                 common_genes = list(set.intersection(*map(set, genes_lists)))
                 level = len(combination)
                 combination_dict[common_key].append({'level': level, 'combination_key': combination_key, 'common_genes': common_genes})
@@ -482,9 +485,10 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
 
                     for indiv_pathway in common_list:
                         genes_in_pathway = indiv_pathway[common_key]['genes']
+                        genes_in_pathway_upper = [gene.upper() for gene in genes_in_pathway]
                         name_intervention = indiv_pathway[common_key]['intervention_name']
-                        in_pathway = gene in genes_in_pathway
-                        key_with_gene = [combo['combination_key'] for combo in combination_dict[common_key] if gene in combo['common_genes']]
+                        in_pathway = gene.upper() in genes_in_pathway_upper
+                        key_with_gene = [combo['combination_key'] for combo in combination_dict[common_key] if gene.upper() in combo['common_genes']]
                         if len(key_with_gene) >= 1:
                                 subcell.bgcolor = color_to_intervention[key_with_gene[0]]
                                 subcell.name = gene
@@ -499,13 +503,14 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
-                    element.name = gene
+                    element.name = ""
 
                     for indiv_pathway in common_list:
                         genes_in_pathway = indiv_pathway[common_key]['genes']
+                        genes_in_pathway_upper = [gene.upper() for gene in genes_in_pathway]
                         name_intervention = indiv_pathway[common_key]['intervention_name']
-                        in_pathway = gene in genes_in_pathway
-                        key_with_gene = [combo['combination_key'] for combo in combination_dict[common_key] if gene in combo['common_genes']]
+                        in_pathway = gene.upper() in genes_in_pathway_upper
+                        key_with_gene = [combo['combination_key'] for combo in combination_dict[common_key] if gene.upper() in combo['common_genes']]
 
                         if len(key_with_gene) >= 1:
                             element.bgcolor = color_to_intervention[key_with_gene[0]]

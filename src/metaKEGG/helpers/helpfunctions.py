@@ -671,6 +671,7 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
             
             gene_logFC_dict = {}
             gene_logFC_secondary_dict = {}
+            pathway_genes_upper = [gene for gene in pathway_genes]
 
             for gene in pathway_genes:
                 gene_upper = gene.upper()
@@ -686,6 +687,7 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
             results_dict[pathway_id] = {'name': pathway_name,
                                         'count': pathway_count,
                                         'genes': pathway_genes,
+                                        'genes_upper': pathway_genes_upper,
                                         'pvalue':pathway_pval,
                                         'benjamini': pathway_benjamini,
                                         'logFC_dict': gene_logFC_dict,
