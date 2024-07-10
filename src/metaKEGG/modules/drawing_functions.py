@@ -1004,7 +1004,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
 
         MM_df_sub = MM_df[MM_df[MM_genes_col].str.upper().isin(genes_in_pathway_upper)]
         MM_df_sub_dup = _hf.get_duplicate_entries_grouped_all(MM_df_sub, column=MM_genes_col)
-        cpgs_per_gene = { k : v for k, v in  zip(MM_df_sub_dup[MM_genes_col] , MM_df_sub_dup['counts'])}
+        cpgs_per_gene = { k.upper() : v for k, v in  zip(MM_df_sub_dup[MM_genes_col] , MM_df_sub_dup['counts'])}
 
         not_meta_profile = set()
         for gene in genes_in_pathway:
@@ -1085,7 +1085,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
 
         label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
-        print(label_to_color)
+
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray
             entry.graphics[0].name = ''
@@ -1256,7 +1256,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             
         miRNA_df_sub = miRNA_df[miRNA_df[miRNA_genes_col].str.upper().isin(genes_in_pathway_upper)]
         miRNA_df_sub_dup = _hf.get_duplicate_entries_grouped_all(miRNA_df_sub, column=miRNA_genes_col)
-        mirs_per_gene = { k : v for k, v in  zip(miRNA_df_sub_dup[miRNA_genes_col] , miRNA_df_sub_dup['counts'])}
+        mirs_per_gene = { k.upper() : v for k, v in  zip(miRNA_df_sub_dup[miRNA_genes_col] , miRNA_df_sub_dup['counts'])}
 
         not_meta_profile = set()
         for gene in genes_in_pathway:
@@ -1337,7 +1337,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
 
         label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
-
+        print(mirs_per_gene)
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray
             entry.graphics[0].name = ''
