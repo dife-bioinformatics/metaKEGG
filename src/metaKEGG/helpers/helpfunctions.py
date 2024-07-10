@@ -671,7 +671,7 @@ def filter_kegg_pathways_genes(filepath, sheet_name_paths, sheet_name_genes, gen
             
             gene_logFC_dict = {}
             gene_logFC_secondary_dict = {}
-            pathway_genes_upper = [gene for gene in pathway_genes]
+            pathway_genes_upper = [gene.upper() for gene in pathway_genes]
 
             for gene in pathway_genes:
                 gene_upper = gene.upper()

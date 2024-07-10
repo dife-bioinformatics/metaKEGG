@@ -334,7 +334,7 @@ class Pipeline:
         for list_counter , (parsed_out_i, all_genes_i) in enumerate(zip(parsed_out_list , all_genes_list)):
             _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes_i, pathway_dict=parsed_out_i , name_extension="input"+str(list_counter+1))
 
-        print('Collecting pathway info & mapping pathways...')
+        print('Collecting pathway info & mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list=parsed_out_list , intervention_names=self.input_label , colors_list=_cs.colors_list , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         print(f'Done! \nOutput files are located in {output_folder}\n')
 
@@ -463,7 +463,7 @@ class Pipeline:
         if len(genes_from_miRNA) == 0:
             raise ValueError('There are no genes with a miRNA profile')
 
-        miRNA_options = ['miRNA detected' , 'miRNA not detected']
+        miRNA_options = ['miRNA target' , 'Not miRNA target']
         color_to_miRNA = {miRNA : color for (miRNA , color) in zip(miRNA_options , _cs.colors_list)}
         print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
@@ -559,8 +559,8 @@ class Pipeline:
             raise ValueError('There are no genes with a miRNA profile')
         
 
-        methylation_w_miRNA_options = ['Differentially methylated and miRNA detected', 'Not differentially methylated and miRNA detected',
-                                       'Differentially methylated and not miRNA detected' , 'Not differentially methylated and not miRNA detected']
+        methylation_w_miRNA_options = ['Differentially methylated and miRNA target', 'Not differentially methylated and miRNA target',
+                                       'Differentially methylated and not miRNA target' , 'Not differentially methylated and not miRNA target']
         color_to_methylation_w_miRNA = { meth_miRNA : color for (meth_miRNA , color) in zip(methylation_w_miRNA_options , _cs.colors_list)}
         print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
@@ -692,7 +692,7 @@ class Pipeline:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, compounds_list=self.compounds_list,  raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
