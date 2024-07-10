@@ -40,5 +40,3 @@ output_folder_name = 'my_folder_name'
 
 miRNA_path_quant = '../examples/miRNA_for_quantification.tsv'
 methylation_quantification = '../examples/methylation_for_quantification.csv'
-
-input_file_path_t_adf = 'l:\\!DIAB\\Michail_Lazaratos\\09_2021_MUSCLE_EXERCISE_MOUSE\\WGCNA\\adipose_tissue\\R_WGCNA\\WAT_new_runs\\analyze_WAT_min50_10_p9\\KEGG\\ADF\\turquoise_ADF_transcripts_pathways\\turquoise_ADF_transcripts_MAPK_Map4k4.xlsx'
