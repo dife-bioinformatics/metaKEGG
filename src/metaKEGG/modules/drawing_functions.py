@@ -1012,8 +1012,8 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
                 not_meta_profile.add(gene)
         not_meta_profile_list = list(not_meta_profile)
         for gene in not_meta_profile_list:
-            if gene not in cpgs_per_gene:
-                cpgs_per_gene[gene] = 0
+            if gene.upper() not in cpgs_per_gene:
+                cpgs_per_gene[gene.upper()] = 0
 
         vmax = np.max(list(cpgs_per_gene.values()))
         last_decade = (vmax // 10) * 10
@@ -1063,7 +1063,6 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
 
         bin_counts_dict = dict(zip(bin_labels, bin_counts))
 
-
         if vmax == 0:
             howmany = 1
             colorlist = _hf.get_colors_from_colorscale(['tab20' , 'tab20b', 'tab20c',
@@ -1086,7 +1085,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
 
         label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
-
+        print(label_to_color)
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray
             entry.graphics[0].name = ''
@@ -1114,12 +1113,12 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
                     subcell.name = ""
 
                     if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
-                        subcell.bgcolor = _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        subcell.bgcolor = _hf.assign_color_to_metadata(cpgs_per_gene[gene.upper()], label_to_color=label_to_color)
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
-                        subcell.bgcolor = _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        subcell.bgcolor = _hf.assign_color_to_metadata(cpgs_per_gene[gene.upper()], label_to_color=label_to_color)
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
@@ -1139,12 +1138,12 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
                     element.bgcolor = gray
                     element.name = ""
                     if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
-                        element.bgcolor =  _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        element.bgcolor =  _hf.assign_color_to_metadata(cpgs_per_gene[gene.upper()], label_to_color=label_to_color)
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
-                        element.bgcolor =  _hf.assign_color_to_metadata(cpgs_per_gene[gene], label_to_color=label_to_color)
+                        element.bgcolor =  _hf.assign_color_to_metadata(cpgs_per_gene[gene.upper()], label_to_color=label_to_color)
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
@@ -1265,8 +1264,8 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
                 not_meta_profile.add(gene)
         not_meta_profile_list = list(not_meta_profile)
         for gene in not_meta_profile_list:
-            if gene not in mirs_per_gene:
-                mirs_per_gene[gene] = 0
+            if gene.upper() not in mirs_per_gene:
+                mirs_per_gene[gene.upper()] = 0
 
         vmax = np.max(list(mirs_per_gene.values()))
         last_decade = (vmax // 10) * 10
@@ -1365,12 +1364,12 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
                     subcell.name = ""
 
                     if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        subcell.bgcolor = _hf.assign_color_to_metadata(mirs_per_gene[gene.upper()], label_to_color=label_to_color)
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        subcell.bgcolor = _hf.assign_color_to_metadata(mirs_per_gene[gene.upper()], label_to_color=label_to_color)
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
@@ -1390,12 +1389,12 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
                     element.bgcolor = gray
                     element.name = ""
                     if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor =  _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        element.bgcolor =  _hf.assign_color_to_metadata(mirs_per_gene[gene.upper()], label_to_color=label_to_color)
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor =  _hf.assign_color_to_metadata(mirs_per_gene[gene], label_to_color=label_to_color)
+                        element.bgcolor =  _hf.assign_color_to_metadata(mirs_per_gene[gene.upper()], label_to_color=label_to_color)
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
