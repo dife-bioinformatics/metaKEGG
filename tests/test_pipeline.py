@@ -263,7 +263,7 @@ def test_single_input_genes_with_compounds():
                            analysis_type=None,
                            save_to_eps=True,
                            count_threshold=1,
-                           benjamini_threshold=benjamini_threshold, compounds_list=['C01245' , 'C00076'] , folder_extension='compounds')
+                           benjamini_threshold=benjamini_threshold, compounds_list=['C00031' , 'C00162'] , folder_extension='compounds')
 
     my_pipeline.single_input_genes()
     os.chdir(current_dir)
