@@ -192,6 +192,7 @@ class Pipeline:
             raise TypeError('Please provide a single input to perform \'Single input analysis (Genes)')
 
         print("Executing analysis: Single input (Gene IDs)...\n")
+        entry_dir = os.getcwd()
         folder_of_input = self.find_file_folder()
 
         analysis_extension = 'genes'
@@ -214,6 +215,7 @@ class Pipeline:
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , compounds_list=self.compounds_list ,save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'\nDone! \nOutput files are located in {output_folder}')
 
     def single_input_transcripts(self):
@@ -237,6 +239,7 @@ class Pipeline:
             raise TypeError('Please provide a single input to perform \'Single input analysis (Transcripts)')
         
         print("Executing analysis: Single input (Transcript IDs)...\n")
+        entry_dir = os.getcwd()
         folder_of_input = self.find_file_folder()
         analysis_extension = 'transcripts'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
@@ -258,6 +261,7 @@ class Pipeline:
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_transcripts(parsed_output=parsed_out , info=pathway_info , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def multiple_inputs(self):
@@ -288,7 +292,7 @@ class Pipeline:
             raise TypeError('Please make sure that every input file has a corresponding label.')
         print("Executing analysis : Multiple inputs...\n")
         
-        
+        entry_dir = os.getcwd()        
         how_many =  len(self.input_label)
         analysis_extension = f'{how_many}_inputs'
         
@@ -336,6 +340,7 @@ class Pipeline:
 
         print('Collecting pathway info & mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list=parsed_out_list , intervention_names=self.input_label , colors_list=_cs.colors_list , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}\n')
 
     def single_input_with_methylation(self):
@@ -363,6 +368,7 @@ class Pipeline:
         
         print("Executing analysis : Single input w Methylation...\n")
 
+        entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()
         analysis_extension = 'methylation'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
@@ -409,6 +415,7 @@ class Pipeline:
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_methylation(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_MM , color_legend=color_to_methylation , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_miRNA(self):
@@ -436,6 +443,7 @@ class Pipeline:
         
         print("Executing analysis : Single input w miRNA...\n")
 
+        entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
         analysis_extension = 'miRNA'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
@@ -482,6 +490,7 @@ class Pipeline:
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_miRNA(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , color_legend=color_to_miRNA , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_methylation_and_miRNA(self):
@@ -506,6 +515,7 @@ class Pipeline:
         
         print("Executing analysis : Single input w Methylation & miRNA...\n")
 
+        entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
         analysis_extension = 'methylation_and_miRNA'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
@@ -581,6 +591,7 @@ class Pipeline:
         _df.draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output=parsed_out , info=pathway_info ,
                                                                 genes_from_MM=genes_from_MM , genes_from_miRNA=genes_from_miRNA,
                                                                 color_legend=color_to_methylation_w_miRNA , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_genes_bulk_mapping(self):
@@ -605,6 +616,7 @@ class Pipeline:
 
         print("Executing analysis : Single input (Bulk mapping)...\n")
 
+        entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
         analysis_extension = 'bulk'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
@@ -624,6 +636,7 @@ class Pipeline:
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes(parsed_output=parsed_out , info=pathway_info , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_miRNA_quantification(self):
@@ -651,6 +664,7 @@ class Pipeline:
         
         print("Executing analysis : Single input w miRNA quantification...\n")
 
+        entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
         analysis_extension = 'miRNA_quantification'
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
@@ -703,6 +717,7 @@ class Pipeline:
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = self.miRNA_genes , miRNA_id_col=self.miRNA_ID_column , compounds_list=self.compounds_list ,save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_methylation_quantification(self):
@@ -730,6 +745,7 @@ class Pipeline:
         
         print("Executing analysis : Single input w methylation quantification...\n")
 
+        entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
         if self.probes_to_cgs:
             analysis_extension = 'methylation_quantification_probe_correction'
@@ -797,4 +813,5 @@ class Pipeline:
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
         _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = self.methylation_genes , MM_id_col=metadata_id_col , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
