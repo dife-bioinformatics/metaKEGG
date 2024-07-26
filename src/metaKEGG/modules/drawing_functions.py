@@ -598,22 +598,22 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
                     subcell.name = ""
 
                     if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
-                        subcell.bgcolor = color_legend['Differentially methylated']
+                        subcell.bgcolor = color_legend['DEG with DMP']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper):
-                        subcell.bgcolor = color_legend['Not differentially methylated']
+                        subcell.bgcolor = color_legend['DEG without DMP']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
-                        subcell.bgcolor = color_legend['Differentially methylated']
+                        subcell.bgcolor = color_legend['DEG with DMP']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper):
-                        subcell.bgcolor = color_legend['Not differentially methylated']
+                        subcell.bgcolor = color_legend['DEG without DMP']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
@@ -623,22 +623,22 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
                     element.bgcolor = gray
                     element.name = ""
                     if (gene in log2fc) and (gene.upper() in genes_from_MM_upper):
-                        element.bgcolor = color_legend['Differentially methylated']
+                        element.bgcolor = color_legend['DEG with DMP']
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper):
-                        element.bgcolor = color_legend['Differentially methylated']
+                        element.bgcolor = color_legend['DEG with DMP']
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
                     elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper):
-                        element.bgcolor = color_legend['Not differentially methylated']
+                        element.bgcolor = color_legend['DEG without DMP']
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper):
-                        element.bgcolor = color_legend['Not differentially methylated']
+                        element.bgcolor = color_legend['DEG without DMP']
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
@@ -727,22 +727,22 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
                     subcell.name = ""
 
                     if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['miRNA target']
+                        subcell.bgcolor = color_legend['DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene in log2fc) and not (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Not miRNA target']
+                        subcell.bgcolor = color_legend['No DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['miRNA target']
+                        subcell.bgcolor = color_legend['DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Not miRNA target']
+                        subcell.bgcolor = color_legend['No DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
@@ -752,23 +752,23 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
                     element.bgcolor = gray
                     element.name = ""
                     if (gene in log2fc) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['miRNA target']
+                        element.bgcolor = color_legend['DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_miRNA_upper):
                         element.name = gene
-                        element.bgcolor = color_legend['miRNA target']
+                        element.bgcolor = color_legend['DEmiR target gene']
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
                     elif (gene in log2fc) and not (gene.upper() in genes_from_miRNA_upper):
                         element.name = gene
-                        element.bgcolor = color_legend['Not miRNA target']
+                        element.bgcolor = color_legend['No DEmiR target gene']
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_miRNA_upper):
                         element.name = gene
-                        element.bgcolor = color_legend['Not miRNA target']
+                        element.bgcolor = color_legend['No DEmiR target gene']
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = gene
 
@@ -858,42 +858,42 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
                     subcell.name = ""
 
                     if (gene in log2fc) and (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Differentially methylated and miRNA target']
+                        subcell.bgcolor = color_legend['DEG with DMP and DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Differentially methylated and miRNA target']
+                        subcell.bgcolor = color_legend['DEG with DMP and DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Not differentially methylated and not miRNA target']
+                        subcell.bgcolor = color_legend['DEG without DMP and no DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Not differentially methylated and not miRNA target']
+                        subcell.bgcolor = color_legend['DEG without DMP and no DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Not differentially methylated and miRNA target']
+                        subcell.bgcolor = color_legend['DEG without DMP and DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Not differentially methylated and miRNA target']
+                        subcell.bgcolor = color_legend['DEG without DMP and DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene in log2fc) and (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Differentially methylated and not miRNA target']
+                        subcell.bgcolor = color_legend['DEG with DMP and no DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        subcell.bgcolor = color_legend['Differentially methylated and not miRNA target']
+                        subcell.bgcolor = color_legend['DEG with DMP and no DEmiR target gene']
                         subcell.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
@@ -902,42 +902,42 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
                     element.bgcolor = gray
                     element.name = ""
                     if (gene in log2fc) and (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['Differentially methylated and miRNA target']
+                        element.bgcolor = color_legend['DEG with DMP and DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['Differentially methylated and miRNA target']
+                        element.bgcolor = color_legend['DEG with DMP and DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['Not differentially methylated and not miRNA target']
+                        element.bgcolor = color_legend['DEG without DMP and no DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['Not differentially methylated and not miRNA target']
+                        element.bgcolor = color_legend['DEG without DMP and no DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene in log2fc) and not (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['Not differentially methylated and miRNA target']
+                        element.bgcolor = color_legend['DEG without DMP and DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and not (gene.upper() in genes_from_MM_upper) and (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['Not differentially methylated and miRNA target']
+                        element.bgcolor = color_legend['DEG without DMP and DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
                     elif (gene in log2fc) and (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['Differentially methylated and not miRNA target']
+                        element.bgcolor = color_legend['DEG with DMP and no DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[gene] = corresponding_genes
                     elif (gene.upper() in log2fc_upper) and (gene.upper() in genes_from_MM_upper) and not (gene.upper() in genes_from_miRNA_upper):
-                        element.bgcolor = color_legend['Differentially methylated and not miRNA target']
+                        element.bgcolor = color_legend['DEG with DMP and no DEmiR target gene']
                         element.name = gene
                         genes_per_cell[gene] = corresponding_genes
                         genes_per_cell_og[log2fc_upper_to_original[gene.upper()]] = corresponding_genes
@@ -1176,7 +1176,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             labels, counts = np.unique(list(cpgs_per_gene.values()), return_counts=True)
             colors_for_bars = [ _hf.assign_color_to_metadata(xpoint, label_to_color=label_to_color) for xpoint in labels]
             plt.bar(labels, counts, align='center', edgecolor='black' , color=colors_for_bars)
-            plt.xlabel('DMPs per gene', fontsize=14)
+            plt.xlabel('DMPs per DEG', fontsize=14)
             plt.ylabel('Count', fontsize=14)
             plt.xticks(fontsize=12)
             plt.yticks(fontsize=12)
@@ -1190,7 +1190,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
 
             fig2 = plt.figure()
             plt.bar(bin_counts_dict.keys(), bin_counts_dict.values() , color=label_to_color.values(), edgecolor='black')
-            plt.xlabel('DMPs per gene (grouped)', fontsize=14)
+            plt.xlabel('DMPs per DEG (grouped)', fontsize=14)
             plt.ylabel('Count', fontsize=14)
             plt.xticks(fontsize=12, rotation=45)
             plt.yticks(fontsize=12)
@@ -1213,7 +1213,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
         if save_to_eps:
             cnvs.draw(id + "_" + output_name + ".eps")
 
-        _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='DMPs per gene')
+        _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='DMPs per DEG')
         pathway_counter += 1
     writer.close()
     writer_metadata.close()
@@ -1426,7 +1426,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             labels, counts = np.unique(list(mirs_per_gene.values()), return_counts=True)
             colors_for_bars = [ _hf.assign_color_to_metadata(xpoint, label_to_color=label_to_color) for xpoint in labels]
             plt.bar(labels, counts, align='center', edgecolor='black' , color=colors_for_bars)
-            plt.xlabel('DEmiRs per gene', fontsize=14)
+            plt.xlabel('DEmiRs per target gene', fontsize=14)
             plt.ylabel('Count', fontsize=14)
             plt.xticks(fontsize=12)
             plt.yticks(fontsize=12)
@@ -1440,7 +1440,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
 
             fig2 = plt.figure()
             plt.bar(bin_counts_dict.keys(), bin_counts_dict.values() , color=label_to_color.values(), edgecolor='black')
-            plt.xlabel('DEmiRs per gene (grouped)', fontsize=14)
+            plt.xlabel('DEmiRs per target gene (grouped)', fontsize=14)
             plt.ylabel('Count', fontsize=14)
             plt.xticks(fontsize=12, rotation=45)
             plt.yticks(fontsize=12)
@@ -1464,7 +1464,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
         if save_to_eps:
             cnvs.draw(id + "_" + output_name + ".eps")
 
-        _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='DEmiRs per gene')
+        _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='DEmiRs per target gene')
         pathway_counter += 1
     writer.close()
     writer_metadata.close()

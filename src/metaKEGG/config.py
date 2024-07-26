@@ -8,23 +8,23 @@ tsv_suffixes = ['.tsv']
 csv_suffixes = ['.csv']
 excel_suffixes = ['.xlsx', '.xls']
 
-analysis_types = {1 : 'Single input (Gene IDs)' , 
-                  2 : 'Single input (Transcript IDs)' ,
-                  3 : 'Multiple input (Gene IDs)', 
-                  4 : 'Single input w Methylation (Gene IDs)', 
-                  5 : 'Single input w miRNA (Gene IDs)', 
-                  6 : 'Single input w Methylation & miRNA (Gene IDs)',
-                  7 : 'Single input (Gene IDs) Bulk mapping ',
-                  8 : 'Single input w Methylation & Quantification (Gene IDs)',
-                  9 : 'Single input w miRNA & Quantification (Gene IDs)'}
+analysis_types = {1 : 'Gene expression' , 
+                  2 : 'Transcript expression' ,
+                  3 : 'Bulk RNAseq mapping', 
+                  4 : 'Multiple inputs', 
+                  5 : 'Methylated genes', 
+                  6 : 'DMPs per gene',
+                  7 : 'miRNA target genes',
+                  8 : 'DEmiRs per gene',
+                  9 : 'Methylated + miRNA target genes'}
 
 analysis_types_to_execute = {1 : 'single_input_genes()' , 
                   2 : 'single_input_transcripts()' ,
-                  3 : 'multiple_inputs()', 
-                  4 : 'single_input_with_methylation()', 
-                  5 : 'single_input_with_miRNA()', 
-                  6 : 'single_input_with_methylation_and_miRNA()',
-                  7 : 'single_input_genes_bulk_mapping()',
-                  8 : 'single_input_with_methylation_quantification()',
-                  9 : 'single_input_with_miRNA_quantification()'
+                  3 : 'single_input_genes_bulk_mapping()', 
+                  4 : 'multiple_inputs()', 
+                  5 : 'single_input_with_methylation()', 
+                  6 : 'single_input_with_methylation_quantification()',
+                  7 : 'single_input_with_miRNA()',
+                  8 : 'single_input_with_miRNA_quantification()',
+                  9 : 'single_input_with_methylation_and_miRNA()'
                   }

@@ -96,19 +96,19 @@ class Pipeline:
             elif self.analysis_type == 2:
                 self.single_input_transcripts()
             elif self.analysis_type == 3:
-                self.multiple_inputs()
-            elif self.analysis_type == 4:
-                self.single_input_with_methylation()
-            elif self.analysis_type == 5:
-                self.single_input_with_miRNA()
-            elif self.analysis_type == 6:
-                self.single_input_with_methylation_and_miRNA()
-            elif self.analysis_type == 7:
                 self.single_input_genes_bulk_mapping()
-            elif self.analysis_type == 8:
+            elif self.analysis_type == 4:
+                self.multiple_inputs()
+            elif self.analysis_type == 5:
+                self.single_input_with_methylation()
+            elif self.analysis_type == 6:
                 self.single_input_with_methylation_quantification()
-            elif self.analysis_type == 9:
+            elif self.analysis_type == 7:
+                self.single_input_with_miRNA()
+            elif self.analysis_type == 8:
                 self.single_input_with_miRNA_quantification()
+            elif self.analysis_type == 9:
+                self.single_input_with_methylation_and_miRNA()
 
         elif self.analysis_type is None:
             print('Initialized class. Have to run analysis in expert mode.\nValid choices are:\n')
@@ -396,7 +396,7 @@ class Pipeline:
         if len(genes_from_MM) == 0:
             raise ValueError('There are no genes with a methylation profile')
         
-        methylation_options = ['Differentially methylated' , 'Not differentially methylated']
+        methylation_options = ['DEG with DMP' , 'DEG without DMP']
         color_to_methylation = { meth : color for (meth , color) in zip(methylation_options , _cs.colors_list)}
         print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
@@ -471,7 +471,7 @@ class Pipeline:
         if len(genes_from_miRNA) == 0:
             raise ValueError('There are no genes with a miRNA profile')
 
-        miRNA_options = ['miRNA target' , 'Not miRNA target']
+        miRNA_options = ['DEmiR target gene' , 'No DEmiR target gene']
         color_to_miRNA = {miRNA : color for (miRNA , color) in zip(miRNA_options , _cs.colors_list)}
         print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
@@ -569,8 +569,8 @@ class Pipeline:
             raise ValueError('There are no genes with a miRNA profile')
         
 
-        methylation_w_miRNA_options = ['Differentially methylated and miRNA target', 'Not differentially methylated and miRNA target',
-                                       'Differentially methylated and not miRNA target' , 'Not differentially methylated and not miRNA target']
+        methylation_w_miRNA_options = ['DEG with DMP and DEmiR target gene', 'DEG without DMP and DEmiR target gene',
+                                       'DEG with DMP and no DEmiR target gene', 'DEG without DMP and no DEmiR target gene']
         color_to_methylation_w_miRNA = { meth_miRNA : color for (meth_miRNA , color) in zip(methylation_w_miRNA_options , _cs.colors_list)}
         print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
@@ -698,7 +698,7 @@ class Pipeline:
             raise KeyError(f'Column {self.miRNA_ID_column} not found in the miRNAs dataframe.')
 
 
-        miRNA_options = ['miRNA detected' , 'miRNA not detected']
+        miRNA_options = ['DEmiR target gene' , 'No DEmiR target gene']
         color_to_miRNA = {miRNA : color for (miRNA , color) in zip(miRNA_options , _cs.colors_list)}
         print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
@@ -794,7 +794,7 @@ class Pipeline:
                     methylation_df = methylation_df.drop_duplicates(subset=[insert_new_column, self.methylation_genes] , keep='first')
                     metadata_id_col = insert_new_column
 
-        methylation_options = ['Differentially methylated' , 'Not differentially methylated']
+        methylation_options = ['DEG with DMP' , 'DEG without DMP']
         color_to_methylation = { meth : color for (meth , color) in zip(methylation_options , _cs.colors_list)}
         print('Parsing input file...\n')
         parsed_out, all_genes = _hf.filter_kegg_pathways_genes(filepath=self.input_file_path,
