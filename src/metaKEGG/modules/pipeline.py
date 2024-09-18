@@ -785,7 +785,7 @@ class Pipeline:
         else:
             metadata_id_col = self.methylation_probe_column
             methylation_df = methylation_df.drop_duplicates(subset=[metadata_id_col , self.methylation_genes] , keep='first')
-            if self.probes_to_cgs:
+            if self.probes_to_cgs is True:
                 insert_new_column = 'unique_CG_quantification'
                 if insert_new_column in methylation_df.columns:
                     raise KeyError(f'Could not insert unique probe column ({insert_new_column}). It already exists in the dataframe.')
@@ -793,6 +793,8 @@ class Pipeline:
                     methylation_df[insert_new_column] = methylation_df[self.methylation_probe_column].str.split("_").str[0]
                     methylation_df = methylation_df.drop_duplicates(subset=[insert_new_column, self.methylation_genes] , keep='first')
                     metadata_id_col = insert_new_column
+            elif self.probes_to_cgs is False:
+                print('Will not perform probe correction...\n')
 
         methylation_options = ['DEG with DMP' , 'DEG without DMP']
         color_to_methylation = { meth : color for (meth , color) in zip(methylation_options , _cs.colors_list)}

@@ -113,9 +113,10 @@ def draw_KEGG_pathways_genes(parsed_output , info , compounds_list ,save_to_eps)
             else:
                 for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
                     element.bgcolor = gray
-                    element.name = gene
+                    element.name = ""
                     if gene in log2fc:
                         element.bgcolor = cmap((log2fc[gene] - vmin) / (vmax - vmin))
+                        element.name = gene
                         genes_per_cell[gene] = gene
                         genes_per_cell_og[gene] = gene
                     elif gene.upper() in log2fc_upper:
@@ -666,6 +667,7 @@ def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=color_legend , output_name=output_name , save_to_eps=save_to_eps)
         pathway_counter += 1
     writer.close()
+    writer_upper.close()
 
 def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA , color_legend, compounds_list, save_to_eps):
     """
@@ -795,6 +797,7 @@ def draw_KEGG_pathways_genes_with_miRNA(parsed_output , info , genes_from_miRNA 
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=color_legend , output_name=output_name , save_to_eps=save_to_eps)
         pathway_counter += 1
     writer.close()
+    writer_upper.close()
 
 def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , genes_from_MM , genes_from_miRNA, color_legend, compounds_list, save_to_eps):
     """
@@ -965,6 +968,7 @@ def draw_KEGG_pathways_genes_with_methylation_and_miRNA(parsed_output , info , g
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=color_legend , output_name=output_name , save_to_eps=save_to_eps)
         pathway_counter += 1
     writer.close()
+    writer_upper.close()
 
 def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , info , genes_from_MM , MM_df , MM_genes_col , MM_id_col ,compounds_list, save_to_eps):
     """
@@ -1203,8 +1207,10 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
             plt.close(fig2)
             plt.close()
 
+        cpgs_per_gene_out = {metadata : cpgs_per_gene[metadata.upper()] for metadata in log2fc.keys() if metadata.upper() in cpgs_per_gene.keys()}
+
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
-        _hf.generate_metadata_per_gene_spreadsheet(writer=writer_metadata , metadata_df=MM_df_sub , metadata_id_col=MM_id_col , symbol_col=MM_genes_col , metadata_dict=cpgs_per_gene , id=id)
+        _hf.generate_metadata_per_gene_spreadsheet(writer=writer_metadata , metadata_df=MM_df_sub , metadata_id_col=MM_id_col , symbol_col=MM_genes_col , metadata_dict=cpgs_per_gene_out , id=id)
         _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
@@ -1216,6 +1222,7 @@ def draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output , inf
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='DMPs per DEG')
         pathway_counter += 1
     writer.close()
+    writer_upper.close()
     writer_metadata.close()
 
 def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , genes_from_miRNA , miRNA_df , miRNA_genes_col  ,  miRNA_id_col, compounds_list, save_to_eps):
@@ -1337,7 +1344,7 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             norm = mcolors.Normalize(vmin=0, vmax=len(bin_labels)-1)
 
         label_to_color = {k : v for k , v in zip(bin_labels , colorlist)}
-        print(mirs_per_gene)
+
         for entry in pathway.orthologs:
             entry.graphics[0].bgcolor = gray
             entry.graphics[0].name = ''
@@ -1453,9 +1460,10 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
             plt.close(fig2)
             plt.close()
 
+        mirs_per_gene_out = {metadata : mirs_per_gene[metadata.upper()] for metadata in log2fc.keys() if metadata.upper() in mirs_per_gene.keys()}
 
         _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=id)
-        _hf.generate_metadata_per_gene_spreadsheet(writer=writer_metadata , metadata_df=miRNA_df_sub , metadata_id_col=miRNA_id_col , symbol_col=miRNA_genes_col , metadata_dict=mirs_per_gene , id=id)
+        _hf.generate_metadata_per_gene_spreadsheet(writer=writer_metadata , metadata_df=miRNA_df_sub , metadata_id_col=miRNA_id_col , symbol_col=miRNA_genes_col , metadata_dict=mirs_per_gene_out , id=id)
         _hf.generate_genes_per_cell_spreadsheet(writer=writer_upper , genes_per_cell=genes_per_cell_og , id=id)
 
         cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
@@ -1467,4 +1475,5 @@ def draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output , info , ge
         _hf.compile_and_write_output_files(id=id, pathway_id=pathway_id , color_legend=None , output_name=output_name , save_to_eps=save_to_eps , with_dist_plot=True , cmap=cmap , bin_labels=bin_labels, cmap_label='DEmiRs per target gene')
         pathway_counter += 1
     writer.close()
+    writer_upper.close()
     writer_metadata.close()
