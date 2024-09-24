@@ -1,5 +1,6 @@
 import os
 import datetime
+import asyncio
 import sys
 import shutil
 from ..helpers import helpfunctions as _hf
@@ -81,7 +82,7 @@ class Pipeline:
 
         self.select_analysis()
 
-    def select_analysis(self):
+    async def select_analysis(self):
         """
         Selects and executes the specified analysis type based on the provided parameters.
 
@@ -92,23 +93,23 @@ class Pipeline:
         
         if self.analysis_type in valid_analysis_types:
             if self.analysis_type == 1:
-                self.single_input_genes()
+                await self.single_input_genes()
             elif self.analysis_type == 2:
-                self.single_input_transcripts()
+                await self.single_input_transcripts()
             elif self.analysis_type == 3:
-                self.single_input_genes_bulk_mapping()
+                await self.single_input_genes_bulk_mapping()
             elif self.analysis_type == 4:
-                self.multiple_inputs()
+                await self.multiple_inputs()
             elif self.analysis_type == 5:
-                self.single_input_with_methylation()
+                await self.single_input_with_methylation()
             elif self.analysis_type == 6:
-                self.single_input_with_methylation_quantification()
+                await self.single_input_with_methylation_quantification()
             elif self.analysis_type == 7:
-                self.single_input_with_miRNA()
+                await self.single_input_with_miRNA()
             elif self.analysis_type == 8:
-                self.single_input_with_miRNA_quantification()
+                await self.single_input_with_miRNA_quantification()
             elif self.analysis_type == 9:
-                self.single_input_with_methylation_and_miRNA()
+                await self.single_input_with_methylation_and_miRNA()
 
         elif self.analysis_type is None:
             print('Initialized class. Have to run analysis in expert mode.\nValid choices are:\n')
@@ -171,7 +172,7 @@ class Pipeline:
             output_folder = _hf.create_output_folder(create_folder, self.folder_extension)
         return output_folder
 
-    def single_input_genes(self):
+    async def single_input_genes(self):
         """
         Perform the Single Input Analysis for Gene IDs.
 
@@ -209,7 +210,7 @@ class Pipeline:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
-        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        pathway_info = await _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
@@ -218,7 +219,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'\nDone! \nOutput files are located in {output_folder}')
 
-    def single_input_transcripts(self):
+    async def single_input_transcripts(self):
         """
         Perform the Single Input Analysis for Transcript IDs.
 
@@ -255,7 +256,7 @@ class Pipeline:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
-        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        pathway_info = await _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
@@ -264,7 +265,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def multiple_inputs(self):
+    async def multiple_inputs(self):
         """
         Perform the Multiple Inputs Analysis.
 
@@ -339,11 +340,11 @@ class Pipeline:
             _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes_i, pathway_dict=parsed_out_i , name_extension="input"+str(list_counter+1))
 
         print('Collecting pathway info & mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list=parsed_out_list , intervention_names=self.input_label , colors_list=_cs.colors_list , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        await _df.draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list=parsed_out_list , intervention_names=self.input_label , colors_list=_cs.colors_list , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}\n')
 
-    def single_input_with_methylation(self):
+    async def single_input_with_methylation(self):
         """
         Perform Single Input Analysis with Methylation.
 
@@ -409,7 +410,7 @@ class Pipeline:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
-        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        pathway_info = await _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
@@ -418,7 +419,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_miRNA(self):
+    async def single_input_with_miRNA(self):
         """
         Perform Single Input Analysis with miRNA.
 
@@ -484,7 +485,7 @@ class Pipeline:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
-        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        pathway_info = await _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
@@ -493,7 +494,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_methylation_and_miRNA(self):
+    async def single_input_with_methylation_and_miRNA(self):
         """
         Perform a single input analysis with Methylation and miRNA data.
 
@@ -583,7 +584,7 @@ class Pipeline:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
-        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        pathway_info = await _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
@@ -594,7 +595,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_genes_bulk_mapping(self):
+    async def single_input_genes_bulk_mapping(self):
         """
         Perform a single input analysis with bulk mapping for genes.
 
@@ -630,7 +631,7 @@ class Pipeline:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
-        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        pathway_info = await _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
@@ -639,7 +640,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_miRNA_quantification(self):
+    async def single_input_with_miRNA_quantification(self):
         """
         Perform Single Input Analysis with miRNA.
 
@@ -711,7 +712,7 @@ class Pipeline:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
-        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        pathway_info = await _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
@@ -720,7 +721,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_methylation_quantification(self):
+    async def single_input_with_methylation_quantification(self):
         """
         Perform Single Input Analysis with methylation quantification.
 
@@ -809,7 +810,7 @@ class Pipeline:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
-        pathway_info = _hf.collect_pathway_info(parsed_output=parsed_out)
+        pathway_info = await _hf.collect_pathway_info(parsed_output=parsed_out)
         print('Finished collecting pathway info\n')
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
