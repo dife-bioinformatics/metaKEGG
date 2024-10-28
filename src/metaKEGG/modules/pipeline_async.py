@@ -8,7 +8,7 @@ from ..modules import drawing_functions as _df
 from ..modules import colorscale as _cs
 from ..config import analysis_types_to_execute as analysis_types_to_execute
 
-class Pipeline_async:
+class PipelineAsync:
     """
     Class for executing different analyses on KEGG pathways with various data inputs.
 

@@ -10,7 +10,7 @@ from tests.test_config import (
     save_to_eps, count_threshold, benjamini_threshold, output_folder_name, miRNA_path_quant,
     methylation_probe_column, miRNA_column, methylation_quantification   
 )
-from src.metaKEGG.modules.pipeline_async import Pipeline_async
+from src.metaKEGG.modules.pipeline_async import PipelineAsync
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_dir)
@@ -19,7 +19,7 @@ os.chdir(current_dir)
 async def test_single_input_genes():
     input_file_path = input_file_path_g
     input_label = input_label_g
-    my_pipeline = Pipeline_async(input_file_path=input_file_path,
+    my_pipeline = PipelineAsync(input_file_path=input_file_path,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
                            input_label=input_label,
@@ -36,7 +36,7 @@ async def test_single_input_transcripts():
     input_file_path = input_file_path_t
     input_label = input_label_g
     sheet_name_genes = sheet_name_transcripts
-    my_pipeline = Pipeline_async(input_file_path=input_file_path,
+    my_pipeline = PipelineAsync(input_file_path=input_file_path,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
                            input_label=input_label,
@@ -53,7 +53,7 @@ async def test_multiple_inputs():
     os.chdir(current_dir)
     input_file_path = input_file_path_m
     input_label = input_label_m
-    my_pipeline = Pipeline_async(input_file_path=input_file_path,
+    my_pipeline = PipelineAsync(input_file_path=input_file_path,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
                            input_label=input_label,
@@ -70,7 +70,7 @@ async def test_single_input_with_methylation():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     input_label = input_label_g
-    my_pipeline = Pipeline_async(
+    my_pipeline = PipelineAsync(
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
@@ -93,7 +93,7 @@ async def test_single_input_with_miRNA():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     input_label = input_label_g
-    my_pipeline = Pipeline_async(
+    my_pipeline = PipelineAsync(
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
@@ -117,7 +117,7 @@ async def test_single_input_with_methylation_and_miRNA():
     input_file_path = input_file_path_g
     input_label = input_label_g
 
-    my_pipeline = Pipeline_async(
+    my_pipeline = PipelineAsync(
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
@@ -148,7 +148,7 @@ async def test_single_input_bulk():
     sheet_name_genes = genes_sheet_name
     count_threshold = None
     benjamini_threshold = None
-    my_pipeline = Pipeline_async(
+    my_pipeline = PipelineAsync(
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
@@ -174,7 +174,7 @@ async def test_single_input_bulk():
 async def test_output_folder_scheme():
     input_file_path = input_file_path_g
     input_label = input_label_g
-    my_pipeline = Pipeline_async(input_file_path=input_file_path,
+    my_pipeline = PipelineAsync(input_file_path=input_file_path,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
                            input_label=input_label,
@@ -194,7 +194,7 @@ async def test_single_input_with_miRNA_quantification():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     input_label = input_label_g
-    my_pipeline = Pipeline_async(
+    my_pipeline = PipelineAsync(
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
@@ -242,7 +242,7 @@ async def test_single_input_with_methylation_quantification_correct_probes():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     input_label = input_label_g
-    my_pipeline = Pipeline_async(
+    my_pipeline = PipelineAsync(
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
@@ -265,7 +265,7 @@ async def test_single_input_with_methylation_quantification_correct_probes():
 async def test_single_input_genes_with_compounds():
     input_file_path = input_file_path_t
     input_label = input_label_g
-    my_pipeline = Pipeline_async(input_file_path=input_file_path_g,
+    my_pipeline = PipelineAsync(input_file_path=input_file_path_g,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
                            input_label=input_label,
