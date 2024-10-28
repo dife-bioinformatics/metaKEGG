@@ -18,6 +18,7 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 import os
 import datetime
+import asyncio
 import shutil
 from matplotlib.patches import Patch
 import sys
@@ -179,7 +180,7 @@ def collect_pathway_info(parsed_output):
                                 "gene_symbols": gene_symbols,
                                 "gene_symbol_kegg_id": gene_symbol_kegg_id,
                                 "corresponding_KO" : corresponding_KO}
-        time.sleep(1)
+        time.sleep(0.5)
 
     return pathway_genes
 
@@ -250,7 +251,152 @@ def collect_pathway_info_multiple_interventions(pathway_id):
                             "gene_symbols": gene_symbols,
                             "gene_symbol_kegg_id": gene_symbol_kegg_id,
                             "corresponding_KO" : corresponding_KO}
-    time.sleep(1)
+    time.sleep(0.5)
+
+    return pathway_genes
+
+async def collect_pathway_info_async(parsed_output):
+    """
+    Collect information about genes, KO identifiers, and related data for each pathway in the parsed output.
+
+    Parameters:
+    - parsed_output (dict): A dictionary containing parsed information, typically obtained from some data processing.
+
+    Returns:
+    dict: A dictionary with pathway identifiers as keys, and information about genes, KO identifiers, and related data
+          as values.
+
+    Example:
+    >>> parsed_data = {'pathway1': {'name': 'Pathway 1'}, 'pathway2': {'name': 'Pathway 2'}}
+    >>> collect_pathway_info(parsed_data)
+    {'pathway1': {'gene_symbol_KO': {'Gene1': 'KO123', 'Gene2': 'KO456'},
+                  'gene_symbols': ['Gene1', 'Gene2'],
+                  'gene_symbol_kegg_id': {'Gene1': 'id123', 'Gene2': 'id456'},
+                  'corresponding_KO': 'KO789'},
+     'pathway2': {'gene_symbol_KO': {'Gene3': 'KO987', 'Gene4': 'KO654'},
+                  'gene_symbols': ['Gene3', 'Gene4'],
+                  'gene_symbol_kegg_id': {'Gene3': 'id987', 'Gene4': 'id654'},
+                  'corresponding_KO': 'KO321'}}
+    """
+    pathway_genes = {}
+    for pathway in parsed_output.keys():
+        gene_symbols = []
+        gene_ids = []
+        gene_KO = []
+
+        gene_symbol_KO = {}
+        gene_KO_symbol = {}
+        gene_symbol_kegg_id = {}
+
+        pathway_file = REST.kegg_get(pathway).read()
+
+        current_section = None
+        for line in pathway_file.rstrip().split("\n"):
+            section = line[:12].strip()
+            if not section == "":
+                current_section = section
+            if current_section == "KO_PATHWAY":
+                corresponding_KO = line[12:]
+            if current_section == "GENE":
+                try:
+                    gene_identifiers, gene_description = line[12:].split("; ")
+                    gene_id, gene_symbol = gene_identifiers.split()
+                except ValueError:
+                    continue
+
+                find_KO = gene_description.split('[')
+                for substring in find_KO:
+                    if ']' in substring and substring.startswith('KO'):
+                        gene_KO.append(substring.split(']')[0])
+                        gene_symbol_KO[gene_symbol] = substring.split(']')[0].split(':')[1]
+                        gene_symbol_KO[gene_symbol]
+
+                        if substring.split(']')[0].split(':')[1] not in gene_KO_symbol:
+                            gene_KO_symbol[substring.split(']')[0].split(':')[1]] = gene_symbol
+
+                if not gene_symbol in gene_symbols:
+                    gene_symbols.append(gene_symbol)
+                if not gene_id in gene_ids:
+                    gene_ids.append(gene_id)
+                gene_symbol_kegg_id[gene_symbol] = gene_id
+
+
+        pathway_genes[pathway] = {"gene_symbol_KO": gene_symbol_KO,
+                                "gene_symbols": gene_symbols,
+                                "gene_symbol_kegg_id": gene_symbol_kegg_id,
+                                "corresponding_KO" : corresponding_KO}
+        await asyncio.sleep(0.5)
+
+    return pathway_genes
+
+async def collect_pathway_info_multiple_interventions_async(pathway_id):
+    """
+    Collect information about genes, KO identifiers, and related data for a specific pathway with multiple interventions.
+
+    Parameters:
+    - pathway_id (str): The identifier of the pathway for which information needs to be collected.
+
+    Returns:
+    dict: A dictionary with the specified pathway identifier as the key and information about genes, KO identifiers,
+          and related data as the value.
+
+    Example:
+    >>> pathway_id = 'pathway123'
+    >>> collect_pathway_info_multiple_interventions(pathway_id)
+    {'pathway123': {'gene_symbol_KO': {'Gene1': 'KO123', 'Gene2': 'KO456'},
+                    'gene_symbols': ['Gene1', 'Gene2'],
+                    'gene_symbol_kegg_id': {'Gene1': 'id123', 'Gene2': 'id456'},
+                    'corresponding_KO': 'KO789'}}
+    """
+    pathway_genes = {}
+    gene_symbols = []
+    gene_ids = []
+    gene_KO = []
+
+    gene_symbol_KO = {}
+    gene_KO_symbol = {}
+    gene_symbol_kegg_id = {}
+
+    pathway_file = REST.kegg_get(pathway_id).read()
+
+    current_section = None
+    for line in pathway_file.rstrip().split("\n"):
+        section = line[:12].strip()
+        if not section == "":
+            current_section = section
+
+        if current_section == "KO_PATHWAY":
+            corresponding_KO = line[12:]
+
+        if current_section == "GENE":
+            try:
+                gene_identifiers, gene_description = line[12:].split("; ")
+                gene_id, gene_symbol = gene_identifiers.split()
+            except ValueError:
+                continue
+
+            find_KO = gene_description.split('[')
+            for substring in find_KO:
+                if ']' in substring and substring.startswith('KO'):
+                    gene_KO.append(substring.split(']')[0])
+                    gene_symbol_KO[gene_symbol] = substring.split(']')[0].split(':')[1]
+                    gene_symbol_KO[gene_symbol]
+
+                    if substring.split(']')[0].split(':')[1] not in gene_KO_symbol:
+                        gene_KO_symbol[substring.split(']')[0].split(':')[1]] = gene_symbol
+
+            if not gene_symbol in gene_symbols:
+                gene_symbols.append(gene_symbol)
+            if not gene_id in gene_ids:
+                gene_ids.append(gene_id)
+            gene_symbol_kegg_id[gene_symbol] = gene_id
+
+
+    pathway_genes[pathway_id] = {"gene_symbol_KO": gene_symbol_KO,
+                            "gene_symbols": gene_symbols,
+                            "gene_symbol_kegg_id": gene_symbol_kegg_id,
+                            "corresponding_KO" : corresponding_KO}
+    await asyncio.sleep(0.5)
 
     return pathway_genes
 

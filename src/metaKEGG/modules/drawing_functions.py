@@ -539,6 +539,170 @@ def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , interventi
         pathway_counter += 1
     writer.close()
 
+async def draw_KEGG_pathways_genes_multiple_interventions_async(parsed_out_list , intervention_names , colors_list , compounds_list, save_to_eps):
+    """
+    Draw KEGG pathways with gene expression information for multiple interventions.
+
+    Parameters:
+    - parsed_out_list (list of dicts): List of parsed output dictionaries containing log2 fold change information for genes.
+    - intervention_names (list of str): List of intervention names.
+    - colors_list (list of str): List of colors corresponding to each intervention.
+    - save_to_eps (bool): Flag to save output to EPS format.
+
+    Returns:
+    None
+
+    Example:
+    >>> draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list, intervention_names, colors_list, save_to_eps=True)
+    """
+    num_interventions = len(intervention_names)
+    color_to_intervention = { inter : color for (inter , color) in zip(intervention_names , colors_list)}
+
+    key_sets = [set(d.keys()) for d in parsed_out_list]
+    common_keys = list(set.intersection(*key_sets))
+    if not common_keys:
+        raise ValueError("No common keys found in the list of dictionaries.")
+
+    common_key_dict = {key: [] for key in common_keys}
+
+    for d in parsed_out_list:
+        for key in common_keys:
+            if key in d:
+                common_key_dict[key].append({key: d[key]})
+
+    combination_dict = {common_key: [] for common_key in common_key_dict}
+
+    for common_key , common_list in common_key_dict.items():
+        for r in range(2, num_interventions + 1):
+            for combination in combinations(common_key_dict[common_key], r):
+                combination_key = '+'.join(sorted(interv_dict[common_key]['intervention_name'] for interv_dict in combination))
+                genes_lists = [interv_dict[common_key]['genes_upper'] for interv_dict in combination]
+                common_genes = list(set.intersection(*map(set, genes_lists)))
+                level = len(combination)
+                combination_dict[common_key].append({'level': level, 'combination_key': combination_key, 'common_genes': common_genes})
+
+        max_level = max(combination_info['level'] for combinations_list in combination_dict.values() for combination_info in combinations_list)
+
+        for common_key, combinations_list in combination_dict.items():
+            for i, combination_info in enumerate(combinations_list):
+                level_i_genes = combination_info['common_genes']
+
+                for j in range(combination_info['level'] + 1, max_level + 1):
+                    for k in range(i + 1, len(combinations_list)):
+                        level_k_genes = combinations_list[k]['common_genes']
+                        common_genes_to_remove = set(level_i_genes) & set(level_k_genes)
+                        if common_genes_to_remove:
+                            combinations_list[i]['common_genes'] = list(set(level_i_genes) - common_genes_to_remove)
+
+        for common_key, combinations_list in combination_dict.items():
+            for combination_info in combinations_list:
+                level = combination_info['level']
+                combination_key = combination_info['combination_key']
+                common_genes = combination_info['common_genes']
+                
+        intervention_names_w_combos = intervention_names.copy()
+
+        for common_key, combinations_list in combination_dict.items():
+            for combination_info in combinations_list:
+                intervention_names_w_combos.append(combination_info['combination_key'])
+
+        color_to_intervention = {inter: color for (inter, color) in zip(intervention_names_w_combos, colors_list)}
+
+    writer = pd.ExcelWriter('genes_per_cell.xlsx', engine='xlsxwriter')
+    pathway_counter = 1
+    for common_key , common_list in common_key_dict.items():
+        print(f'[{pathway_counter}/{len(common_key_dict)}] {common_key} ({common_list[0][common_key]["name"]})')
+        collect_info = await _hf.collect_pathway_info_multiple_interventions_async(common_key)
+        genes_per_cell = {}
+        pathway_id = collect_info[common_key]['corresponding_KO']
+        pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))
+        gene_symbol_KO = collect_info[common_key]['gene_symbol_KO']
+        output_name = _hf.file_naming_scheme(input_data=common_list[0][common_key]['name'])
+        
+        for entry in pathway.orthologs:
+            entry.graphics[0].name = ''
+            multiple_kos = [name.split(":")[1] for name in entry.name.split()]
+            corresponding_genes = [key for key, values in gene_symbol_KO.items() if values in multiple_kos]
+
+            if not corresponding_genes:
+                entry.graphics[0].name = ""
+                entry.graphics[0].bgcolor = gray
+            if entry.graphics[0].type == 'line':
+                continue
+            if  len(corresponding_genes) > 1:
+                for ko in range(len(corresponding_genes) -1):
+                    new_entry = make_new_graphic(entry)
+
+                num_subcells = len(entry.graphics)
+                subcell_width = new_entry.width / num_subcells
+                left_x = new_entry.graphics[0].x - new_entry.width/2
+            
+                for i, (subcell, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
+                    subcell.x = left_x + subcell_width * (i + 0.5)
+                    subcell.width = subcell_width
+                    subcell.bgcolor = gray
+                    subcell.name = ""
+
+                    for indiv_pathway in common_list:
+                        genes_in_pathway = indiv_pathway[common_key]['genes']
+                        genes_in_pathway_upper = [gene.upper() for gene in genes_in_pathway]
+                        name_intervention = indiv_pathway[common_key]['intervention_name']
+                        in_pathway = gene.upper() in genes_in_pathway_upper
+                        key_with_gene = [combo['combination_key'] for combo in combination_dict[common_key] if gene.upper() in combo['common_genes']]
+
+                        if len(key_with_gene) >= 1:
+                            subcell.bgcolor = color_to_intervention[key_with_gene[0]]
+                            subcell.name = gene
+                            genes_per_cell[gene] = corresponding_genes
+                        elif in_pathway:
+                            subcell.bgcolor = color_to_intervention[name_intervention]
+                            subcell.name = gene
+                            genes_per_cell[gene] = corresponding_genes
+
+            else:
+                for i, (element, gene) in enumerate(zip(entry.graphics, corresponding_genes)):
+                    element.bgcolor = gray
+                    element.name = ""
+
+                    for indiv_pathway in common_list:
+                        genes_in_pathway = indiv_pathway[common_key]['genes']
+                        genes_in_pathway_upper = [gene.upper() for gene in genes_in_pathway]
+                        name_intervention = indiv_pathway[common_key]['intervention_name']
+                        in_pathway = gene.upper() in genes_in_pathway_upper
+                        key_with_gene = [combo['combination_key'] for combo in combination_dict[common_key] if gene.upper() in combo['common_genes']]
+
+                        if len(key_with_gene) >= 1:
+                            element.bgcolor = color_to_intervention[key_with_gene[0]]
+                            element.name = gene
+                            genes_per_cell[gene] = corresponding_genes
+                        elif in_pathway:
+                            element.bgcolor = color_to_intervention[name_intervention]
+                            element.name = gene
+                            genes_per_cell[gene] = corresponding_genes
+
+        for compound_entry in pathway.compounds:
+            if compound_entry.graphics[0].name in compounds_list:  
+                compound_entry.graphics[0].bgcolor = lipid_yellow
+                compound_entry.graphics[0].fgcolor = '#000000'
+                compound_entry.graphics[0].name = ""
+            else:
+                compound_entry.graphics[0].bgcolor = white
+                compound_entry.graphics[0].name = ""
+            if compound_entry.graphics[0].type == 'line':
+                continue
+
+        _hf.generate_genes_per_cell_spreadsheet(writer=writer , genes_per_cell=genes_per_cell , id=common_key)
+
+        cnvs = KGMLCanvas(pathway, import_imagemap=True , fontsize=9)
+        cnvs.draw(pathway_id + ".pdf")
+
+        if save_to_eps:
+            cnvs.draw(pathway_id + "_" + output_name + ".eps")
+
+        _hf.compile_and_write_output_files(id=common_key, pathway_id=pathway_id , color_legend=color_to_intervention , output_name=output_name , save_to_eps=save_to_eps)
+        pathway_counter += 1
+    writer.close()
+
 def draw_KEGG_pathways_genes_with_methylation(parsed_output , info , genes_from_MM , color_legend, compounds_list, save_to_eps):
     """
     Draw KEGG pathways with gene expression and methylation information.
