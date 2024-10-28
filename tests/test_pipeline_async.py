@@ -218,7 +218,7 @@ async def test_single_input_with_methylation_quantification():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     input_label = input_label_g
-    my_pipeline = Pipeline_async(
+    my_pipeline = PipelineAsync(
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
