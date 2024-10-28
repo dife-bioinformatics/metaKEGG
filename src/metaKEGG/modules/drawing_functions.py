@@ -375,7 +375,7 @@ def draw_KEGG_pathways_transcripts(parsed_output , info, compounds_list, save_to
     writer.close()
     writer_upper.close()
 
-async def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , intervention_names , colors_list , compounds_list, save_to_eps):
+def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , intervention_names , colors_list , compounds_list, save_to_eps):
     """
     Draw KEGG pathways with gene expression information for multiple interventions.
 
@@ -448,7 +448,7 @@ async def draw_KEGG_pathways_genes_multiple_interventions(parsed_out_list , inte
     pathway_counter = 1
     for common_key , common_list in common_key_dict.items():
         print(f'[{pathway_counter}/{len(common_key_dict)}] {common_key} ({common_list[0][common_key]["name"]})')
-        collect_info = await _hf.collect_pathway_info_multiple_interventions(common_key)
+        collect_info = _hf.collect_pathway_info_multiple_interventions(common_key)
         genes_per_cell = {}
         pathway_id = collect_info[common_key]['corresponding_KO']
         pathway = KGML_parser.read(REST.kegg_get(pathway_id, "kgml"))

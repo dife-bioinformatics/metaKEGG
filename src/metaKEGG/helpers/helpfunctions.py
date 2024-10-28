@@ -18,7 +18,6 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 import os
 import datetime
-import asyncio
 import shutil
 from matplotlib.patches import Patch
 import sys
@@ -110,7 +109,7 @@ def file_naming_scheme(input_data, id=None):
 
     return truncated_name
 
-async def collect_pathway_info(parsed_output):
+def collect_pathway_info(parsed_output):
     """
     Collect information about genes, KO identifiers, and related data for each pathway in the parsed output.
 
@@ -180,11 +179,11 @@ async def collect_pathway_info(parsed_output):
                                 "gene_symbols": gene_symbols,
                                 "gene_symbol_kegg_id": gene_symbol_kegg_id,
                                 "corresponding_KO" : corresponding_KO}
-        await asyncio.sleep(0.5)
+        time.sleep(1)
 
     return pathway_genes
 
-async def collect_pathway_info_multiple_interventions(pathway_id):
+def collect_pathway_info_multiple_interventions(pathway_id):
     """
     Collect information about genes, KO identifiers, and related data for a specific pathway with multiple interventions.
 
@@ -251,7 +250,7 @@ async def collect_pathway_info_multiple_interventions(pathway_id):
                             "gene_symbols": gene_symbols,
                             "gene_symbol_kegg_id": gene_symbol_kegg_id,
                             "corresponding_KO" : corresponding_KO}
-    await asyncio.sleep(0.5)
+    time.sleep(1)
 
     return pathway_genes
 
