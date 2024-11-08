@@ -3,6 +3,8 @@ import datetime
 import sys
 import shutil
 import asyncio
+from typing import Optional, List, Union
+from pathlib import Path
 from ..helpers import helpfunctions as _hf
 from ..modules import drawing_functions as _df
 from ..modules import colorscale as _cs
@@ -11,117 +13,35 @@ from ..config import analysis_types_to_execute as analysis_types_to_execute
 class PipelineAsync:
     """
     Class for executing different analyses on KEGG pathways with various data inputs.
-
-    Parameters:
-    - input_file_path (str or list): Path to the input file or a list of input files.
-    - sheet_name_paths (str): Sheet name containing pathway information.
-    - sheet_name_genes (str): Sheet name containing gene information.
-    - genes_column (str): Column name for genes in in the sheet_name_genes.
-    - log2fc_column (str): Column name for log2 fold change in in the sheet_name_genes.
-    - analysis_type (int): Type of analysis to be performed.
-    - input_label (str or list): Label or list of labels for the input files.
-    - methylation_path (str): Path to the methylation file.
-    - methylation_pvalue (str): Column name for p-value in methylation file.
-    - methylation_genes (str): Column name for genes in methylation file.
-    - methylation_pvalue_thresh (float): Threshold for methylation p-value.
-    - miRNA_path (str): Path to the miRNA file.
-    - miRNA_pvalue (str): Column name for p-value in miRNA file.
-    - miRNA_genes (str): Column name for genes in miRNA file.
-    - miRNA_pvalue_thresh (float): Threshold for miRNA p-value.
-    - folder_extension (str): Extension for the output folder.
-
-    - count_threshold (int): Threshold for gene count.
-    - benjamini_threshold (float): Threshold for Benjamini correction.
-    - save_to_eps (bool): Flag to save output to EPS format.
-
-    Methods:
-    - select_analysis(): Selects and executes the specified analysis type.
-
-    Analysis Types:
-    1. Single input (Gene IDs)
-    2. Single input (Transcript IDs)
-    3. Multiple inputs
-    4. Single input with Methylation
-    5. Single input with miRNA
-    6. Single input with Methylation and miRNA
-    7. Single input (Bulk mapping)
-    8. Single input w Methylation & Quantification (Gene IDs)
-    9. Single input w miRNA & Quantification (Gene IDs)
     """
-    def __init__(self, input_file_path, sheet_name_paths='pathways', sheet_name_genes='gene_metrics', analysis_type=None, input_label=None, pathway_pvalue=None,
-                methylation_path=None, methylation_pvalue=None, methylation_genes=None, methylation_pvalue_thresh=0.05, methylation_probe_column=None, probes_to_cgs=False,
-                miRNA_path=None, miRNA_pvalue=None, miRNA_genes=None, miRNA_pvalue_thresh=0.05, miRNA_ID_column=None,
-                folder_extension=None, genes_column='gene_symbol', log2fc_column='logFC', count_threshold=2, benjamini_threshold=None ,save_to_eps=False, output_folder_name=None, compounds_list=None):
+    def __init__(
+        self,
+        input_file_path: Union[str, Path, List[str], List[Path]],
+        input_label: Optional[Union[str, List[str]]], 
+        sheet_name_paths: str = "pathways",
+        sheet_name_genes: str = "gene_metrics",
+        genes_column: str = "gene_symbol",
+        log2fc_column: str = "logFC",
+        output_folder_name: Optional[str] = None,
+        folder_extension: Optional[str] = None,
+        compounds_list: Optional[List[str]] = None,
+        save_to_eps: bool = False
 
+    ) -> None:
+        
         self.input_file_path = input_file_path
+        self.input_label = input_label
+
         self.sheet_name_paths = sheet_name_paths
         self.sheet_name_genes = sheet_name_genes
-        self.folder_extension = folder_extension
         self.genes_column = genes_column
         self.log2fc_column = log2fc_column
-        self.analysis_type = analysis_type
-        self.count_threshold = count_threshold
-        self.input_label = input_label
-        self.pathway_pvalue = pathway_pvalue
-        self.methylation_path = methylation_path
-        self.methylation_pvalue = methylation_pvalue
-        self.methylation_genes = methylation_genes
-        self.methylation_pvalue_thresh = methylation_pvalue_thresh
-        self.methylation_probe_column = methylation_probe_column
-        self.probes_to_cgs = probes_to_cgs
-        self.miRNA_path = miRNA_path
-        self.miRNA_pvalue = miRNA_pvalue
-        self.miRNA_genes = miRNA_genes
-        self.miRNA_pvalue_thresh = miRNA_pvalue_thresh
-        self.miRNA_ID_column = miRNA_ID_column
 
-        self.benjamini_threshold = benjamini_threshold
-        self.save_to_eps = save_to_eps
-        self.output_folder_name = output_folder_name
         self.compounds_list = compounds_list if compounds_list is not None else []
+        self.output_folder_name = output_folder_name
+        self.folder_extension = folder_extension
+        self.save_to_eps = save_to_eps
 
-    async def initialize(self):
-        """
-        This method is called after instantiation to execute the procedure asynchronously.
-        """
-        await self.select_analysis()
-
-    async def select_analysis(self):
-        """
-        Selects and executes the specified analysis type based on the provided parameters.
-
-        Returns:
-        None
-        """
-        valid_analysis_types = set([1, 2, 3, 4, 5, 6, 7, 8, 9])
-        
-        if self.analysis_type in valid_analysis_types:
-            if self.analysis_type == 1:
-                await self.single_input_genes()
-            elif self.analysis_type == 2:
-                await self.single_input_transcripts()
-            elif self.analysis_type == 3:
-                await self.single_input_genes_bulk_mapping()
-            elif self.analysis_type == 4:
-                await self.multiple_inputs()
-            elif self.analysis_type == 5:
-                await self.single_input_with_methylation()
-            elif self.analysis_type == 6:
-                await self.single_input_with_methylation_quantification()
-            elif self.analysis_type == 7:
-                await self.single_input_with_miRNA()
-            elif self.analysis_type == 8:
-                await self.single_input_with_miRNA_quantification()
-            elif self.analysis_type == 9:
-                await self.single_input_with_methylation_and_miRNA()
-
-        elif self.analysis_type is None:
-            print('Initialized class. Have to run analysis in expert mode.\nValid choices are:\n')
-            for value in analysis_types_to_execute.values():
-                print(f'{value}')
-            pass
-        else:
-            raise ValueError(f"Invalid analysis type: {self.analysis_type}. Please provide a value between 1 and 9.\n")
 
     def find_file_folder(self):
         """
@@ -176,7 +96,7 @@ class PipelineAsync:
             output_folder = _hf.create_output_folder(create_folder, self.folder_extension)
         return output_folder
 
-    async def single_input_genes(self):
+    async def single_input_genes(self, benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue: Optional[float] = None):
         """
         Perform the Single Input Analysis for Gene IDs.
 
@@ -209,7 +129,9 @@ class PipelineAsync:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column= self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = count_threshold,
+                                                    benjamini_threshold=benjamini_threshold,
+                                                    raw_pvalue_threshold=pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
         print('Finished parsing input file\n')
@@ -223,7 +145,7 @@ class PipelineAsync:
         os.chdir(entry_dir)
         print(f'\nDone! \nOutput files are located in {output_folder}')
 
-    async def single_input_transcripts(self):
+    async def single_input_transcripts(self, benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue: Optional[float] = None):
         """
         Perform the Single Input Analysis for Transcript IDs.
 
@@ -255,7 +177,9 @@ class PipelineAsync:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = count_threshold,
+                                                    benjamini_threshold=benjamini_threshold,
+                                                    raw_pvalue_threshold=pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
         print('Finished parsing input file\n')
@@ -269,7 +193,7 @@ class PipelineAsync:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    async def multiple_inputs(self):
+    async def multiple_inputs(self, benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue: Optional[float] = None):
         """
         Perform the Multiple Inputs Analysis.
 
@@ -323,8 +247,8 @@ class PipelineAsync:
                                                                             sheet_name_genes=self.sheet_name_genes,
                                                                             genes_column=self.genes_column,
                                                                             log2fc_column=self.log2fc_column,
-                                                                            count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold,
-                                                                            number_interventions=file_counter , name_interventions=inter_name, raw_pvalue_threshold=self.pathway_pvalue)
+                                                                            count_threshold = count_threshold , benjamini_threshold=benjamini_threshold,
+                                                                            number_interventions=file_counter , name_interventions=inter_name, raw_pvalue_threshold=pathway_pvalue)
 
             parsed_out_list.append(globals()[parsed_out_counter])
             all_genes_list.append(globals()[all_genes_counter])
@@ -348,7 +272,8 @@ class PipelineAsync:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}\n')
 
-    async def single_input_with_methylation(self):
+    async def single_input_with_methylation(self, methylation_path: Union[str, Path], methylation_pvalue: Optional[str] = None, methylation_pvalue_thresh: Optional[float] = None, methylation_genes: str = None,
+                                      benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue: Optional[float] = None):
         """
         Perform Single Input Analysis with Methylation.
 
@@ -379,22 +304,22 @@ class PipelineAsync:
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}\n')
         
-        if self.methylation_path is not None or isinstance(self.methylation_path, (str , os.PathLike)):
+        if methylation_path is not None or isinstance(methylation_path, (str , os.PathLike)):
             try:
-                methylation_df = _hf.load_metadata(self.methylation_path)
+                methylation_df = _hf.load_metadata(methylation_path)
             except ValueError:
                 raise ValueError(f'Please provide a proper methylation file path')
             
-        _hf.evaluate_metadata(methylation_df , self.methylation_pvalue , self.methylation_genes)
+        _hf.evaluate_metadata(methylation_df , methylation_pvalue , methylation_genes)
 
-        if self.methylation_pvalue_thresh is None or not isinstance(self.methylation_pvalue_thresh, (int, float)) or self.methylation_pvalue is None:
-            genes_from_MM = methylation_df[self.methylation_genes].unique().tolist()
+        if methylation_pvalue_thresh is None or not isinstance(methylation_pvalue_thresh, (int, float)) or methylation_pvalue is None:
+            genes_from_MM = methylation_df[methylation_genes].unique().tolist()
         else:
-            if self.methylation_pvalue is not None and self.methylation_pvalue not in methylation_df.columns:
-                raise KeyError(f'Column {self.methylation_pvalue} not found in the methylation dataframe.')
+            if methylation_pvalue is not None and methylation_pvalue not in methylation_df.columns:
+                raise KeyError(f'Column {methylation_pvalue} not found in the methylation dataframe.')
             
             try:
-                genes_from_MM = methylation_df.loc[methylation_df[self.methylation_pvalue] < self.methylation_pvalue_thresh][self.methylation_genes].unique().tolist()
+                genes_from_MM = methylation_df.loc[methylation_df[methylation_pvalue] < methylation_pvalue_thresh][methylation_genes].unique().tolist()
             except ValueError:
                 raise ValueError(f'Invalid value provided for pvalue_thresh. It should be a number.')
 
@@ -409,7 +334,9 @@ class PipelineAsync:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold,  benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = count_threshold,
+                                                    benjamini_threshold=benjamini_threshold,
+                                                    raw_pvalue_threshold=pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
         print('Finished parsing input file\n')
@@ -423,7 +350,8 @@ class PipelineAsync:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    async def single_input_with_miRNA(self):
+    async def single_input_with_miRNA(self, miRNA_path: Union[str, Path] = None, miRNA_pvalue: Optional[str] = None, miRNA_pvalue_thresh: Optional[float] = None, miRNA_genes: str = None, 
+                                benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue: Optional[float] = None):
         """
         Perform Single Input Analysis with miRNA.
 
@@ -454,22 +382,22 @@ class PipelineAsync:
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}\n')
 
-        if self.miRNA_path is not None or isinstance(self.miRNA_path, (str , os.PathLike)):
+        if miRNA_path is not None or isinstance(miRNA_path, (str , os.PathLike)):
             try:
-                miRNA_df = _hf.load_metadata(self.miRNA_path)
+                miRNA_df = _hf.load_metadata(miRNA_path)
             except ValueError:
                 raise ValueError(f'Please provide a proper miRNA file path')
 
-        _hf.evaluate_metadata(miRNA_df , self.miRNA_pvalue , self.miRNA_genes)
+        _hf.evaluate_metadata(miRNA_df , miRNA_pvalue , miRNA_genes)
 
-        if self.miRNA_pvalue_thresh is None or not isinstance(self.miRNA_pvalue_thresh, (int, float)) or self.miRNA_pvalue is None:
-            genes_from_miRNA = miRNA_df[self.miRNA_genes].unique().tolist()
+        if miRNA_pvalue_thresh is None or not isinstance(miRNA_pvalue_thresh, (int, float)) or miRNA_pvalue is None:
+            genes_from_miRNA = miRNA_df[miRNA_genes].unique().tolist()
         else:
-            if self.miRNA_pvalue is not None and self.miRNA_pvalue not in miRNA_df.columns:
-                raise KeyError(f'Column {self.miRNA_pvalue} not found in the miRNA dataframe.')
+            if miRNA_pvalue is not None and miRNA_pvalue not in miRNA_df.columns:
+                raise KeyError(f'Column {miRNA_pvalue} not found in the miRNA dataframe.')
             
             try:
-                genes_from_miRNA = miRNA_df.loc[miRNA_df[self.miRNA_pvalue] < self.miRNA_pvalue_thresh][self.miRNA_genes].unique().tolist()
+                genes_from_miRNA = miRNA_df.loc[miRNA_df[miRNA_pvalue] < miRNA_pvalue_thresh][miRNA_genes].unique().tolist()
             except ValueError:
                 raise ValueError(f'Invalid value provided for pvalue_thresh. It should be a number.')
 
@@ -484,7 +412,9 @@ class PipelineAsync:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = count_threshold,
+                                                    benjamini_threshold=benjamini_threshold,
+                                                    raw_pvalue_threshold=pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
@@ -498,7 +428,9 @@ class PipelineAsync:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    async def single_input_with_methylation_and_miRNA(self):
+    async def single_input_with_methylation_and_miRNA(self, methylation_path: Union[str, Path], methylation_pvalue: Optional[str] = None, methylation_pvalue_thresh: Optional[float] = None, methylation_genes: str = None,
+                                                miRNA_path: Union[str, Path] = None, miRNA_pvalue: Optional[str] = None, miRNA_pvalue_thresh: Optional[float] = None, miRNA_genes: str = None,
+                                                benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue: Optional[float] = None):
         """
         Perform a single input analysis with Methylation and miRNA data.
 
@@ -526,23 +458,23 @@ class PipelineAsync:
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}\n')
 
-        if self.methylation_path is not None or isinstance(self.methylation_path, (str , os.PathLike)):
+        if methylation_path is not None or isinstance(methylation_path, (str , os.PathLike)):
             try:
-                methylation_df = _hf.load_metadata(self.methylation_path)
+                methylation_df = _hf.load_metadata(methylation_path)
             except ValueError:
                 raise ValueError(f'Please provide a proper methylation file path')
 
 
-        _hf.evaluate_metadata(methylation_df , self.methylation_pvalue , self.methylation_genes)
+        _hf.evaluate_metadata(methylation_df , methylation_pvalue , methylation_genes)
 
-        if self.methylation_pvalue_thresh is None or not isinstance(self.methylation_pvalue_thresh, (int, float)) or self.methylation_pvalue is None:
-            genes_from_MM = methylation_df[self.methylation_genes].unique().tolist()
+        if methylation_pvalue_thresh is None or not isinstance(methylation_pvalue_thresh, (int, float)) or methylation_pvalue is None:
+            genes_from_MM = methylation_df[methylation_genes].unique().tolist()
         else:
-            if self.methylation_pvalue is not None and self.methylation_pvalue not in methylation_df.columns:
-                raise KeyError(f'Column {self.methylation_pvalue} not found in the methylation dataframe.')
+            if methylation_pvalue is not None and methylation_pvalue not in methylation_df.columns:
+                raise KeyError(f'Column {methylation_pvalue} not found in the methylation dataframe.')
             
             try:
-                genes_from_MM = methylation_df.loc[methylation_df[self.methylation_pvalue] < self.methylation_pvalue_thresh][self.methylation_genes].unique().tolist()
+                genes_from_MM = methylation_df.loc[methylation_df[methylation_pvalue] < methylation_pvalue_thresh][methylation_genes].unique().tolist()
             except ValueError:
                 raise ValueError(f'Invalid value provided for pvalue_thresh. It should be a number.')
 
@@ -550,23 +482,23 @@ class PipelineAsync:
             raise ValueError('There are no genes with a methylation profile')
 
 
-        if self.miRNA_path is not None or isinstance(self.miRNA_path, (str , os.PathLike)):
+        if miRNA_path is not None or isinstance(miRNA_path, (str , os.PathLike)):
             try:
-                miRNA_df = _hf.load_metadata(self.miRNA_path)
+                miRNA_df = _hf.load_metadata(miRNA_path)
             except ValueError:
                 raise ValueError(f'Please provide a proper miRNA file path')
             
 
-        _hf.evaluate_metadata(miRNA_df , self.miRNA_pvalue , self.miRNA_genes)
+        _hf.evaluate_metadata(miRNA_df , miRNA_pvalue , miRNA_genes)
 
-        if self.miRNA_pvalue_thresh is None or not isinstance(self.miRNA_pvalue_thresh, (int, float)) or self.miRNA_pvalue is None:
-            genes_from_miRNA = miRNA_df[self.miRNA_genes].unique().tolist()
+        if miRNA_pvalue_thresh is None or not isinstance(miRNA_pvalue_thresh, (int, float)) or miRNA_pvalue is None:
+            genes_from_miRNA = miRNA_df[miRNA_genes].unique().tolist()
         else:
-            if self.miRNA_pvalue is not None and self.miRNA_pvalue not in miRNA_df.columns:
-                raise KeyError(f'Column {self.miRNA_pvalue} not found in the miRNA dataframe.')
+            if miRNA_pvalue is not None and miRNA_pvalue not in miRNA_df.columns:
+                raise KeyError(f'Column {miRNA_pvalue} not found in the miRNA dataframe.')
             
             try:
-                genes_from_miRNA = miRNA_df.loc[miRNA_df[self.miRNA_pvalue] < self.miRNA_pvalue_thresh][self.miRNA_genes].unique().tolist()
+                genes_from_miRNA = miRNA_df.loc[miRNA_df[miRNA_pvalue] < miRNA_pvalue_thresh][miRNA_genes].unique().tolist()
             except ValueError:
                 raise ValueError(f'Invalid value provided for pvalue_thresh. It should be a number.')
 
@@ -583,7 +515,9 @@ class PipelineAsync:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = count_threshold,
+                                                    benjamini_threshold=benjamini_threshold,
+                                                    raw_pvalue_threshold=pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
@@ -616,9 +550,6 @@ class PipelineAsync:
         if isinstance(self.input_file_path , list):
             raise TypeError('Please provide a single input to perform \'Single input (Bulk mapping)')
 
-        if self.benjamini_threshold is not None or self.count_threshold is not None:
-            raise TypeError('\'Single input (Bulk mapping)\' analysis does not accept \'benjamini_threshold\' or \'count_threshold\' values. Set to None')
-
         print("Executing analysis : Single input (Bulk mapping)...\n")
 
         entry_dir = os.getcwd()        
@@ -630,7 +561,8 @@ class PipelineAsync:
         parsed_out, all_genes = _hf.parse_bulk_kegg_pathway_file(filepath=self.input_file_path,
                                                     sheet_name_paths=self.sheet_name_paths,
                                                     sheet_name_genes=self.sheet_name_genes,
-                                                    genes_column=self.genes_column, log2fc_column=self.log2fc_column)
+                                                    genes_column=self.genes_column,
+                                                    log2fc_column=self.log2fc_column)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
@@ -644,7 +576,8 @@ class PipelineAsync:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    async def single_input_with_miRNA_quantification(self):
+    async def single_input_with_miRNA_quantification(self, miRNA_path: Union[str, Path] = None, miRNA_pvalue: Optional[str] = None, miRNA_pvalue_thresh: Optional[float] = None, miRNA_genes: str = None, miRNA_ID_column: Optional[str] = None,
+                                               benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue: Optional[float] = None):
         """
         Perform Single Input Analysis with miRNA.
 
@@ -675,32 +608,32 @@ class PipelineAsync:
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}\n')
 
-        if self.miRNA_path is not None or isinstance(self.miRNA_path, (str , os.PathLike)):
+        if miRNA_path is not None or isinstance(miRNA_path, (str , os.PathLike)):
             try:
-                miRNA_df = _hf.load_metadata(self.miRNA_path)
+                miRNA_df = _hf.load_metadata(miRNA_path)
             except ValueError:
                 raise ValueError(f'Please provide a proper miRNA file path')
 
-        _hf.evaluate_metadata(miRNA_df , self.miRNA_pvalue , self.miRNA_genes)
+        _hf.evaluate_metadata(miRNA_df , miRNA_pvalue , miRNA_genes)
 
-        if self.miRNA_pvalue_thresh is None or not isinstance(self.miRNA_pvalue_thresh, (int, float)) or self.miRNA_pvalue is None:
-            genes_from_miRNA = miRNA_df[self.miRNA_genes].unique().tolist()
+        if miRNA_pvalue_thresh is None or not isinstance(miRNA_pvalue_thresh, (int, float)) or miRNA_pvalue is None:
+            genes_from_miRNA = miRNA_df[miRNA_genes].unique().tolist()
         else:
-            if self.miRNA_pvalue is not None and self.miRNA_pvalue not in miRNA_df.columns:
-                raise KeyError(f'Column {self.miRNA_pvalue} not found in the miRNA dataframe.')
+            if miRNA_pvalue is not None and miRNA_pvalue not in miRNA_df.columns:
+                raise KeyError(f'Column {miRNA_pvalue} not found in the miRNA dataframe.')
             
             try:
-                genes_from_miRNA = miRNA_df.loc[miRNA_df[self.miRNA_pvalue] < self.miRNA_pvalue_thresh][self.miRNA_genes].unique().tolist()
+                genes_from_miRNA = miRNA_df.loc[miRNA_df[miRNA_pvalue] < miRNA_pvalue_thresh][miRNA_genes].unique().tolist()
             except ValueError:
                 raise ValueError(f'Invalid value provided for pvalue_thresh. It should be a number.')
 
         if len(genes_from_miRNA) == 0:
             raise ValueError('There are no genes with a miRNA profile')
 
-        if self.miRNA_ID_column is None:
+        if miRNA_ID_column is None:
             raise KeyError(f'Please provide the column name with the miRNA IDs')
-        elif self.miRNA_ID_column is not None and self.miRNA_ID_column not in miRNA_df.columns:
-            raise KeyError(f'Column {self.miRNA_ID_column} not found in the miRNAs dataframe.')
+        elif miRNA_ID_column is not None and miRNA_ID_column not in miRNA_df.columns:
+            raise KeyError(f'Column {miRNA_ID_column} not found in the miRNAs dataframe.')
 
 
         miRNA_options = ['DEmiR target gene' , 'No DEmiR target gene']
@@ -711,7 +644,9 @@ class PipelineAsync:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = count_threshold,
+                                                    benjamini_threshold=benjamini_threshold,
+                                                    raw_pvalue_threshold=pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
@@ -721,11 +656,13 @@ class PipelineAsync:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = self.miRNA_genes , miRNA_id_col=self.miRNA_ID_column , compounds_list=self.compounds_list ,save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_with_miRNA_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_miRNA=genes_from_miRNA , miRNA_df=miRNA_df , miRNA_genes_col = miRNA_genes , miRNA_id_col=miRNA_ID_column , compounds_list=self.compounds_list ,save_to_eps=self.save_to_eps)
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    async def single_input_with_methylation_quantification(self):
+    async def single_input_with_methylation_quantification(self, methylation_path: Union[str, Path], methylation_pvalue: Optional[str] = None, methylation_pvalue_thresh: Optional[float] = None, methylation_genes: str = None,
+                                                     probes_to_cgs: Optional[bool] = False, methylation_probe_column: Optional[str] = None,
+                                                     benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue: Optional[float] = None):
         """
         Perform Single Input Analysis with methylation quantification.
 
@@ -752,7 +689,7 @@ class PipelineAsync:
 
         entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
-        if self.probes_to_cgs:
+        if probes_to_cgs:
             analysis_extension = 'methylation_quantification_probe_correction'
             print("Selected setting : Probe correction\n")
         else:
@@ -761,44 +698,44 @@ class PipelineAsync:
         output_folder = self.make_output_folder(folder_of_input , analysis_extension)
         print(f'Output folder is {output_folder}\n')
 
-        if self.methylation_path is not None or isinstance(self.methylation_path, (str , os.PathLike)):
+        if methylation_path is not None or isinstance(methylation_path, (str , os.PathLike)):
             try:
-                methylation_df = _hf.load_metadata(self.methylation_path)
+                methylation_df = _hf.load_metadata(methylation_path)
             except ValueError:
                 raise ValueError(f'Please provide a proper methylation file path')
 
-        _hf.evaluate_metadata(methylation_df , self.methylation_pvalue , self.methylation_genes)
+        _hf.evaluate_metadata(methylation_df , methylation_pvalue , methylation_genes)
 
-        if self.methylation_pvalue_thresh is None or not isinstance(self.methylation_pvalue_thresh, (int, float)) or self.methylation_pvalue is None:
-            genes_from_methylation = methylation_df[self.methylation_genes].unique().tolist()
+        if methylation_pvalue_thresh is None or not isinstance(methylation_pvalue_thresh, (int, float)) or methylation_pvalue is None:
+            genes_from_methylation = methylation_df[methylation_genes].unique().tolist()
         else:
-            if self.methylation_pvalue is not None and self.methylation_pvalue not in methylation_df.columns:
-                raise KeyError(f'Column {self.methylation_pvalue} not found in the methylation dataframe.')
+            if methylation_pvalue is not None and methylation_pvalue not in methylation_df.columns:
+                raise KeyError(f'Column {methylation_pvalue} not found in the methylation dataframe.')
             
             try:
-                genes_from_methylation = methylation_df.loc[methylation_df[self.methylation_pvalue] < self.methylation_pvalue_thresh][self.methylation_genes].unique().tolist()
+                genes_from_methylation = methylation_df.loc[methylation_df[methylation_pvalue] < methylation_pvalue_thresh][methylation_genes].unique().tolist()
             except ValueError:
                 raise ValueError(f'Invalid value provided for pvalue_thresh. It should be a number.')
 
         if len(genes_from_methylation) == 0:
             raise ValueError('There are no genes with a genes_from_methylation profile')
 
-        if self.methylation_probe_column is None:
+        if methylation_probe_column is None:
             raise KeyError(f'Please provide the column name with the probe IDs.')
-        elif self.methylation_probe_column is not None and self.methylation_probe_column not in methylation_df.columns:
-            raise KeyError(f'Column {self.methylation_probe_column} not found in the methylation dataframe.')
+        elif methylation_probe_column is not None and methylation_probe_column not in methylation_df.columns:
+            raise KeyError(f'Column {methylation_probe_column} not found in the methylation dataframe.')
         else:
-            metadata_id_col = self.methylation_probe_column
-            methylation_df = methylation_df.drop_duplicates(subset=[metadata_id_col , self.methylation_genes] , keep='first')
-            if self.probes_to_cgs is True:
+            metadata_id_col = methylation_probe_column
+            methylation_df = methylation_df.drop_duplicates(subset=[metadata_id_col , methylation_genes] , keep='first')
+            if probes_to_cgs is True:
                 insert_new_column = 'unique_CG_quantification'
                 if insert_new_column in methylation_df.columns:
                     raise KeyError(f'Could not insert unique probe column ({insert_new_column}). It already exists in the dataframe.')
                 else:
-                    methylation_df[insert_new_column] = methylation_df[self.methylation_probe_column].str.split("_").str[0]
-                    methylation_df = methylation_df.drop_duplicates(subset=[insert_new_column, self.methylation_genes] , keep='first')
+                    methylation_df[insert_new_column] = methylation_df[methylation_probe_column].str.split("_").str[0]
+                    methylation_df = methylation_df.drop_duplicates(subset=[insert_new_column, methylation_genes] , keep='first')
                     metadata_id_col = insert_new_column
-            elif self.probes_to_cgs is False:
+            elif probes_to_cgs is False:
                 print('Will not perform probe correction...\n')
 
         methylation_options = ['DEG with DMP' , 'DEG without DMP']
@@ -809,7 +746,9 @@ class PipelineAsync:
                                                     sheet_name_genes=self.sheet_name_genes,
                                                     genes_column=self.genes_column,
                                                     log2fc_column=self.log2fc_column,
-                                                    count_threshold = self.count_threshold , benjamini_threshold=self.benjamini_threshold, raw_pvalue_threshold=self.pathway_pvalue)
+                                                    count_threshold = count_threshold,
+                                                    benjamini_threshold=benjamini_threshold,
+                                                    raw_pvalue_threshold=pathway_pvalue)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
         print('Finished parsing input file\n')
@@ -819,6 +758,6 @@ class PipelineAsync:
         os.chdir(output_folder)
         _hf.generate_pathways_per_gene_spreadsheet(gene_list=all_genes, pathway_dict=parsed_out , name_extension=None)
         print('Mapping pathways...\n')
-        _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = self.methylation_genes , MM_id_col=metadata_id_col , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
+        _df.draw_KEGG_pathways_genes_with_methylation_quantification(parsed_output=parsed_out , info=pathway_info , genes_from_MM=genes_from_methylation , MM_df=methylation_df , MM_genes_col = methylation_genes , MM_id_col=metadata_id_col , compounds_list=self.compounds_list , save_to_eps=self.save_to_eps)
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')

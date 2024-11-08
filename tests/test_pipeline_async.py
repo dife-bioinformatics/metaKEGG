@@ -8,7 +8,7 @@ from tests.test_config import (
     methylation_pvalue, miRNA_pvalue, miRNA_gene, miRNA_path, methylation_pvalue_thresh, miRNA_pvalue_thresh,
     genes_column, log2fc_column, genes_sheet_name, pathways_sheet_name, input_file_path_bulk , analysis_type,
     save_to_eps, count_threshold, benjamini_threshold, output_folder_name, miRNA_path_quant,
-    methylation_probe_column, miRNA_column, methylation_quantification   
+    methylation_probe_column, miRNA_column, methylation_path_quant   
 )
 from src.metaKEGG.modules.pipeline_async import PipelineAsync
 
@@ -22,11 +22,10 @@ async def test_single_input_genes():
     my_pipeline = PipelineAsync(input_file_path=input_file_path,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
+                           genes_column=genes_column,
+                           log2fc_column=log2fc_column,
                            input_label=input_label,
-                           analysis_type=analysis_type,
-                           save_to_eps=save_to_eps,
-                           count_threshold=count_threshold,
-                           benjamini_threshold=benjamini_threshold)
+                           save_to_eps=save_to_eps)
 
     await my_pipeline.single_input_genes()
     os.chdir(current_dir)
@@ -39,11 +38,10 @@ async def test_single_input_transcripts():
     my_pipeline = PipelineAsync(input_file_path=input_file_path,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
+                           genes_column=genes_column,
+                           log2fc_column=log2fc_column,
                            input_label=input_label,
-                           analysis_type=analysis_type,
-                           save_to_eps=save_to_eps,
-                           count_threshold=count_threshold,
-                           benjamini_threshold=benjamini_threshold)
+                           save_to_eps=save_to_eps)
 
     await my_pipeline.single_input_transcripts()
     os.chdir(current_dir)
@@ -56,13 +54,12 @@ async def test_multiple_inputs():
     my_pipeline = PipelineAsync(input_file_path=input_file_path,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
+                           genes_column=genes_column,
+                           log2fc_column=log2fc_column,
                            input_label=input_label,
-                           analysis_type=analysis_type,
-                           save_to_eps=save_to_eps,
-                           count_threshold=count_threshold,
-                           benjamini_threshold=benjamini_threshold)
+                           save_to_eps=save_to_eps)
 
-    await my_pipeline.multiple_inputs()
+    await my_pipeline.multiple_inputs(count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
 @pytest.mark.asyncio
@@ -74,18 +71,14 @@ async def test_single_input_with_methylation():
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
+        genes_column=genes_column,
+        log2fc_column=log2fc_column,
         input_label=input_label,
-        methylation_path=methylation_path,
-        methylation_genes=methylation_gene,
-        methylation_pvalue=methylation_pvalue,
-        analysis_type=analysis_type ,
-        save_to_eps=save_to_eps,
-        count_threshold=count_threshold,
-        benjamini_threshold=benjamini_threshold,
-        methylation_pvalue_thresh = methylation_pvalue_thresh
-    )
+        save_to_eps=save_to_eps)
 
-    await my_pipeline.single_input_with_methylation()
+    await my_pipeline.single_input_with_methylation(methylation_path=methylation_path, methylation_genes=methylation_gene, methylation_pvalue=methylation_pvalue,
+                                              methylation_pvalue_thresh = methylation_pvalue_thresh,
+                                              count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
 @pytest.mark.asyncio
@@ -98,17 +91,13 @@ async def test_single_input_with_miRNA():
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
         input_label=input_label,
-        miRNA_path=miRNA_path,
-        miRNA_genes=miRNA_gene,
-        miRNA_pvalue=miRNA_pvalue,
-        analysis_type=analysis_type,
-        save_to_eps=save_to_eps,
-        count_threshold=count_threshold,
-        benjamini_threshold=benjamini_threshold,
-        miRNA_pvalue_thresh=miRNA_pvalue_thresh
-    )
+        genes_column=genes_column,
+        log2fc_column=log2fc_column,
+        save_to_eps=save_to_eps)
 
-    await my_pipeline.single_input_with_miRNA()
+    await my_pipeline.single_input_with_miRNA(miRNA_path=miRNA_path, miRNA_genes=miRNA_gene,
+                                        miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh,
+                                        count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
 @pytest.mark.asyncio
@@ -121,22 +110,16 @@ async def test_single_input_with_methylation_and_miRNA():
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
+        genes_column=genes_column,
+        log2fc_column=log2fc_column,
         input_label=input_label,
-        methylation_path=methylation_path,
-        methylation_genes=methylation_gene,
-        methylation_pvalue=methylation_pvalue,
-        miRNA_path=miRNA_path,
-        miRNA_genes=miRNA_gene,
-        miRNA_pvalue=miRNA_pvalue,
-        analysis_type=analysis_type,
-        save_to_eps=save_to_eps,
-        count_threshold=count_threshold,
-        benjamini_threshold=benjamini_threshold,
-        methylation_pvalue_thresh=methylation_pvalue_thresh,
-        miRNA_pvalue_thresh=miRNA_pvalue_thresh
-    )
+        save_to_eps=save_to_eps)
 
-    await my_pipeline.single_input_with_methylation_and_miRNA()
+    await my_pipeline.single_input_with_methylation_and_miRNA(methylation_path=methylation_path, methylation_genes=methylation_gene,
+                                                        methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh,
+                                                         miRNA_path=miRNA_path, miRNA_genes=miRNA_gene,
+                                                         miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh,
+                                                         count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
 @pytest.mark.asyncio
@@ -146,25 +129,14 @@ async def test_single_input_bulk():
     input_label = None
     sheet_name_paths = pathways_sheet_name
     sheet_name_genes = genes_sheet_name
-    count_threshold = None
-    benjamini_threshold = None
     my_pipeline = PipelineAsync(
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
         input_label=input_label,
-        methylation_path=methylation_path,
-        methylation_genes=methylation_gene,
-        methylation_pvalue=methylation_pvalue,
-        miRNA_path=miRNA_path,
-        miRNA_genes=miRNA_gene,
-        miRNA_pvalue=miRNA_pvalue,
         genes_column = genes_column,
         log2fc_column=log2fc_column,
-        analysis_type=analysis_type,
-        save_to_eps=save_to_eps,
-        count_threshold=count_threshold,
-        benjamini_threshold=benjamini_threshold
+        save_to_eps=save_to_eps
     )
 
     await my_pipeline.single_input_genes_bulk_mapping()
@@ -178,14 +150,13 @@ async def test_output_folder_scheme():
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
                            input_label=input_label,
-                           analysis_type=analysis_type,
                            save_to_eps=save_to_eps,
-                           count_threshold=count_threshold,
-                           benjamini_threshold=benjamini_threshold,
+                           genes_column=genes_column,
+                           log2fc_column=log2fc_column,
                            output_folder_name=output_folder_name,
                            folder_extension='with_extension')
 
-    await my_pipeline.single_input_genes()
+    await my_pipeline.single_input_genes(count_threshold=count_threshold, benjamini_threshold=benjamini_threshold,pathway_pvalue=None)
     os.chdir(current_dir)
 
 
@@ -198,19 +169,15 @@ async def test_single_input_with_miRNA_quantification():
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
+        genes_column=genes_column,
+        log2fc_column=log2fc_column,
         input_label=input_label,
-        miRNA_path=miRNA_path_quant,
-        miRNA_genes=miRNA_gene,
-        miRNA_pvalue=miRNA_pvalue,
-        miRNA_ID_column=miRNA_column,
-        analysis_type=analysis_type,
-        save_to_eps=save_to_eps,
-        count_threshold=count_threshold,
-        benjamini_threshold=benjamini_threshold,
-        miRNA_pvalue_thresh=miRNA_pvalue_thresh
-    )
+        save_to_eps=save_to_eps)
 
-    await my_pipeline.single_input_with_miRNA_quantification()
+    await my_pipeline.single_input_with_miRNA_quantification(miRNA_path=miRNA_path_quant, miRNA_genes=miRNA_gene,
+                                                        miRNA_pvalue=miRNA_pvalue, miRNA_pvalue_thresh=miRNA_pvalue_thresh,
+                                                        miRNA_ID_column=miRNA_column, 
+                                                        count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
 @pytest.mark.asyncio    
@@ -222,19 +189,15 @@ async def test_single_input_with_methylation_quantification():
         input_file_path=input_file_path,
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
+        genes_column=genes_column,
+        log2fc_column=log2fc_column,
         input_label=input_label,
-        methylation_path=methylation_quantification,
-        methylation_genes=methylation_gene,
-        methylation_pvalue=methylation_pvalue,
-        methylation_probe_column=methylation_probe_column,
-        probes_to_cgs=False,
-        analysis_type=analysis_type,
-        save_to_eps=save_to_eps,
-        count_threshold=count_threshold,
-        benjamini_threshold=benjamini_threshold
-        )
+        save_to_eps=save_to_eps)
 
-    await my_pipeline.single_input_with_methylation_quantification()
+    await my_pipeline.single_input_with_methylation_quantification(methylation_path=methylation_path_quant, methylation_genes=methylation_gene,
+                                                             methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh,
+                                                            methylation_probe_column=methylation_probe_column,probes_to_cgs=False,
+                                                             count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
 @pytest.mark.asyncio
@@ -247,32 +210,27 @@ async def test_single_input_with_methylation_quantification_correct_probes():
         sheet_name_paths=sheet_name_paths,
         sheet_name_genes=sheet_name_genes,
         input_label=input_label,
-        methylation_path=methylation_quantification,
-        methylation_genes=methylation_gene,
-        methylation_pvalue=methylation_pvalue,
-        methylation_probe_column=methylation_probe_column,
-        probes_to_cgs=True,
-        analysis_type=analysis_type,
-        save_to_eps=save_to_eps,
-        count_threshold=count_threshold,
-        benjamini_threshold=benjamini_threshold
-    )
+        genes_column=genes_column,
+        log2fc_column=log2fc_column,
+        save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_with_methylation_quantification()
+    my_pipeline.single_input_with_methylation_quantification(methylation_path=methylation_path_quant, methylation_genes=methylation_gene,
+                                                             methylation_pvalue=methylation_pvalue, methylation_pvalue_thresh=methylation_pvalue_thresh,
+                                                            methylation_probe_column=methylation_probe_column,probes_to_cgs=True,
+                                                             count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
 @pytest.mark.asyncio
 async def test_single_input_genes_with_compounds():
-    input_file_path = input_file_path_t
     input_label = input_label_g
     my_pipeline = PipelineAsync(input_file_path=input_file_path_g,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
                            input_label=input_label,
-                           analysis_type=None,
+                           log2fc_column=log2fc_column,
+                           genes_column=genes_column,
                            save_to_eps=True,
-                           count_threshold=1,
-                           benjamini_threshold=benjamini_threshold, compounds_list=['C00031' , 'C00162'] , folder_extension='compounds')
+                           compounds_list=['C00031' , 'C00162'] , folder_extension='compounds')
 
-    await my_pipeline.single_input_genes()
+    await my_pipeline.single_input_genes(count_threshold=1 , benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)

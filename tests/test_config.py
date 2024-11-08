@@ -39,4 +39,4 @@ miRNA_pvalue_thresh=None
 output_folder_name = 'my_folder_name'
 
 miRNA_path_quant = '../examples/miRNA_for_quantification.tsv'
-methylation_quantification = '../examples/methylation_for_quantification.csv'
+methylation_path_quant = '../examples/methylation_for_quantification.csv'
