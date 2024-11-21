@@ -7,21 +7,20 @@ input_file_path_m = ['../examples/single_input_genes.xlsx',
 
 
 input_label_m = ['input1' , 'input2' , 'input3']
-input_label_g = 'input'
 sheet_name_paths = "pathways"
 sheet_name_genes = "gene_metrics"
 sheet_name_transcripts = "transcript_metrics"
 
-methylation_path = '../examples/methylation.csv'
-methylation_gene = 'methylation_gene_symbol'
-methylation_pvalue = 'methylation_pval'
-methylation_pvalue = None
+methylation_file_path = '../examples/methylation.csv'
+methylation_genes_column = 'methylation_gene_symbol'
+methylation_pvalue_column = 'methylation_pval'
+methylation_pvalue_column = None
 methylation_probe_column = 'CG_ID'
 
-miRNA_path = '../examples/miRNA.tsv'
-miRNA_gene = 'miRNA_gene_symbol'
-miRNA_pvalue = 'miRNA_pval'
-miRNA_pvalue = None
+miRNA_file_path = '../examples/miRNA.tsv'
+miRNA_genes_column = 'miRNA_gene_symbol'
+miRNA_pvalue_column = 'miRNA_pval'
+miRNA_pvalue_column = None
 miRNA_column = 'miRNA_ID'
 
 input_file_path_bulk = '../examples/single_input_bulk.xlsx'
@@ -34,8 +33,8 @@ analysis_type = None
 save_to_eps = True
 count_threshold=2
 benjamini_threshold=None
-methylation_pvalue_thresh=None
-miRNA_pvalue_thresh=None
+methylation_pvalue_threshold=None
+miRNA_pvalue_threshold=None
 output_folder_name = 'my_folder_name'
 
 miRNA_path_quant = '../examples/miRNA_for_quantification.tsv'
