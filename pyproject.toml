@@ -42,8 +42,5 @@ classifiers = [
 requires = ["setuptools>=65.6"]
 build-backend = "setuptools.build_meta"
 
-[project.scripts]
-metaKEGG = "metaKEGG.cli:main"
-
 [project.urls]
 Repository = "https://github.com/dife-bioinformatics/metaKEGG"
