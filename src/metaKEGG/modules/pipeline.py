@@ -572,7 +572,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_miRNA_quantification(self, miRNA_file_path: Union[str, Path] = None, miRNA_pvalue_column: Optional[str] = None, miRNA_pvalue_threshold: Optional[float] = None, miRNA_genes_column: str = None, miRNA_ID_column: Optional[str] = None,
+    def single_input_with_miRNA_quantification(self, miRNA_file_path: Union[str, Path] = None, miRNA_pvalue_column: Optional[str] = None, miRNA_pvalue_threshold: Optional[float] = None, miRNA_genes_column: str = None, miRNA_ID_column: str = None,
                                                benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
         Perform Single Input Analysis with miRNA.
@@ -655,7 +655,7 @@ class Pipeline:
         print(f'Done! \nOutput files are located in {output_folder}')
 
     def single_input_with_methylation_quantification(self, methylation_file_path: Union[str, Path], methylation_pvalue_column: Optional[str] = None, methylation_pvalue_threshold: Optional[float] = None, methylation_genes_column: str = None,
-                                                     probes_to_cgs: Optional[bool] = False, methylation_probe_column: Optional[str] = None,
+                                                     probes_to_cgs: Optional[bool] = False, methylation_probe_column: str = None,
                                                      benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
         Perform Single Input Analysis with methylation quantification.
