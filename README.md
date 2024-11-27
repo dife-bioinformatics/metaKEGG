@@ -54,10 +54,10 @@ Either clone from this GitHub repository or install from
 
 2. Create a new conda environment to install metaKEGG in
 
-Example using python 3.9. The pakcage was tested with this version, and is stable until 3.11. Later versions should work but there is no guarantee.
+Example using python 3.11. The pakcage was tested with versions 3.9 through 3.12. Later versions should work but there is no guarantee.
 
 ```
-conda create -n metaKEGG_env python=3.9
+conda create -n metaKEGG_env python=3.11
 conda activate metaKEGG_env
 ```
 
