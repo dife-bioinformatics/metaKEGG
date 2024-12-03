@@ -15,6 +15,9 @@ metaKEGG is a fully integrated solution with class-leading features to visualize
     - [Local installation with conda env and environment.yml](#local-installation-with-conda-env-and-environmentyml)
 - [Getting started](#getting-started)
     - [Programmatic/Library usage](#programmaticlibrary-usage)
+- [File structure](#file-structure)
+    - [Main input file](#main-input-file)
+    - [Metadata files](#metadata-files)
 - [Example files](#example-files)
 - [Parameters / Arguments](#parameters--arguments) 
 - [Example usage](#example-usage)
@@ -94,11 +97,9 @@ pip install -e .
 
 ## Getting started
 
-After successfully installing metaKEGG, you can use it two ways.
+After successfully installing metaKEGG, you can use it by importing the library.
 
 ### Programmatic/Library usage
-
-Import the class
 
 The Pipeline class requires global arguments for instantiation.
 
@@ -112,6 +113,83 @@ Alternatively
 from metaKEGG import Pipeline
 Pipeline(**kwargs)
 ```
+
+---
+## File structure
+
+metaKEGG requires the input files to be structure in a certain format before submitted for analysis.
+
+### Main input file
+
+The pathway enrichment results (DAVID format) should be in a Microsoft Excel file.
+The sheeting containging the pathway enrichment results must contain the columns :
+
+- **`Category`**: Enirichment analysis identifier. Must contain keyword *KEGG_PATHWAY* to be processed 
+- **`Term`**: KEGG pathway ID and full name format  `organism code number:name`. Example  `hsa04932:Non-alcoholic fatty liver disease`
+- **`Count`**: Number of genes in the pathway
+- **`PValue`**: Raw pathway p-value 
+- **`Genes`**: Genes in pathway seperated by `, ` (a comma followed by a whitespace)
+- **`Benjamini`**: Adjusted p-values using the Benjamini-Hochberg method
+ 
+ <br>
+
+| Category     | Term              | Count | PValue  | Genes                | Benjamini |
+|--------------|-------------------|-------|---------|----------------------|-----------|
+| KEGG_PATHWAY | mmu00000:Pathway1 | 3     | 0.003   | Gene1, Gene2, Gene3  | 0.04      |
+| KEGG_PATHWAY | mmu99999:Pathway2 | 3     | 0.02    | Gene1, Gene4, Gene5  | 0.06      |
+<br>
+
+In the same file, a different sheet contains the gene/transcript information and has a minimum of two columns, the official gene symbol and the log<sub>2</sub>FC values. Optionally, a column with gene IDs can be also present.
+
+| ID                 | gene_symbol | log<sub>2</sub>FC |
+|--------------------|-------------|-------------------|
+| ENSMUSG00000000001 | Gene1       |-2.45              |
+| ENSMUSG00000000002 | Gene2       | 1.33              |
+| ENSMUSG00000000003 | Gene3       | 0.44              |
+| ENSMUSG00000000004 | Gene4       |-1.16              |
+| ENSMUSG00000000005 | Gene5       | 2.01              |
+<br>
+
+**_NOTE:_**  In the case of `Bulk RNAseq mapping` analysis, the pathway file should only contain the `Term` column.
+
+| Term              |
+|-------------------|
+| mmu00000:Pathway1 |
+| mmu99999:Pathway2 |
+<br>
+
+---
+
+### Metadata files
+
+Metadata files contain a minimum of three columns with the 
+
+- **ID**
+- **Gene Symbol**
+- **P-value**
+
+<br>
+
+Example for methylation metadata
+<br>
+
+| CG_ID  | methylation_gene_symbol  | methylation_pval |
+|--------|--------------------------|------------------|
+| cg_1   | Gene1                    | 0.003            | 
+| cg_2   | Gene2                    | 0.7              | 
+| cg_3   | Gene3                    | 0.04             | 
+<br>
+
+Example for miRNA metadata
+<br>
+
+| miRNA_ID      | miRNA_gene_symbol  | miRNA_pval  |
+|---------------|--------------------|-------------|
+| mmu-miR-1-3p  | Gene1              | 0.01        | 
+| mmu-miR-2-3p  | Gene2              | 0.03        | 
+| mmu-miR-3-3p  | Gene3              | 0.8         | 
+<br>
+---
 
 ### Example Files
 
