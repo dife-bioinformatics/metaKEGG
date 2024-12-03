@@ -563,6 +563,9 @@ async def draw_KEGG_pathways_genes_multiple_interventions_async(parsed_out_list 
     if not common_keys:
         raise ValueError("No common keys found in the list of dictionaries.")
 
+    if len(common_keys) >= 101:
+        raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(common_keys)} pathways. Please adjust your input file or the filtering parameters.")
+
     common_key_dict = {key: [] for key in common_keys}
 
     for d in parsed_out_list:

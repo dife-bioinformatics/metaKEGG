@@ -132,6 +132,8 @@ class PipelineAsync:
                                                     raw_pvalue_threshold=pathway_pvalue_threshold)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
+        elif len(parsed_out) >= 101:
+            raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(parsed_out)} pathways. Please adjust your input file or the filtering parameters.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = await _hf.collect_pathway_info_async(parsed_output=parsed_out)
@@ -180,6 +182,8 @@ class PipelineAsync:
                                                     raw_pvalue_threshold=pathway_pvalue_threshold)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
+        elif len(parsed_out) >= 101:
+            raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(parsed_out)} pathways. Please adjust your input file or the filtering parameters.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = await _hf.collect_pathway_info_async(parsed_output=parsed_out)
@@ -337,6 +341,8 @@ class PipelineAsync:
                                                     raw_pvalue_threshold=pathway_pvalue_threshold)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")
+        elif len(parsed_out) >= 101:
+            raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(parsed_out)} pathways. Please adjust your input file or the filtering parameters.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = await _hf.collect_pathway_info_async(parsed_output=parsed_out)
@@ -415,6 +421,8 @@ class PipelineAsync:
                                                     raw_pvalue_threshold=pathway_pvalue_threshold)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        elif len(parsed_out) >= 101:
+            raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(parsed_out)} pathways. Please adjust your input file or the filtering parameters.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = await _hf.collect_pathway_info_async(parsed_output=parsed_out)
@@ -518,6 +526,8 @@ class PipelineAsync:
                                                     raw_pvalue_threshold=pathway_pvalue_threshold)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        elif len(parsed_out) >= 101:
+            raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(parsed_out)} pathways. Please adjust your input file or the filtering parameters.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = await _hf.collect_pathway_info_async(parsed_output=parsed_out)
@@ -563,6 +573,8 @@ class PipelineAsync:
                                                     log2fc_column=self.log2fc_column)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        elif len(parsed_out) >= 101:
+            raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(parsed_out)} pathways. Please adjust your input file or the filtering parameters.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = await _hf.collect_pathway_info_async(parsed_output=parsed_out)
@@ -647,6 +659,8 @@ class PipelineAsync:
                                                     raw_pvalue_threshold=pathway_pvalue_threshold)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        elif len(parsed_out) >= 101:
+            raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(parsed_out)} pathways. Please adjust your input file or the filtering parameters.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = await _hf.collect_pathway_info_async(parsed_output=parsed_out)
@@ -749,6 +763,8 @@ class PipelineAsync:
                                                     raw_pvalue_threshold=pathway_pvalue_threshold)
         if len(parsed_out) == 0:
             raise ValueError("Could not detect pathways in the input file with the selected default & user settings. Check your input file and/or settings.")        
+        elif len(parsed_out) >= 101:
+            raise ValueError(f"A maximum of 100 pathways can me mapped. You requested {len(parsed_out)} pathways. Please adjust your input file or the filtering parameters.")
         print('Finished parsing input file\n')
         print('Collecting pathway info...')
         pathway_info = await _hf.collect_pathway_info_async(parsed_output=parsed_out)
