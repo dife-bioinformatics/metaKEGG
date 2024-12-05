@@ -371,7 +371,6 @@ This function takes RANseq data, as single input file argument, maps the genes o
 
 ```
 input_file_path = "examples/single_input_bulk.xlsx"
-input_label = "input1"
 genes_column = "gene_symbol"
 log2fc_column = "logFC"
 sheet_name_paths = "pathways"
@@ -450,7 +449,6 @@ This function takes a single input file and a methylation metadata file as argum
 
 ```
 input_file_path = "examples/single_input_genes.xlsx"
-input_label = "input1"
 sheet_name_paths = "pathways"
 sheet_name_genes = "gene_metrics"
 genes_column = "gene_symbol"
@@ -495,7 +493,6 @@ This function takes a single input file and a methylation metadata file as argum
 
 ```
 input_file_path = "examples/single_input_genes.xlsx"
-input_label = "input1"
 sheet_name_paths = "pathways"
 sheet_name_genes = "gene_metrics"
 genes_column = "gene_symbol"
@@ -549,7 +546,6 @@ This function takes a single input file and a miRNA metadata file as arguments a
 
 ```
 input_file_path = "examples/single_input_genes.xlsx"
-input_label = "input1"
 sheet_name_paths = "pathways"
 sheet_name_genes = "gene_metrics"
 genes_column = "gene_symbol"
@@ -594,7 +590,6 @@ This function takes a single input file and a miRNA metadata file as arguments a
 
 ```
 input_file_path = "examples/single_input_genes.xlsx"
-input_label = "input1"
 sheet_name_paths = "pathways"
 sheet_name_genes = "gene_metrics"
 genes_column = "gene_symbol"
@@ -641,7 +636,6 @@ This function takes a single input file, a methylation, and a miRNA metadata fil
 
 ```
 input_file_path = "examples/single_input_genes.xlsx"
-input_label = "input1"
 sheet_name_paths = "pathways"
 sheet_name_genes = "gene_metrics"
 genes_column = "gene_symbol"
