@@ -1,5 +1,5 @@
 [![Stars](https://img.shields.io/github/stars/dife-bioinformatics/metaKEGG?style=flat&logo=GitHub&color=yellow)](https://github.com/dife-bioinformatics/metaKEGG)
-[![PyPI](https://img.shields.io/pypi/v/metaKEGG?logo=PyPI)](https://pypi.org/project/metaKEG)
+[![PyPI](https://img.shields.io/pypi/v/metaKEGG?logo=PyPI)](https://pypi.org/project/metaKEGG)
 
 
 # `metaKEGG`
@@ -162,7 +162,13 @@ In the same file, a different sheet contains the gene/transcript information and
 
 ### Metadata files
 
-Metadata files contain a minimum of three columns with the 
+The accepted file types are:
+
+- **Excel (.xls or .xlsx)**: The file must contain exactly one sheet.
+- **TSV (.tsv)**: Tab-separated value files.
+- **CSV (.csv)**: Comma-separated value files.
+
+Metadata files contain a minimum of three columns:
 
 - **ID**
 - **Gene Symbol**
