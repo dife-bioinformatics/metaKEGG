@@ -195,6 +195,7 @@ Example for miRNA metadata
 | mmu-miR-2-3p  | Gene2              | 0.03        | 
 | mmu-miR-3-3p  | Gene3              | 0.8         | 
 <br>
+
 ---
 
 ### Example Files
