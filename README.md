@@ -317,16 +317,16 @@ folder_extension = None
 import metaKEGG
 
 my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
-                           sheet_name_paths=sheet_name_paths,
-                           sheet_name_genes=sheet_name_genes,
-                           genes_column=genes_column,
-                           log2fc_column=log2fc_column,
-                           save_to_eps=save_to_eps,
-                           folder_extension=folder_extension)
+                                sheet_name_paths=sheet_name_paths,
+                                sheet_name_genes=sheet_name_genes,
+                                genes_column=genes_column,
+                                log2fc_column=log2fc_column,
+                                save_to_eps=save_to_eps,
+                                folder_extension=folder_extension)
 
-my_pipeline.single_input_genes(benjamini_threshold=benjamini_threshold,
-                                count_threshold=count_threshold,
-                                pathway_pvalue_threshold=pathway_pvalue_threshold)
+my_pipeline.gene_expression(benjamini_threshold=benjamini_threshold,
+                            count_threshold=count_threshold,
+                            pathway_pvalue_threshold=pathway_pvalue_threshold)
 
 ```
 
@@ -358,16 +358,16 @@ folder_extension = None
 import metaKEGG
 
 my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
-                           sheet_name_paths=sheet_name_paths,
-                           sheet_name_genes=sheet_name_genes,
-                           genes_column=genes_column,
-                           log2fc_column=log2fc_column,
-                           save_to_eps=save_to_eps,
-                           folder_extension=folder_extension)
+                                sheet_name_paths=sheet_name_paths,
+                                sheet_name_genes=sheet_name_genes,
+                                genes_column=genes_column,
+                                log2fc_column=log2fc_column,
+                                save_to_eps=save_to_eps,
+                                folder_extension=folder_extension)
 
-my_pipeline.single_input_transcripts(benjamini_threshold=benjamini_threshold,
-                                    count_threshold=count_threshold,
-                                    pathway_pvalue_threshold=pathway_pvalue_threshold)
+my_pipeline.transcript_expression(benjamini_threshold=benjamini_threshold,
+                                  count_threshold=count_threshold,
+                                  pathway_pvalue_threshold=pathway_pvalue_threshold)
 ```
 -----
 ### Bulk RNAseq mapping
@@ -391,14 +391,14 @@ folder_extension = None
 ```
 import metaKEGG
 
-my_pipeline = Pipeline(input_file_path=input_file_path,
-                        sheet_name_paths=sheet_name_paths,
-                        sheet_name_genes=sheet_name_genes,
-                        genes_column = genes_column,
-                        log2fc_column=log2fc_column,
-                        save_to_eps=save_to_eps)
+my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
+                                sheet_name_paths=sheet_name_paths,
+                                sheet_name_genes=sheet_name_genes,
+                                genes_column = genes_column,
+                                log2fc_column=log2fc_column,
+                                save_to_eps=save_to_eps)
 
-my_pipeline.single_input_genes_bulk_mapping()
+my_pipeline.bulk_rnaseq_mapping()
 ```
 
 -----
@@ -433,15 +433,15 @@ folder_extension = None
 ```
 import metaKEGG
 
-my_pipeline = Pipeline(input_file_path=input_file_path,
-                        sheet_name_paths=sheet_name_paths,
-                        sheet_name_genes=sheet_name_genes,
-                        genes_column=genes_column,
-                        log2fc_column=log2fc_column,
-                        input_label=input_label,
-                        save_to_eps=save_to_eps)
+my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
+                                sheet_name_paths=sheet_name_paths,
+                                sheet_name_genes=sheet_name_genes,
+                                genes_column=genes_column,
+                                log2fc_column=log2fc_column,
+                                save_to_eps=save_to_eps)
                         
-my_pipeline.multiple_inputs(count_threshold=count_threshold,
+my_pipeline.multiple_inputs(input_label=input_label,
+                            count_threshold=count_threshold,
                             benjamini_threshold=benjamini_threshold,
                             pathway_pvalue_threshold=pathway_pvalue_threshold)
 
@@ -476,20 +476,20 @@ folder_extension = None
 ```
 import metaKEGG
 
-my_pipeline = Pipeline(input_file_path=input_file_path,
-                        sheet_name_paths=sheet_name_paths,
-                        sheet_name_genes=sheet_name_genes,
-                        genes_column=genes_column,
-                        log2fc_column=log2fc_column,
-                        save_to_eps=save_to_eps)
+my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
+                                sheet_name_paths=sheet_name_paths,
+                                sheet_name_genes=sheet_name_genes,
+                                genes_column=genes_column,
+                                log2fc_column=log2fc_column,
+                                save_to_eps=save_to_eps)
 
-my_pipeline.single_input_with_methylation(methylation_file_path=methylation_file_path,
-                                            methylation_genes_column=methylation_genes_column,
-                                            methylation_pvalue_column=methylation_pvalue_column,
-                                            methylation_pvalue_threshold=methylation_pvalue_threshold,
-                                            count_threshold=count_threshold,
-                                            benjamini_threshold=benjamini_threshold,
-                                            pathway_pvalue_threshold=pathway_pvalue_threshold)
+my_pipeline.methylated_genes(methylation_file_path=methylation_file_path,
+                              methylation_genes_column=methylation_genes_column,
+                              methylation_pvalue_column=methylation_pvalue_column,
+                              methylation_pvalue_threshold=methylation_pvalue_threshold,
+                              count_threshold=count_threshold,
+                              benjamini_threshold=benjamini_threshold,
+                              pathway_pvalue_threshold=pathway_pvalue_threshold)
 ```
 -----
 ### DMPs per gene
@@ -522,22 +522,22 @@ folder_extension = None
 ```
 import metaKEGG
 
-my_pipeline = Pipeline(input_file_path=input_file_path,
-                        sheet_name_paths=sheet_name_paths,
-                        sheet_name_genes=sheet_name_genes,
-                        genes_column=genes_column,
-                        log2fc_column=log2fc_column,
-                        save_to_eps=save_to_eps)
+my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
+                                sheet_name_paths=sheet_name_paths,
+                                sheet_name_genes=sheet_name_genes,
+                                genes_column=genes_column,
+                                log2fc_column=log2fc_column,
+                                save_to_eps=save_to_eps)
 
-my_pipeline.single_input_with_methylation_quantification(methylation_file_path=methylation_file_path,
-                                                        methylation_genes_column=methylation_genes_column,
-                                                        methylation_pvalue_column=methylation_pvalue_column,
-                                                        methylation_pvalue_threshold=methylation_pvalue_threshold,
-                                                        methylation_probe_column=methylation_probe_column,
-                                                        probes_to_cgs=probes_to_cgs,
-                                                        count_threshold=count_threshold,
-                                                        benjamini_threshold=benjamini_threshold,
-                                                        pathway_pvalue_threshold=pathway_pvalue_threshold)
+my_pipeline.dmps_per_gene(methylation_file_path=methylation_file_path,
+                          methylation_genes_column=methylation_genes_column,
+                          methylation_pvalue_column=methylation_pvalue_column,
+                          methylation_pvalue_threshold=methylation_pvalue_threshold,
+                          methylation_probe_column=methylation_probe_column,
+                          probes_to_cgs=probes_to_cgs,
+                          count_threshold=count_threshold,
+                          benjamini_threshold=benjamini_threshold,
+                          pathway_pvalue_threshold=pathway_pvalue_threshold)
 ```
 
 ### Probe correction
@@ -573,20 +573,20 @@ folder_extension = None
 ```
 import metaKEGG
 
-my_pipeline = Pipeline(input_file_path=input_file_path,
-                        sheet_name_paths=sheet_name_paths,
-                        sheet_name_genes=sheet_name_genes,
-                        genes_column=genes_column,
-                        log2fc_column=log2fc_column,
-                        save_to_eps=save_to_eps)
+my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
+                                sheet_name_paths=sheet_name_paths,
+                                sheet_name_genes=sheet_name_genes,
+                                genes_column=genes_column,
+                                log2fc_column=log2fc_column,
+                                save_to_eps=save_to_eps)
 
-my_pipeline.single_input_with_miRNA(miRNA_file_path=miRNA_file_path,
-                                    miRNA_genes_column=miRNA_genes_column,
-                                    miRNA_pvalue_column=miRNA_pvalue_column,
-                                    miRNA_pvalue_threshold=miRNA_pvalue_threshold,
-                                    count_threshold=count_threshold,
-                                    benjamini_threshold=benjamini_threshold,
-                                    pathway_pvalue_threshold=pathway_pvalue_threshold)
+my_pipeline.mirna_target_genes(miRNA_file_path=miRNA_file_path,
+                                miRNA_genes_column=miRNA_genes_column,
+                                miRNA_pvalue_column=miRNA_pvalue_column,
+                                miRNA_pvalue_threshold=miRNA_pvalue_threshold,
+                                count_threshold=count_threshold,
+                                benjamini_threshold=benjamini_threshold,
+                                pathway_pvalue_threshold=pathway_pvalue_threshold)
 ```
 ------
 ### DEmiRs per gene
@@ -618,14 +618,14 @@ folder_extension = None
 ```
 import metaKEGG
 
-my_pipeline = Pipeline(input_file_path=input_file_path,
-                        sheet_name_paths=sheet_name_paths,
-                        sheet_name_genes=sheet_name_genes,
-                        genes_column=genes_column,
-                        log2fc_column=log2fc_column,
-                        save_to_eps=save_to_eps)
+my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
+                                sheet_name_paths=sheet_name_paths,
+                                sheet_name_genes=sheet_name_genes,
+                                genes_column=genes_column,
+                                log2fc_column=log2fc_column,
+                                save_to_eps=save_to_eps)
 
-my_pipeline.single_input_with_miRNA_quantification(miRNA_file_path=miRNA_path_quant,
+my_pipeline.demirs_per_gene(miRNA_file_path=miRNA_path_quant,
                                                     miRNA_genes_column=miRNA_genes_column,
                                                     miRNA_pvalue_column=miRNA_pvalue_column,
                                                     miRNA_pvalue_threshold=miRNA_pvalue_threshold,
