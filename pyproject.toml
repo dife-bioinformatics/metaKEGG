@@ -1,6 +1,6 @@
 [project]
 name = "metaKEGG"
-version = "1.0.0"
+version = "1.0.1"
 
 authors = [
   { name="Michail Lazaratos", email="Michail.Lazaratos@dife.de" },
@@ -28,7 +28,8 @@ dependencies = [
   'pytest-asyncio==0.24.0',
   'reportlab==4.2.5',
   'requests==2.32.3',
-  'xlsxwriter==3.2.0'
+  'xlsxwriter==3.2.0',
+  'fsspec==2024.10.0'
 ]
 license = { "text" = "AGPL-3.0" }
 classifiers = [
