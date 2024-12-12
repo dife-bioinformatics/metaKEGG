@@ -94,9 +94,9 @@ class Pipeline:
             output_folder = _hf.create_output_folder(create_folder, self.folder_extension)
         return output_folder
 
-    def single_input_genes(self, benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
+    def gene_expression(self, benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
-        Perform the Single Input Analysis for Gene IDs.
+        Perform the Gene expression pipeline.
 
         Raises:
         TypeError: If the input_file_path is a list, as this analysis expects a single input file.
@@ -112,9 +112,9 @@ class Pipeline:
         - The output files are located in the created output folder.
         """
         if isinstance(self.input_file_path , list):
-            raise TypeError('Please provide a single input to perform \'Single input analysis (Genes)')
+            raise TypeError('Please provide a single input to perform \'Gene expression')
 
-        print("Executing analysis: Single input (Gene IDs)...\n")
+        print("Executing analysis: Gene expression...\n")
         entry_dir = os.getcwd()
         folder_of_input = self.find_file_folder()
 
@@ -143,9 +143,9 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'\nDone! \nOutput files are located in {output_folder}')
 
-    def single_input_transcripts(self, benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
+    def transcript_expression(self, benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
-        Perform the Single Input Analysis for Transcript IDs.
+        Perform the Transcript expression pipeline.
 
         Raises:
         TypeError: If the input_file_path is a list, as this analysis expects a single input file.
@@ -161,9 +161,9 @@ class Pipeline:
         - The output files are located in the created output folder.
         """    
         if isinstance(self.input_file_path , list):
-            raise TypeError('Please provide a single input to perform \'Single input analysis (Transcripts)')
+            raise TypeError('Please provide a single input to perform \'Transcript expression')
         
-        print("Executing analysis: Single input (Transcript IDs)...\n")
+        print("Executing analysis: Transcript expression...\n")
         entry_dir = os.getcwd()
         folder_of_input = self.find_file_folder()
         analysis_extension = 'transcripts'
@@ -193,7 +193,7 @@ class Pipeline:
 
     def multiple_inputs(self, input_label: List[str], benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
-        Perform the Multiple Inputs Analysis.
+        Perform the Multiple Inputs pipeline.
 
         Raises:
         TypeError: If the input_file_path is not a list, if the input_label is not a list,
@@ -270,10 +270,10 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}\n')
 
-    def single_input_with_methylation(self, methylation_file_path: Union[str, Path], methylation_pvalue_column: Optional[str] = None, methylation_pvalue_threshold: Optional[float] = None, methylation_genes_column: str = None,
+    def methylated_genes(self, methylation_file_path: Union[str, Path], methylation_pvalue_column: Optional[str] = None, methylation_pvalue_threshold: Optional[float] = None, methylation_genes_column: str = "methylation_gene_symbol",
                                       benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
-        Perform Single Input Analysis with Methylation.
+        Perform the Methylated genes pipeline.
 
         Raises:
         TypeError: If the input_file_path is a list.
@@ -292,9 +292,9 @@ class Pipeline:
         - The output files are located in the created output folder.
         """
         if isinstance(self.input_file_path , list):
-            raise TypeError('Please provide a single input to perform \'Single input analysis w Methylation')
+            raise TypeError('Please provide a single input to perform \'Methylated genes')
         
-        print("Executing analysis : Single input w Methylation...\n")
+        print("Executing analysis : Methylated genes...\n")
 
         entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()
@@ -348,10 +348,10 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_miRNA(self, miRNA_file_path: Union[str, Path] = None, miRNA_pvalue_column: Optional[str] = None, miRNA_pvalue_threshold: Optional[float] = None, miRNA_genes_column: str = None, 
+    def mirna_target_genes(self, miRNA_file_path: Union[str, Path] = None, miRNA_pvalue_column: Optional[str] = None, miRNA_pvalue_threshold: Optional[float] = None, miRNA_genes_column: str = "miRNA_gene_symbol", 
                                 benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
-        Perform Single Input Analysis with miRNA.
+        Perform the miRNA target genes pipeline.
 
         Raises:
         TypeError: If the input_file_path is a list.
@@ -370,9 +370,9 @@ class Pipeline:
         - The output files are located in the created output folder.
         """
         if isinstance(self.input_file_path , list):
-            raise TypeError('Please provide a single input to perform \'Single input analysis w miRNA')
+            raise TypeError('Please provide a single input to perform \'miRNA target genes')
         
-        print("Executing analysis : Single input w miRNA...\n")
+        print("Executing analysis : miRNA target genes...\n")
 
         entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
@@ -426,11 +426,11 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_methylation_and_miRNA(self, methylation_file_path: Union[str, Path], methylation_pvalue_column: Optional[str] = None, methylation_pvalue_threshold: Optional[float] = None, methylation_genes_column: str = None,
-                                                miRNA_file_path: Union[str, Path] = None, miRNA_pvalue_column: Optional[str] = None, miRNA_pvalue_threshold: Optional[float] = None, miRNA_genes_column: str = None,
+    def methylated_and_mirna_target_genes(self, methylation_file_path: Union[str, Path], methylation_pvalue_column: Optional[str] = None, methylation_pvalue_threshold: Optional[float] = None, methylation_genes_column: str = "methylation_gene_symbol",
+                                                miRNA_file_path: Union[str, Path] = None, miRNA_pvalue_column: Optional[str] = None, miRNA_pvalue_threshold: Optional[float] = None, miRNA_genes_column: str = "miRNA_gene_symbol",
                                                 benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
-        Perform a single input analysis with Methylation and miRNA data.
+        Performs the Methylated + miRNA target genes pipeline.
 
         Raises:
             TypeError: If input_file_path is a list.
@@ -446,9 +446,9 @@ class Pipeline:
             None. Results are saved in the output folder.
         """
         if isinstance(self.input_file_path , list):
-            raise TypeError('Please provide a single input to perform \'Single input analysis w Methylation & miRNA')
+            raise TypeError('Please provide a single input to perform \'Methylated + miRNA target genes')
         
-        print("Executing analysis : Single input w Methylation & miRNA...\n")
+        print("Executing analysis : Methylated + miRNA target genes...\n")
 
         entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
@@ -529,7 +529,7 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_genes_bulk_mapping(self):
+    def bulk_rnaseq_mapping(self):
         """
         Perform a single input analysis with bulk mapping for genes.
 
@@ -544,9 +544,9 @@ class Pipeline:
             None. Results are saved in the output folder.
         """
         if isinstance(self.input_file_path , list):
-            raise TypeError('Please provide a single input to perform \'Single input (Bulk mapping)')
+            raise TypeError('Please provide a single input to perform \'Bulk RNAseq mapping')
 
-        print("Executing analysis : Single input (Bulk mapping)...\n")
+        print("Executing analysis : Bulk RNAseq mapping...\n")
 
         entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
@@ -572,10 +572,10 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_miRNA_quantification(self, miRNA_file_path: Union[str, Path] = None, miRNA_pvalue_column: Optional[str] = None, miRNA_pvalue_threshold: Optional[float] = None, miRNA_genes_column: str = None, miRNA_ID_column: str = None,
+    def demirs_per_gene(self, miRNA_file_path: Union[str, Path] = None, miRNA_pvalue_column: Optional[str] = None, miRNA_pvalue_threshold: Optional[float] = None, miRNA_genes_column: str = "miRNA_gene_symbol", miRNA_ID_column: str = "miRNA_ID",
                                                benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
-        Perform Single Input Analysis with miRNA.
+        Performs the DEmiRs per gene pipeline.
 
         Raises:
         TypeError: If the input_file_path is a list.
@@ -594,9 +594,9 @@ class Pipeline:
         - The output files are located in the created output folder.
         """
         if isinstance(self.input_file_path , list):
-            raise TypeError('Please provide a single input to perform \'Single input analysis w miRNA quantification')
+            raise TypeError('Please provide a single input to perform \'DEmiRs per gene')
         
-        print("Executing analysis : Single input w miRNA quantification...\n")
+        print("Executing analysis : DEmiRs per gene...\n")
 
         entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    
@@ -654,11 +654,11 @@ class Pipeline:
         os.chdir(entry_dir)
         print(f'Done! \nOutput files are located in {output_folder}')
 
-    def single_input_with_methylation_quantification(self, methylation_file_path: Union[str, Path], methylation_pvalue_column: Optional[str] = None, methylation_pvalue_threshold: Optional[float] = None, methylation_genes_column: str = None,
-                                                     probes_to_cgs: Optional[bool] = False, methylation_probe_column: str = None,
+    def dmps_per_gene(self, methylation_file_path: Union[str, Path], methylation_pvalue_column: Optional[str] = None, methylation_pvalue_threshold: Optional[float] = None, methylation_genes_column: str = "methylation_gene_symbol",
+                                                     probes_to_cgs: Optional[bool] = False, methylation_probe_column: str = "CG_ID",
                                                      benjamini_threshold: Optional[float] = None, count_threshold: Optional[int] = 2 , pathway_pvalue_threshold: Optional[float] = None):
         """
-        Perform Single Input Analysis with methylation quantification.
+        Performs the DMPs per gene pipeline.
 
         Raises:
         TypeError: If the input_file_path is a list.
@@ -677,9 +677,9 @@ class Pipeline:
         - The output files are located in the created output folder.
         """
         if isinstance(self.input_file_path , list):
-            raise TypeError('Please provide a single input to perform \'Single input analysis w methylation quantification')
+            raise TypeError('Please provide a single input to perform \'DMPs per gene')
         
-        print("Executing analysis : Single input w methylation quantification...\n")
+        print("Executing analysis : DMPs per gene...\n")
 
         entry_dir = os.getcwd()        
         folder_of_input = self.find_file_folder()    

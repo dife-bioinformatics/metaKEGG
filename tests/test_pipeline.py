@@ -15,7 +15,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_dir)
 
 
-def test_single_input_genes():
+def test_gene_expression():
     input_file_path = input_file_path_g
     my_pipeline = Pipeline(input_file_path=input_file_path,
                            sheet_name_paths=sheet_name_paths,
@@ -24,10 +24,10 @@ def test_single_input_genes():
                            log2fc_column=log2fc_column,
                            save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_genes(benjamini_threshold=benjamini_threshold , count_threshold=count_threshold , pathway_pvalue_threshold=None)
+    my_pipeline.gene_expression(benjamini_threshold=benjamini_threshold , count_threshold=count_threshold , pathway_pvalue_threshold=None)
     os.chdir(current_dir)
 
-def test_single_input_transcripts():
+def test_transcript_expression():
     input_file_path = input_file_path_t
     sheet_name_genes = sheet_name_transcripts
     my_pipeline = Pipeline(input_file_path=input_file_path,
@@ -37,7 +37,7 @@ def test_single_input_transcripts():
                            log2fc_column=log2fc_column,
                            save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_transcripts(benjamini_threshold=benjamini_threshold , count_threshold=count_threshold)
+    my_pipeline.transcript_expression(benjamini_threshold=benjamini_threshold , count_threshold=count_threshold)
     os.chdir(current_dir)
 
 def test_multiple_inputs():
@@ -54,7 +54,7 @@ def test_multiple_inputs():
     my_pipeline.multiple_inputs(input_label=input_label, count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
-def test_single_input_with_methylation():
+def test_methylated_genes():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     my_pipeline = Pipeline(
@@ -65,12 +65,12 @@ def test_single_input_with_methylation():
         log2fc_column=log2fc_column,
         save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_with_methylation(methylation_file_path=methylation_file_path, methylation_genes_column=methylation_genes_column, methylation_pvalue_column=methylation_pvalue_column,
+    my_pipeline.methylated_genes(methylation_file_path=methylation_file_path, methylation_genes_column=methylation_genes_column, methylation_pvalue_column=methylation_pvalue_column,
                                               methylation_pvalue_threshold=methylation_pvalue_threshold,
                                               count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
-def test_single_input_with_miRNA():
+def test_demirs_per_gene():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     my_pipeline = Pipeline(
@@ -81,12 +81,12 @@ def test_single_input_with_miRNA():
         log2fc_column=log2fc_column,
         save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_with_miRNA(miRNA_file_path=miRNA_file_path, miRNA_genes_column=miRNA_genes_column,
+    my_pipeline.demirs_per_gene(miRNA_file_path=miRNA_file_path, miRNA_genes_column=miRNA_genes_column,
                                         miRNA_pvalue_column=miRNA_pvalue_column, miRNA_pvalue_threshold=miRNA_pvalue_threshold,
                                         count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
-def test_single_input_with_methylation_and_miRNA():
+def test_methylated_and_mirna_target_genes():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
 
@@ -98,13 +98,13 @@ def test_single_input_with_methylation_and_miRNA():
         log2fc_column=log2fc_column,
         save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_with_methylation_and_miRNA(methylation_file_path=methylation_file_path ,methylation_genes_column=methylation_genes_column,
+    my_pipeline.methylated_and_mirna_target_genes(methylation_file_path=methylation_file_path ,methylation_genes_column=methylation_genes_column,
                                                         methylation_pvalue_column=methylation_pvalue_column, methylation_pvalue_threshold=methylation_pvalue_threshold,
                                                          miRNA_file_path=miRNA_file_path, miRNA_genes_column=miRNA_genes_column,miRNA_pvalue_column=miRNA_pvalue_column, miRNA_pvalue_threshold=miRNA_pvalue_threshold,
                                                          count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
-def test_single_input_bulk():
+def test_bulk_rnaseq_mapping():
     os.chdir(current_dir)
     input_file_path = input_file_path_bulk
     sheet_name_paths = pathways_sheet_name
@@ -117,7 +117,7 @@ def test_single_input_bulk():
         log2fc_column=log2fc_column,
         save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_genes_bulk_mapping()
+    my_pipeline.bulk_rnaseq_mapping()
     os.chdir(current_dir)
 
 
@@ -132,12 +132,12 @@ def test_output_folder_scheme():
                            output_folder_name=output_folder_name,
                            folder_extension='with_extension')
 
-    my_pipeline.single_input_genes(count_threshold=count_threshold, benjamini_threshold=benjamini_threshold,pathway_pvalue_threshold=None)
+    my_pipeline.gene_expression(count_threshold=count_threshold, benjamini_threshold=benjamini_threshold,pathway_pvalue_threshold=None)
     os.chdir(current_dir)
 
 
     
-def test_single_input_with_miRNA_quantification():
+def test_demirs_per_gene():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     my_pipeline = Pipeline(
@@ -148,13 +148,13 @@ def test_single_input_with_miRNA_quantification():
         log2fc_column=log2fc_column,
         save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_with_miRNA_quantification(miRNA_file_path=miRNA_path_quant, miRNA_genes_column=miRNA_genes_column,
+    my_pipeline.demirs_per_gene(miRNA_file_path=miRNA_path_quant, miRNA_genes_column=miRNA_genes_column,
                                                         miRNA_pvalue_column=miRNA_pvalue_column, miRNA_pvalue_threshold=miRNA_pvalue_threshold,
                                                         miRNA_ID_column=miRNA_column, 
                                                         count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
     
-def test_single_input_with_methylation_quantification():
+def test_dmps_per_gene():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     my_pipeline = Pipeline(
@@ -165,14 +165,14 @@ def test_single_input_with_methylation_quantification():
         log2fc_column=log2fc_column,
         save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_with_methylation_quantification(methylation_file_path=methylation_path_quant, methylation_genes_column=methylation_genes_column,
+    my_pipeline.dmps_per_gene(methylation_file_path=methylation_path_quant, methylation_genes_column=methylation_genes_column,
                                                              methylation_pvalue_column=methylation_pvalue_column, methylation_pvalue_threshold=methylation_pvalue_threshold,
                                                             methylation_probe_column=methylation_probe_column,probes_to_cgs=False,
                                                              count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
 
-def test_single_input_with_methylation_quantification_correct_probes():
+def test_dmps_per_gene_correct_probes():
     os.chdir(current_dir)
     input_file_path = input_file_path_g
     my_pipeline = Pipeline(
@@ -183,13 +183,13 @@ def test_single_input_with_methylation_quantification_correct_probes():
         log2fc_column=log2fc_column,
         save_to_eps=save_to_eps)
 
-    my_pipeline.single_input_with_methylation_quantification(methylation_file_path=methylation_path_quant, methylation_genes_column=methylation_genes_column,
+    my_pipeline.dmps_per_gene(methylation_file_path=methylation_path_quant, methylation_genes_column=methylation_genes_column,
                                                              methylation_pvalue_column=methylation_pvalue_column, methylation_pvalue_threshold=methylation_pvalue_threshold,
                                                             methylation_probe_column=methylation_probe_column,probes_to_cgs=True,
                                                              count_threshold=count_threshold, benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
 
-def test_single_input_genes_with_compounds():
+def test_gene_expression_with_compounds():
     my_pipeline = Pipeline(input_file_path=input_file_path_g,
                            sheet_name_paths=sheet_name_paths,
                            sheet_name_genes=sheet_name_genes,
@@ -198,5 +198,5 @@ def test_single_input_genes_with_compounds():
                            save_to_eps=True,
                            compounds_list=['C00031' , 'C00162'] , folder_extension='compounds')
 
-    my_pipeline.single_input_genes(count_threshold=1 , benjamini_threshold=benjamini_threshold)
+    my_pipeline.gene_expression(count_threshold=1 , benjamini_threshold=benjamini_threshold)
     os.chdir(current_dir)
