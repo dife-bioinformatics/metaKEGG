@@ -25,7 +25,7 @@ metaKEGG is a fully integrated solution with class-leading features to visualize
     - [Transcript expression](#transcript-expression)
     - [Bulk RNAseq mapping](#bulk-rnaseq-mapping)
     - [Multiple inputs](#multiple-inputs)
-    - [Methylated genes](#methylated-genes)
+    - [Differentially methylated genes](#differentially-methylated-genes)
     - [DMPs per gene](#dmps-per-genes)
         - [Probe correction](#probe-correction)
     - [miRNA target genes](#mirna-target-genes)
@@ -210,7 +210,7 @@ In the `/examples` directory, you can find example files to perform all analysis
 2. **Transcript expression**  
 3. **Bulk RNAseq mapping**  
 4. **Multiple inputs**  
-5. **Methylated genes**  
+5. **Differentially methylated genes**  
 6. **DMPs per gene**  
 7. **miRNA target genes**  
 8. **DEmiRs per gene**  
@@ -447,7 +447,7 @@ my_pipeline.multiple_inputs(input_label=input_label,
 
 ```
 -----
-### Methylated genes
+### Differentially methylated genes
 
 This function takes a single input file and a methylation metadata file as arguments and maps the detected genes on the enriched KEGG reference pathway, and colors them according to their methylation state. The state is defined as a binary reprsentation, depending if DMPs corresponding to a given gene are detected, or not.
 
