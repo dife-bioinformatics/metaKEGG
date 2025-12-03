@@ -8,6 +8,7 @@ metaKEGG is a fully integrated solution with class-leading features to visualize
 
 ## Table of Contents
 - [Disclaimer](#disclaimer)
+- [Web application](#web-application)
 - [Installing metaKEGG](#installing-metakegg)
     - [Environment preparation](#environment-preparation)
     - [Install from PyPI](#install-from-pypi)
@@ -43,6 +44,14 @@ You should have received a copy of the GNU Affero General Public License along w
 program. If not, see [GNU Affero General Public License](https://www.gnu.org/licenses/#AGPL).
 
 Author: Michail Lazaratos, Deutsches Institut für Ernährungsforschung Potsdam-Rehbrücke / German Institute of Human Nutrition Potsdam-Rehbrücke (DIfE)
+
+## Web application
+
+You can perform all analyses pipelines graphically through our [metaKEGG web application](https://metakegg.apps.dzd-ev.org/).
+
+You can check out the metaKEGG web-wrapper project [here](https://github.com/DZD-eV-Diabetes-Research/meta-kegg-web-wrapper).
+
+
 
 ## Installing metaKEGG
 
@@ -484,12 +493,12 @@ my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
                                 save_to_eps=save_to_eps)
 
 my_pipeline.methylated_genes(methylation_file_path=methylation_file_path,
-                              methylation_genes_column=methylation_genes_column,
-                              methylation_pvalue_column=methylation_pvalue_column,
-                              methylation_pvalue_threshold=methylation_pvalue_threshold,
-                              count_threshold=count_threshold,
-                              benjamini_threshold=benjamini_threshold,
-                              pathway_pvalue_threshold=pathway_pvalue_threshold)
+                             methylation_genes_column=methylation_genes_column,
+                             methylation_pvalue_column=methylation_pvalue_column,
+                             methylation_pvalue_threshold=methylation_pvalue_threshold,
+                             count_threshold=count_threshold,
+                             benjamini_threshold=benjamini_threshold,
+                             pathway_pvalue_threshold=pathway_pvalue_threshold)
 ```
 -----
 ### DMPs per gene
@@ -581,12 +590,12 @@ my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
                                 save_to_eps=save_to_eps)
 
 my_pipeline.mirna_target_genes(miRNA_file_path=miRNA_file_path,
-                                miRNA_genes_column=miRNA_genes_column,
-                                miRNA_pvalue_column=miRNA_pvalue_column,
-                                miRNA_pvalue_threshold=miRNA_pvalue_threshold,
-                                count_threshold=count_threshold,
-                                benjamini_threshold=benjamini_threshold,
-                                pathway_pvalue_threshold=pathway_pvalue_threshold)
+                               miRNA_genes_column=miRNA_genes_column,
+                               miRNA_pvalue_column=miRNA_pvalue_column,
+                               miRNA_pvalue_threshold=miRNA_pvalue_threshold,
+                               count_threshold=count_threshold,
+                               benjamini_threshold=benjamini_threshold,
+                               pathway_pvalue_threshold=pathway_pvalue_threshold)
 ```
 ------
 ### DEmiRs per gene
@@ -625,14 +634,14 @@ my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
                                 log2fc_column=log2fc_column,
                                 save_to_eps=save_to_eps)
 
-my_pipeline.demirs_per_gene(miRNA_file_path=miRNA_path_quant,
-                                                    miRNA_genes_column=miRNA_genes_column,
-                                                    miRNA_pvalue_column=miRNA_pvalue_column,
-                                                    miRNA_pvalue_threshold=miRNA_pvalue_threshold,
-                                                    miRNA_ID_column=miRNA_column, 
-                                                    count_threshold=count_threshold,
-                                                    benjamini_threshold=benjamini_threshold,
-                                                    pathway_pvalue_threshold=pathway_pvalue_threshold)
+my_pipeline.demirs_per_gene(miRNA_file_path=miRNA_file_path,
+                            miRNA_genes_column=miRNA_genes_column,
+                            miRNA_pvalue_column=miRNA_pvalue_column,
+                            miRNA_pvalue_threshold=miRNA_pvalue_threshold,
+                            miRNA_ID_column=miRNA_column, 
+                            count_threshold=count_threshold,
+                            benjamini_threshold=benjamini_threshold,
+                            pathway_pvalue_threshold=pathway_pvalue_threshold)
 ```
 -------
 ### Methylated + miRNA target genes
@@ -667,23 +676,23 @@ folder_extension = None
 ```
 import metaKEGG
 
-my_pipeline = Pipeline(input_file_path=input_file_path,
+my_pipeline = metaKEGG.Pipeline(input_file_path=input_file_path,
                         sheet_name_paths=sheet_name_paths,
                         sheet_name_genes=sheet_name_genes,
                         genes_column=genes_column,
                         log2fc_column=log2fc_column,
                         save_to_eps=save_to_eps)
 
-my_pipeline.single_input_with_methylation_and_miRNA(methylation_file_path=methylation_file_path,
-                                                    methylation_genes_column=methylation_genes_column,
-                                                    methylation_pvalue_column=methylation_pvalue_column,
-                                                    methylation_pvalue_threshold=methylation_pvalue_threshold,
-                                                    miRNA_file_path=miRNA_file_path,
-                                                    miRNA_genes_column=miRNA_genes_column,
-                                                    miRNA_pvalue_column=miRNA_pvalue_column,
-                                                    miRNA_pvalue_threshold=miRNA_pvalue_threshold,
-                                                    count_threshold=count_threshold,
-                                                    benjamini_threshold=benjamini_threshold,
-                                                    pathway_pvalue_threshold=pathway_pvalue_threshold)
+my_pipeline.methylated_and_mirna_target_genes(methylation_file_path=methylation_file_path,
+                                              methylation_genes_column=methylation_genes_column,
+                                              methylation_pvalue_column=methylation_pvalue_column,
+                                              methylation_pvalue_threshold=methylation_pvalue_threshold,
+                                              miRNA_file_path=miRNA_file_path,
+                                              miRNA_genes_column=miRNA_genes_column,
+                                              miRNA_pvalue_column=miRNA_pvalue_column,
+                                              miRNA_pvalue_threshold=miRNA_pvalue_threshold,
+                                              count_threshold=count_threshold,
+                                              benjamini_threshold=benjamini_threshold,
+                                              pathway_pvalue_threshold=pathway_pvalue_threshold)
 ```
 -----
